@@ -1,14 +1,6 @@
-import { createClient } from '@supabase/supabase-js';
+import { supabase } from "@/integrations/supabase/client";
 
-// These variables are populated when you link Supabase via the UI button
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
-const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
-
-// Use placeholders to prevent the "supabaseUrl is required" crash if not yet connected
-export const supabase = createClient(
-  supabaseUrl || 'https://placeholder.supabase.co',
-  supabaseAnonKey || 'placeholder'
-);
+export { supabase };
 
 export type Patient = {
   id: string;
