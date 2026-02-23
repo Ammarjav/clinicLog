@@ -13,7 +13,7 @@ import { toast } from 'sonner';
 import { Loader2, PlusCircle } from 'lucide-react';
 
 const formSchema = z.object({
-  name: z.string().optional(),
+  name: z.string().default(''),
   age: z.coerce.number().min(0, "Age must be positive").max(120),
   gender: z.enum(['Male', 'Female', 'Other']),
   diagnosis: z.string().min(1, "Diagnosis is required"),
@@ -28,7 +28,7 @@ const PatientEntryForm = () => {
     resolver: zodResolver(formSchema),
     defaultValues: {
       name: '',
-      age: undefined,
+      age: 0,
       gender: 'Male',
       diagnosis: '',
       visit_type: 'New',
@@ -37,15 +37,21 @@ const PatientEntryForm = () => {
   });
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
+    // If name is empty, we send null to the DB
+    const submissionData = {
+      ...values,
+      name: values.name.trim() === '' ? null : values.name
+    };
+
     try {
-      const { error } = await supabase.from('patients').insert([values]);
+      const { error } = await supabase.from('patients').insert([submissionData]);
       if (error) throw error;
       
       toast.success("Patient recorded successfully");
       form.reset({
         ...form.getValues(),
         name: '',
-        age: undefined,
+        age: 0,
       });
     } catch (error: any) {
       toast.error("Failed to save: " + error.message);
@@ -74,7 +80,7 @@ const PatientEntryForm = () => {
                 <FormItem>
                   <FormLabel>Patient Name (Optional)</FormLabel>
                   <FormControl>
-                    <Input placeholder="John Doe" className="rounded-xl h-12" {...field} />
+                    <Input placeholder="John Doe" className="rounded-xl h-12" {...field} value={field.value || ''} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
