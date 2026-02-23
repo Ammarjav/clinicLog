@@ -39,11 +39,11 @@ const Login = () => {
     <div className="min-h-screen bg-white flex items-center justify-center p-6 relative">
       <Button 
         variant="ghost" 
+        size="icon"
         onClick={() => navigate('/')} 
-        className="absolute top-6 left-6 md:top-8 md:left-8 rounded-xl text-gray-500 hover:text-gray-900 hover:bg-gray-50"
+        className="absolute top-4 left-4 md:top-6 md:left-6 rounded-full text-gray-400 hover:text-gray-900 hover:bg-gray-100 transition-colors"
       >
-        <ArrowLeft className="w-4 h-4 mr-2" />
-        Back to Clinic
+        <ArrowLeft className="w-5 h-5" />
       </Button>
 
       <div className="w-full max-w-md">
