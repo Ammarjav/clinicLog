@@ -10,7 +10,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { toast } from 'sonner';
-import { Activity, Loader2 } from 'lucide-react';
+import { Activity, Loader2, ArrowLeft } from 'lucide-react';
 
 const loginSchema = z.object({
   email: z.string().email(),
@@ -36,7 +36,16 @@ const Login = () => {
   };
 
   return (
-    <div className="min-h-screen bg-white flex items-center justify-center p-6">
+    <div className="min-h-screen bg-white flex items-center justify-center p-6 relative">
+      <Button 
+        variant="ghost" 
+        onClick={() => navigate('/')} 
+        className="absolute top-6 left-6 md:top-8 md:left-8 rounded-xl text-gray-500 hover:text-gray-900 hover:bg-gray-50"
+      >
+        <ArrowLeft className="w-4 h-4 mr-2" />
+        Back to Clinic
+      </Button>
+
       <div className="w-full max-w-md">
         <div className="flex flex-col items-center mb-8">
           <div className="bg-blue-600 p-3 rounded-2xl mb-4 shadow-lg shadow-blue-200">
