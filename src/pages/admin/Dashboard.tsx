@@ -6,6 +6,7 @@ import { supabase } from '@/lib/supabase';
 import StatCards from '@/components/dashboard/StatCards';
 import Charts from '@/components/dashboard/Charts';
 import PatientTable from '@/components/dashboard/PatientTable';
+import EditPatientForm from '@/components/forms/EditPatientForm';
 import { Button } from '@/components/ui/button';
 import { LogOut, LayoutDashboard, RefreshCcw } from 'lucide-react';
 import { toast } from 'sonner';
@@ -19,12 +20,20 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import {
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetHeader,
+  SheetTitle,
+} from "@/components/ui/sheet";
 
 const Dashboard = () => {
   const navigate = useNavigate();
   const [patients, setPatients] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [deleteId, setDeleteId] = useState<string | null>(null);
+  const [editPatient, setEditPatient] = useState<any | null>(null);
 
   const fetchPatients = async () => {
     setLoading(true);
@@ -97,11 +106,34 @@ const Dashboard = () => {
         <Charts data={patients} />
         <PatientTable 
           patients={patients} 
-          onEdit={(p) => toast.info("Edit feature: " + p.name)} 
+          onEdit={(p) => setEditPatient(p)} 
           onDelete={(id) => setDeleteId(id)} 
         />
       </main>
 
+      {/* Edit Patient Side Sheet */}
+      <Sheet open={!!editPatient} onOpenChange={(open) => !open && setEditPatient(null)}>
+        <SheetContent className="sm:max-w-md rounded-l-[2.5rem] border-none shadow-2xl">
+          <SheetHeader className="pb-4 border-b border-gray-50">
+            <SheetTitle className="text-2xl font-bold">Edit Patient Entry</SheetTitle>
+            <SheetDescription>
+              Modify the details of the selected patient record.
+            </SheetDescription>
+          </SheetHeader>
+          {editPatient && (
+            <EditPatientForm 
+              patient={editPatient} 
+              onCancel={() => setEditPatient(null)}
+              onSuccess={() => {
+                setEditPatient(null);
+                fetchPatients();
+              }}
+            />
+          )}
+        </SheetContent>
+      </Sheet>
+
+      {/* Delete Confirmation Alert */}
       <AlertDialog open={!!deleteId} onOpenChange={(open) => !open && setDeleteId(null)}>
         <AlertDialogContent className="rounded-[2rem] border-none">
           <AlertDialogHeader>
