@@ -9,11 +9,22 @@ import PatientTable from '@/components/dashboard/PatientTable';
 import { Button } from '@/components/ui/button';
 import { LogOut, LayoutDashboard, RefreshCcw } from 'lucide-react';
 import { toast } from 'sonner';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 const Dashboard = () => {
   const navigate = useNavigate();
   const [patients, setPatients] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [deleteId, setDeleteId] = useState<string | null>(null);
 
   const fetchPatients = async () => {
     setLoading(true);
@@ -47,14 +58,18 @@ const Dashboard = () => {
     navigate('/admin/login');
   };
 
-  const handleDelete = async (id: string) => {
-    if (!confirm("Are you sure? This action is permanent.")) return;
-    const { error } = await supabase.from('patients').delete().eq('id', id);
-    if (error) toast.error(error.message);
-    else {
-      toast.success("Record deleted");
-      setPatients(patients.filter(p => p.id !== id));
+  const confirmDelete = async () => {
+    if (!deleteId) return;
+    
+    const { error } = await supabase.from('patients').delete().eq('id', deleteId);
+    
+    if (error) {
+      toast.error(error.message);
+    } else {
+      toast.success("Record deleted successfully");
+      setPatients(patients.filter(p => p.id !== deleteId));
     }
+    setDeleteId(null);
   };
 
   return (
@@ -83,9 +98,29 @@ const Dashboard = () => {
         <PatientTable 
           patients={patients} 
           onEdit={(p) => toast.info("Edit feature: " + p.name)} 
-          onDelete={handleDelete} 
+          onDelete={(id) => setDeleteId(id)} 
         />
       </main>
+
+      <AlertDialog open={!!deleteId} onOpenChange={(open) => !open && setDeleteId(null)}>
+        <AlertDialogContent className="rounded-[2rem] border-none">
+          <AlertDialogHeader>
+            <AlertDialogTitle className="text-xl font-bold">Are you absolutely sure?</AlertDialogTitle>
+            <AlertDialogDescription className="text-gray-500">
+              This action cannot be undone. This will permanently delete the patient record from the database.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter className="gap-2 sm:gap-0">
+            <AlertDialogCancel className="rounded-xl border-gray-100 hover:bg-gray-50">Cancel</AlertDialogCancel>
+            <AlertDialogAction 
+              onClick={confirmDelete}
+              className="rounded-xl bg-red-600 hover:bg-red-700 text-white"
+            >
+              Delete Record
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };
