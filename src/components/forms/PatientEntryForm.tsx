@@ -11,6 +11,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { toast } from 'sonner';
 import { Loader2, PlusCircle } from 'lucide-react';
+import DiagnosisInput from './DiagnosisInput';
 
 const formSchema = z.object({
   name: z.string().default(''),
@@ -20,8 +21,6 @@ const formSchema = z.object({
   visit_type: z.enum(['New', 'Follow-up']),
   visit_date: z.string().min(1, "Date is required"),
 });
-
-const DIAGNOSES = ["Flu", "Hypertension", "Diabetes", "Injury", "Skin Infection", "Cough/Cold", "Other"];
 
 const PatientEntryForm = () => {
   const form = useForm<z.infer<typeof formSchema>>({
@@ -37,7 +36,6 @@ const PatientEntryForm = () => {
   });
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
-    // If name is empty, we send null to the DB
     const submissionData = {
       ...values,
       name: values.name.trim() === '' ? null : values.name
@@ -52,6 +50,7 @@ const PatientEntryForm = () => {
         ...form.getValues(),
         name: '',
         age: 0,
+        diagnosis: '',
       });
     } catch (error: any) {
       toast.error("Failed to save: " + error.message);
@@ -153,18 +152,13 @@ const PatientEntryForm = () => {
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Diagnosis</FormLabel>
-                <Select onValueChange={field.onChange} defaultValue={field.value}>
-                  <FormControl>
-                    <SelectTrigger className="rounded-xl h-12">
-                      <SelectValue placeholder="Select Diagnosis" />
-                    </SelectTrigger>
-                  </FormControl>
-                  <SelectContent className="rounded-xl">
-                    {DIAGNOSES.map(d => (
-                      <SelectItem key={d} value={d}>{d}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                <FormControl>
+                  <DiagnosisInput 
+                    value={field.value} 
+                    onChange={field.onChange} 
+                    placeholder="Enter or select diagnosis..." 
+                  />
+                </FormControl>
                 <FormMessage />
               </FormItem>
             )}
