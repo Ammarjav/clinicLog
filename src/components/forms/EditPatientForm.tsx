@@ -11,6 +11,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { toast } from 'sonner';
 import { Loader2, Save } from 'lucide-react';
+import DiagnosisInput from './DiagnosisInput';
 
 const formSchema = z.object({
   name: z.string().nullable().transform(val => val === '' ? null : val),
@@ -20,8 +21,6 @@ const formSchema = z.object({
   visit_type: z.enum(['New', 'Follow-up']),
   visit_date: z.string().min(1, "Date is required"),
 });
-
-const DIAGNOSES = ["Flu", "Hypertension", "Diabetes", "Injury", "Skin Infection", "Cough/Cold", "Other"];
 
 interface EditPatientFormProps {
   patient: any;
@@ -156,18 +155,13 @@ const EditPatientForm = ({ patient, onSuccess, onCancel }: EditPatientFormProps)
           render={({ field }) => (
             <FormItem>
               <FormLabel>Diagnosis</FormLabel>
-              <Select onValueChange={field.onChange} defaultValue={field.value}>
-                <FormControl>
-                  <SelectTrigger className="rounded-xl h-12">
-                    <SelectValue placeholder="Select Diagnosis" />
-                  </SelectTrigger>
-                </FormControl>
-                <SelectContent className="rounded-xl">
-                  {DIAGNOSES.map(d => (
-                    <SelectItem key={d} value={d}>{d}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              <FormControl>
+                <DiagnosisInput 
+                  value={field.value} 
+                  onChange={field.onChange} 
+                  placeholder="Enter or select diagnosis..." 
+                />
+              </FormControl>
               <FormMessage />
             </FormItem>
           )}
