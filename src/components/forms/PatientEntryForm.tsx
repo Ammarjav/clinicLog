@@ -78,9 +78,9 @@ const PatientEntryForm = () => {
               name="name"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Patient Name (Optional)</FormLabel>
+                  <FormLabel>Patient Name</FormLabel>
                   <FormControl>
-                    <Input placeholder="John Doe" className="rounded-xl h-12" {...field} value={field.value || ''} />
+                    <Input placeholder="Full Name" className="rounded-xl h-12" {...field} value={field.value || ''} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
