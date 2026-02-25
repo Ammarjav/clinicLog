@@ -10,7 +10,8 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { toast } from 'sonner';
-import { Activity, Loader2, ArrowLeft } from 'lucide-react';
+import { Loader2, ArrowLeft } from 'lucide-react';
+import Logo from '@/components/Logo';
 
 const loginSchema = z.object({
   email: z.string().email(),
@@ -37,7 +38,6 @@ const Login = () => {
 
   return (
     <div className="min-h-screen bg-white flex items-center justify-center p-6 relative">
-      {/* Simple back arrow */}
       <button 
         onClick={() => navigate('/')} 
         className="absolute top-8 left-8 text-gray-400 hover:text-blue-600 transition-colors focus:outline-none"
@@ -48,9 +48,7 @@ const Login = () => {
 
       <div className="w-full max-w-md">
         <div className="flex flex-col items-center mb-8">
-          <div className="bg-blue-600 p-3 rounded-2xl mb-4 shadow-lg shadow-blue-200">
-            <Activity className="w-8 h-8 text-white" />
-          </div>
+          <Logo className="w-16 h-16 mb-4" />
           <h1 className="text-3xl font-bold text-gray-900">Admin Portal</h1>
           <p className="text-gray-500 mt-2">Sign in to manage patient reports</p>
         </div>

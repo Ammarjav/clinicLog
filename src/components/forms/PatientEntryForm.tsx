@@ -10,8 +10,9 @@ import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { toast } from 'sonner';
-import { Loader2, PlusCircle } from 'lucide-react';
+import { Loader2 } from 'lucide-react';
 import DiagnosisInput from './DiagnosisInput';
+import Logo from '@/components/Logo';
 
 const formSchema = z.object({
   name: z.string().default(''),
@@ -59,10 +60,8 @@ const PatientEntryForm = () => {
 
   return (
     <div className="max-w-2xl mx-auto p-8 bg-white rounded-[2rem] shadow-xl border border-gray-100">
-      <div className="flex items-center gap-3 mb-8">
-        <div className="p-3 bg-blue-50 rounded-2xl">
-          <PlusCircle className="w-6 h-6 text-blue-600" />
-        </div>
+      <div className="flex items-center gap-4 mb-8">
+        <Logo className="w-12 h-12" iconClassName="p-2" />
         <div>
           <h1 className="text-2xl font-bold text-gray-900 tracking-tight">Quick Patient Entry</h1>
           <p className="text-gray-500 text-sm">Fill in demographic data for rapid submission</p>
