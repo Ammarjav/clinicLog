@@ -1,7 +1,7 @@
 "use client";
 
 import React from 'react';
-import { Search, Calendar as CalendarIcon, X } from 'lucide-react';
+import { Search, Calendar as CalendarIcon } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
@@ -93,12 +93,10 @@ const DashboardFilters = ({ filters, onFilterChange, onReset }: DashboardFilters
 
         <Button 
           variant="ghost" 
-          size="icon" 
           onClick={onReset}
-          className="rounded-xl hover:bg-gray-100 text-gray-400"
-          title="Reset Filters"
+          className="rounded-xl hover:bg-red-50 text-red-500 hover:text-red-600 font-medium text-sm transition-colors"
         >
-          <X className="w-4 h-4" />
+          Reset Filters
         </Button>
       </div>
     </div>

@@ -1,3 +1,5 @@
+"use client";
+
 import React from 'react';
 import { PieChart, Pie, Cell, ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip, CartesianGrid, LineChart, Line, Legend } from 'recharts';
 import { Card } from '@/components/ui/card';
@@ -9,13 +11,14 @@ interface ChartsProps {
 const COLORS = ['#3b82f6', '#6366f1', '#ec4899', '#f59e0b', '#10b981'];
 
 const Charts = ({ data }: ChartsProps) => {
-  // Age Groups Logic
-  const ageGroups = { '0-18': 0, '19-40': 0, '41-60': 0, '60+': 0 };
+  // Age Groups Logic with custom ranges
+  const ageGroups = { '0-5': 0, '6-15': 0, '16-50': 0, '50+': 0 };
   data.forEach(p => {
-    if (p.age <= 18) ageGroups['0-18']++;
-    else if (p.age <= 40) ageGroups['19-40']++;
-    else if (p.age <= 60) ageGroups['41-60']++;
-    else ageGroups['60+']++;
+    const age = parseInt(p.age);
+    if (age <= 5) ageGroups['0-5']++;
+    else if (age <= 15) ageGroups['6-15']++;
+    else if (age <= 50) ageGroups['16-50']++;
+    else ageGroups['50+']++;
   });
   const ageData = Object.entries(ageGroups).map(([name, value]) => ({ name, value }));
 
