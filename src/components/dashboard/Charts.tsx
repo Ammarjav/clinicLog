@@ -11,9 +11,7 @@ interface ChartsProps {
 const COLORS = ['#3b82f6', '#6366f1', '#ec4899', '#f59e0b', '#10b981'];
 
 const Charts = ({ data }: ChartsProps) => {
-  // Age Groups Logic with all 4 categories always present
   const ageGroups = { '0-5': 0, '6-15': 0, '16-50': 0, '50+': 0 };
-  
   data.forEach(p => {
     const age = parseInt(p.age);
     if (age <= 5) ageGroups['0-5']++;
@@ -21,146 +19,78 @@ const Charts = ({ data }: ChartsProps) => {
     else if (age <= 50) ageGroups['16-50']++;
     else ageGroups['50+']++;
   });
-
   const ageData = Object.entries(ageGroups).map(([name, value]) => ({ name, value }));
 
-  // Diagnosis Distribution (Top 10)
+  // Diagnosis Distribution - Grouped Case-Insensitively
   const diagGroups: Record<string, number> = {};
+  const diagCasing: Record<string, string> = {};
+
   data.forEach(p => {
     if (p.diagnosis) {
-      diagGroups[p.diagnosis] = (diagGroups[p.diagnosis] || 0) + 1;
+      const original = p.diagnosis.trim();
+      const key = original.toLowerCase();
+      diagGroups[key] = (diagGroups[key] || 0) + 1;
+      if (!diagCasing[key]) diagCasing[key] = original;
     }
   });
   
   const diagData = Object.entries(diagGroups)
-    .map(([name, value]) => ({ name, value }))
+    .map(([key, value]) => ({ name: diagCasing[key], value }))
     .sort((a, b) => b.value - a.value)
     .slice(0, 10);
 
-  // Daily Trend
   const trendGroups: Record<string, number> = {};
   data.forEach(p => {
     trendGroups[p.visit_date] = (trendGroups[p.visit_date] || 0) + 1;
   });
-  
   const trendData = Object.entries(trendGroups)
     .map(([date, count]) => ({ date, count }))
     .sort((a, b) => a.date.localeCompare(b.date));
 
-  // Custom label to move percentages even closer
-  const renderCustomizedLabel = ({ cx, cy, midAngle, outerRadius, percent, value }: any) => {
-    if (value === 0) return null;
-    const RADIAN = Math.PI / 180;
-    // Moved even closer (from +12 to +2) to keep labels tight to the chart
-    const radius = outerRadius + 2; 
-    const x = cx + radius * Math.cos(-midAngle * RADIAN);
-    const y = cy + radius * Math.sin(-midAngle * RADIAN);
-
-    return (
-      <text 
-        x={x} 
-        y={y} 
-        fill="#4b5563" 
-        textAnchor={x > cx ? 'start' : 'end'} 
-        dominantBaseline="central" 
-        className="text-[11px] font-bold"
-      >
-        {`${(percent * 100).toFixed(0)}%`}
-      </text>
-    );
-  };
-
   return (
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
-      {/* Age Distribution */}
       <Card className="p-6 border-none shadow-sm rounded-3xl bg-white">
         <h3 className="text-lg font-bold text-gray-900 mb-6">Age Group Distribution</h3>
         <div className="h-[300px]">
           <ResponsiveContainer width="100%" height="100%">
             <PieChart>
-              <Pie 
-                data={ageData} 
-                innerRadius={60} 
-                outerRadius={80} 
-                paddingAngle={5} 
-                dataKey="value"
-                labelLine={false}
-                label={renderCustomizedLabel}
-              >
-                {ageData.map((_, index) => (
-                  <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                ))}
+              <Pie data={ageData} innerRadius={60} outerRadius={80} paddingAngle={5} dataKey="value">
+                {ageData.map((_, index) => <Cell key={index} fill={COLORS[index % COLORS.length]} />)}
               </Pie>
-              <Tooltip formatter={(value: number) => [value, 'Patients']} />
+              <Tooltip />
               <Legend verticalAlign="bottom" height={36}/>
             </PieChart>
           </ResponsiveContainer>
         </div>
       </Card>
 
-      {/* Visit Trend */}
       <Card className="p-6 border-none shadow-sm rounded-3xl bg-white">
         <h3 className="text-lg font-bold text-gray-900 mb-6">Patient Visit Trend</h3>
         <div className="h-[300px]">
-          {trendData.length > 0 ? (
-            <ResponsiveContainer width="100%" height="100%">
-              <LineChart data={trendData}>
-                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f0f0f0" />
-                <XAxis 
-                  dataKey="date" 
-                  tick={{ fontSize: 12 }} 
-                  tickFormatter={(str) => new Date(str).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}
-                />
-                <YAxis tick={{ fontSize: 12 }} />
-                <Tooltip />
-                <Line 
-                  type="monotone" 
-                  dataKey="count" 
-                  stroke="#3b82f6" 
-                  strokeWidth={3} 
-                  dot={{ r: 4, fill: '#3b82f6', strokeWidth: 2, stroke: '#fff' }} 
-                  activeDot={{ r: 6 }}
-                />
-              </LineChart>
-            </ResponsiveContainer>
-          ) : (
-            <div className="h-full flex items-center justify-center text-gray-400 text-sm">
-              No trend data available
-            </div>
-          )}
+          <ResponsiveContainer width="100%" height="100%">
+            <LineChart data={trendData}>
+              <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f0f0f0" />
+              <XAxis dataKey="date" tickFormatter={(str) => new Date(str).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })} />
+              <YAxis />
+              <Tooltip />
+              <Line type="monotone" dataKey="count" stroke="#3b82f6" strokeWidth={3} dot={{ r: 4 }} />
+            </LineChart>
+          </ResponsiveContainer>
         </div>
       </Card>
 
-      {/* Top Diagnoses */}
       <Card className="p-6 border-none shadow-sm rounded-3xl bg-white lg:col-span-2">
-        <h3 className="text-lg font-bold text-gray-900 mb-6">Top Diagnoses</h3>
+        <h3 className="text-lg font-bold text-gray-900 mb-6">Top Diagnoses (Normalized)</h3>
         <div className="h-[350px]">
-          {diagData.length > 0 ? (
-            <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={diagData} layout="vertical" margin={{ left: 40, right: 40 }}>
-                <CartesianGrid strokeDasharray="3 3" horizontal={true} vertical={false} stroke="#f0f0f0" />
-                <XAxis type="number" hide />
-                <YAxis 
-                  dataKey="name" 
-                  type="category" 
-                  width={120} 
-                  tick={{ fontSize: 11 }} 
-                />
-                <Tooltip cursor={{ fill: '#f8fafc' }} />
-                <Bar 
-                  dataKey="value" 
-                  fill="#6366f1" 
-                  radius={[0, 4, 4, 0]} 
-                  barSize={20} 
-                  label={{ position: 'right', fontSize: 11, fill: '#64748b' }}
-                />
-              </BarChart>
-            </ResponsiveContainer>
-          ) : (
-            <div className="h-full flex items-center justify-center text-gray-400 text-sm">
-              No diagnosis data available
-            </div>
-          )}
+          <ResponsiveContainer width="100%" height="100%">
+            <BarChart data={diagData} layout="vertical">
+              <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f0f0f0" />
+              <XAxis type="number" hide />
+              <YAxis dataKey="name" type="category" width={120} tick={{ fontSize: 11 }} />
+              <Tooltip />
+              <Bar dataKey="value" fill="#6366f1" radius={[0, 4, 4, 0]} barSize={20} label={{ position: 'right' }} />
+            </BarChart>
+          </ResponsiveContainer>
         </div>
       </Card>
     </div>
