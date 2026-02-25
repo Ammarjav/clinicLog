@@ -11,7 +11,7 @@ interface ChartsProps {
 const COLORS = ['#3b82f6', '#6366f1', '#ec4899', '#f59e0b', '#10b981'];
 
 const Charts = ({ data }: ChartsProps) => {
-  // Age Groups Logic with custom ranges: 0-5, 6-15, 16-50, 50+
+  // Age Groups Logic with all 4 categories always present
   const ageGroups = { '0-5': 0, '6-15': 0, '16-50': 0, '50+': 0 };
   
   data.forEach(p => {
@@ -22,9 +22,8 @@ const Charts = ({ data }: ChartsProps) => {
     else ageGroups['50+']++;
   });
 
-  const ageData = Object.entries(ageGroups)
-    .map(([name, value]) => ({ name, value }))
-    .filter(item => item.value > 0);
+  // Convert to array and keep all categories for the legend
+  const ageData = Object.entries(ageGroups).map(([name, value]) => ({ name, value }));
 
   // Diagnosis Distribution (Top 10)
   const diagGroups: Record<string, number> = {};
@@ -55,30 +54,26 @@ const Charts = ({ data }: ChartsProps) => {
       <Card className="p-6 border-none shadow-sm rounded-3xl bg-white">
         <h3 className="text-lg font-bold text-gray-900 mb-6">Age Group Distribution</h3>
         <div className="h-[300px]">
-          {ageData.length > 0 ? (
-            <ResponsiveContainer width="100%" height="100%">
-              <PieChart>
-                <Pie 
-                  data={ageData} 
-                  innerRadius={60} 
-                  outerRadius={80} 
-                  paddingAngle={5} 
-                  dataKey="value"
-                  label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
-                >
-                  {ageData.map((_, index) => (
-                    <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                  ))}
-                </Pie>
-                <Tooltip formatter={(value: number) => [value, 'Patients']} />
-                <Legend />
-              </PieChart>
-            </ResponsiveContainer>
-          ) : (
-            <div className="h-full flex items-center justify-center text-gray-400 text-sm">
-              No age data available
-            </div>
-          )}
+          <ResponsiveContainer width="100%" height="100%">
+            <PieChart>
+              <Pie 
+                data={ageData} 
+                innerRadius={60} 
+                outerRadius={80} 
+                paddingAngle={5} 
+                dataKey="value"
+                labelLine={false}
+                // Only show percentage on the slice if it's greater than 0
+                label={({ percent, value }) => value > 0 ? `${(percent * 100).toFixed(0)}%` : ''}
+              >
+                {ageData.map((_, index) => (
+                  <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                ))}
+              </Pie>
+              <Tooltip formatter={(value: number) => [value, 'Patients']} />
+              <Legend verticalAlign="bottom" height={36}/>
+            </PieChart>
+          </ResponsiveContainer>
         </div>
       </Card>
 
