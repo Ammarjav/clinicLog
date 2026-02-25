@@ -1,6 +1,5 @@
 import React from 'react';
 import PatientEntryForm from '@/components/forms/PatientEntryForm';
-import { MadeWithDyad } from '@/components/made-with-dyad';
 import { Activity } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
@@ -22,10 +21,6 @@ const Index = () => {
       <main className="w-full max-w-2xl">
         <PatientEntryForm />
       </main>
-
-      <footer className="mt-12 text-gray-400 text-sm">
-        <MadeWithDyad />
-      </footer>
     </div>
   );
 };
