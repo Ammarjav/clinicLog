@@ -18,7 +18,7 @@ const formSchema = z.object({
   age: z.coerce.number({ 
     required_error: "Age is required",
     invalid_type_error: "Age must be a number" 
-  }).min(1, "Age must be at least 1").max(120),
+  }).min(1, "Age must be at least 1").max(120, "Age cannot exceed 120"),
   gender: z.enum(['Male', 'Female', 'Other']),
   diagnosis: z.string().min(1, "Diagnosis is required"),
   visit_type: z.enum(['New', 'Follow-up']),
@@ -94,7 +94,14 @@ const PatientEntryForm = () => {
                 <FormItem>
                   <FormLabel className="text-sm font-semibold">Age</FormLabel>
                   <FormControl>
-                    <Input type="number" placeholder="Enter age" className="rounded-xl h-11 sm:h-12" {...field} />
+                    <Input 
+                      type="number" 
+                      min="1" 
+                      max="120" 
+                      placeholder="Enter age" 
+                      className="rounded-xl h-11 sm:h-12" 
+                      {...field} 
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
