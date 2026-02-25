@@ -1,7 +1,7 @@
 "use client";
 
 import React from 'react';
-import { Search, Filter, X } from 'lucide-react';
+import { Search, Calendar as CalendarIcon, X } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
@@ -12,6 +12,7 @@ interface FilterState {
   visitType: string;
   minAge: string;
   maxAge: string;
+  date: string;
 }
 
 interface DashboardFiltersProps {
@@ -32,6 +33,17 @@ const DashboardFilters = ({ filters, onFilterChange, onReset }: DashboardFilters
             className="pl-10 rounded-xl bg-gray-50 border-none h-11 focus-visible:ring-blue-500"
             value={filters.search}
             onChange={(e) => onFilterChange('search', e.target.value)}
+          />
+        </div>
+
+        {/* Date Filter */}
+        <div className="relative">
+          <CalendarIcon className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
+          <Input 
+            type="date" 
+            className="pl-10 w-[180px] rounded-xl bg-gray-50 border-none h-11 focus-visible:ring-blue-500"
+            value={filters.date}
+            onChange={(e) => onFilterChange('date', e.target.value)}
           />
         </div>
 
