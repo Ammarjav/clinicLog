@@ -22,7 +22,6 @@ const Charts = ({ data }: ChartsProps) => {
     else ageGroups['50+']++;
   });
 
-  // Convert to array and keep all categories for the legend
   const ageData = Object.entries(ageGroups).map(([name, value]) => ({ name, value }));
 
   // Diagnosis Distribution (Top 10)
@@ -48,6 +47,29 @@ const Charts = ({ data }: ChartsProps) => {
     .map(([date, count]) => ({ date, count }))
     .sort((a, b) => a.date.localeCompare(b.date));
 
+  // Custom label to move percentages closer
+  const renderCustomizedLabel = ({ cx, cy, midAngle, innerRadius, outerRadius, percent, value }: any) => {
+    if (value === 0) return null;
+    const RADIAN = Math.PI / 180;
+    // Calculate position closer to the outer edge of the pie
+    const radius = outerRadius + 12; 
+    const x = cx + radius * Math.cos(-midAngle * RADIAN);
+    const y = cy + radius * Math.sin(-midAngle * RADIAN);
+
+    return (
+      <text 
+        x={x} 
+        y={y} 
+        fill="#4b5563" 
+        textAnchor={x > cx ? 'start' : 'end'} 
+        dominantBaseline="central" 
+        className="text-[11px] font-bold"
+      >
+        {`${(percent * 100).toFixed(0)}%`}
+      </text>
+    );
+  };
+
   return (
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
       {/* Age Distribution */}
@@ -63,8 +85,7 @@ const Charts = ({ data }: ChartsProps) => {
                 paddingAngle={5} 
                 dataKey="value"
                 labelLine={false}
-                // Only show percentage on the slice if it's greater than 0
-                label={({ percent, value }) => value > 0 ? `${(percent * 100).toFixed(0)}%` : ''}
+                label={renderCustomizedLabel}
               >
                 {ageData.map((_, index) => (
                   <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
