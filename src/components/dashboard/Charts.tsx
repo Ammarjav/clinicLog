@@ -47,12 +47,12 @@ const Charts = ({ data }: ChartsProps) => {
     .map(([date, count]) => ({ date, count }))
     .sort((a, b) => a.date.localeCompare(b.date));
 
-  // Custom label to move percentages closer
-  const renderCustomizedLabel = ({ cx, cy, midAngle, innerRadius, outerRadius, percent, value }: any) => {
+  // Custom label to move percentages even closer
+  const renderCustomizedLabel = ({ cx, cy, midAngle, outerRadius, percent, value }: any) => {
     if (value === 0) return null;
     const RADIAN = Math.PI / 180;
-    // Calculate position closer to the outer edge of the pie
-    const radius = outerRadius + 12; 
+    // Moved even closer (from +12 to +2) to keep labels tight to the chart
+    const radius = outerRadius + 2; 
     const x = cx + radius * Math.cos(-midAngle * RADIAN);
     const y = cy + radius * Math.sin(-midAngle * RADIAN);
 
