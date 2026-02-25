@@ -14,12 +14,15 @@ import { Loader2, UserPlus } from 'lucide-react';
 import DiagnosisInput from './DiagnosisInput';
 
 const formSchema = z.object({
-  name: z.string().min(2, "Patient name is required (min 2 characters)"),
-  age: z.coerce.number({ required_error: "Age is required" }).min(0, "Age must be positive").max(120),
-  gender: z.enum(['Male', 'Female', 'Other'], { required_error: "Please select a gender" }),
+  name: z.string().min(1, "Patient name is required"),
+  age: z.coerce.number({ 
+    required_error: "Age is required",
+    invalid_type_error: "Age must be a number" 
+  }).min(1, "Age must be at least 1").max(120),
+  gender: z.enum(['Male', 'Female', 'Other']),
   diagnosis: z.string().min(1, "Diagnosis is required"),
-  visit_type: z.enum(['New', 'Follow-up'], { required_error: "Please select a visit type" }),
-  visit_date: z.string().min(1, "Visit date is required"),
+  visit_type: z.enum(['New', 'Follow-up']),
+  visit_date: z.string(),
 });
 
 const PatientEntryForm = () => {
@@ -27,7 +30,8 @@ const PatientEntryForm = () => {
     resolver: zodResolver(formSchema),
     defaultValues: {
       name: '',
-      age: 0,
+      // @ts-ignore - Using empty string to keep field empty initially
+      age: '',
       gender: 'Male',
       diagnosis: '',
       visit_type: 'New',
@@ -43,7 +47,8 @@ const PatientEntryForm = () => {
       toast.success("Patient recorded successfully");
       form.reset({
         name: '',
-        age: 0,
+        // @ts-ignore
+        age: '',
         gender: 'Male',
         diagnosis: '',
         visit_type: 'New',
@@ -62,7 +67,7 @@ const PatientEntryForm = () => {
         </div>
         <div>
           <h1 className="text-xl sm:text-2xl font-bold text-gray-900 tracking-tight leading-none">Quick Patient Entry</h1>
-          <p className="text-gray-500 text-xs sm:text-sm mt-1 sm:mt-1.5">All fields are mandatory</p>
+          <p className="text-gray-500 text-xs sm:text-sm mt-1 sm:mt-1.5">Enter patient details below</p>
         </div>
       </div>
 
@@ -74,7 +79,7 @@ const PatientEntryForm = () => {
               name="name"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="text-sm font-semibold">Patient Name *</FormLabel>
+                  <FormLabel className="text-sm font-semibold">Patient Name</FormLabel>
                   <FormControl>
                     <Input placeholder="Full Name" className="rounded-xl h-11 sm:h-12" {...field} />
                   </FormControl>
@@ -87,9 +92,9 @@ const PatientEntryForm = () => {
               name="age"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="text-sm font-semibold">Age *</FormLabel>
+                  <FormLabel className="text-sm font-semibold">Age</FormLabel>
                   <FormControl>
-                    <Input type="number" placeholder="25" className="rounded-xl h-11 sm:h-12" {...field} />
+                    <Input type="number" placeholder="Enter age" className="rounded-xl h-11 sm:h-12" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -103,7 +108,7 @@ const PatientEntryForm = () => {
               name="gender"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="text-sm font-semibold">Gender *</FormLabel>
+                  <FormLabel className="text-sm font-semibold">Gender</FormLabel>
                   <Select onValueChange={field.onChange} defaultValue={field.value}>
                     <FormControl>
                       <SelectTrigger className="rounded-xl h-11 sm:h-12">
@@ -125,7 +130,7 @@ const PatientEntryForm = () => {
               name="visit_type"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="text-sm font-semibold">Visit Type *</FormLabel>
+                  <FormLabel className="text-sm font-semibold">Visit Type</FormLabel>
                   <Select onValueChange={field.onChange} defaultValue={field.value}>
                     <FormControl>
                       <SelectTrigger className="rounded-xl h-11 sm:h-12">
@@ -148,7 +153,7 @@ const PatientEntryForm = () => {
             name="diagnosis"
             render={({ field }) => (
               <FormItem>
-                <FormLabel className="text-sm font-semibold">Diagnosis *</FormLabel>
+                <FormLabel className="text-sm font-semibold">Diagnosis</FormLabel>
                 <FormControl>
                   <DiagnosisInput 
                     value={field.value} 
@@ -166,7 +171,7 @@ const PatientEntryForm = () => {
             name="visit_date"
             render={({ field }) => (
               <FormItem>
-                <FormLabel className="text-sm font-semibold">Visit Date *</FormLabel>
+                <FormLabel className="text-sm font-semibold">Visit Date</FormLabel>
                 <FormControl>
                   <Input type="date" className="rounded-xl h-11 sm:h-12" {...field} />
                 </FormControl>
