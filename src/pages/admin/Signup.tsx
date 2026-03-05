@@ -42,7 +42,14 @@ const Signup = () => {
         password: values.password,
       });
 
-      if (authError) throw authError;
+      if (authError) {
+        if (authError.message.toLowerCase().includes("rate limit")) {
+          toast.error("Security limit reached. Please wait 10 minutes or try a different email address.");
+          return;
+        }
+        throw authError;
+      }
+      
       if (!authData.user) throw new Error("Signup failed");
 
       const userId = authData.user.id;
@@ -73,7 +80,7 @@ const Signup = () => {
       if (userTableError) throw userTableError;
 
       if (!authData.session) {
-        toast.info("Registration successful! Please check your email to verify your account before logging in.");
+        toast.info("Registration successful! Please verify your email or wait a few minutes before logging in.");
         navigate('/admin/login');
       } else {
         toast.success("Clinic registered successfully!");
