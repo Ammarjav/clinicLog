@@ -40,15 +40,10 @@ const Signup = () => {
       const { data: authData, error: authError } = await supabase.auth.signUp({
         email: values.email,
         password: values.password,
-        options: {
-          data: {
-            clinic_name: values.clinicName,
-          }
-        }
       });
 
       if (authError) throw authError;
-      if (!authData.user) throw new Error("Signup failed - user not created");
+      if (!authData.user) throw new Error("Signup failed");
 
       const userId = authData.user.id;
       const slug = generateSlug(values.clinicName);
@@ -66,7 +61,7 @@ const Signup = () => {
 
       if (clinicError) throw clinicError;
 
-      // 3. Associate user with clinic in the users table
+      // 3. Associate user with clinic
       const { error: userTableError } = await supabase
         .from('users')
         .insert({
@@ -77,20 +72,21 @@ const Signup = () => {
 
       if (userTableError) throw userTableError;
 
-      toast.success("Clinic registered successfully!");
-      navigate(`/clinic/${slug}/dashboard`);
+      if (!authData.session) {
+        toast.info("Registration successful! Please check your email to verify your account before logging in.");
+        navigate('/admin/login');
+      } else {
+        toast.success("Clinic registered successfully!");
+        navigate(`/clinic/${slug}/dashboard`);
+      }
     } catch (error: any) {
-      toast.error(error.message || "An error occurred during registration");
-      console.error("Signup error:", error);
+      toast.error(error.message);
     }
   };
 
   return (
     <div className="min-h-screen bg-white flex items-center justify-center p-6 relative">
-      <Link 
-        to="/" 
-        className="absolute top-8 left-8 text-gray-400 hover:text-blue-600 transition-colors focus:outline-none"
-      >
+      <Link to="/" className="absolute top-8 left-8 text-gray-400 hover:text-blue-600 transition-colors">
         <ArrowLeft size={24} />
       </Link>
 
@@ -98,10 +94,10 @@ const Signup = () => {
         <div className="flex flex-col items-center mb-8">
           <Logo className="w-16 h-16 mb-4" />
           <h1 className="text-3xl font-bold text-gray-900">Get Started</h1>
-          <p className="text-gray-500 mt-2 text-center px-4">Create your clinic account and start managing patient reports today</p>
+          <p className="text-gray-500 mt-2 text-center">Create your clinic account today</p>
         </div>
 
-        <div className="bg-white p-8 rounded-[2.5rem] border border-gray-100 shadow-2xl shadow-blue-50/50">
+        <div className="bg-white p-8 rounded-[2.5rem] border border-gray-100 shadow-2xl">
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5">
               <FormField
@@ -148,18 +144,14 @@ const Signup = () => {
               />
               <Button 
                 type="submit" 
-                className="w-full h-12 text-lg font-semibold rounded-xl bg-blue-600 mt-2"
+                className="w-full h-12 text-lg font-semibold rounded-xl bg-blue-600"
                 disabled={form.formState.isSubmitting}
               >
                 {form.formState.isSubmitting ? <Loader2 className="animate-spin" /> : "Create Clinic Account"}
               </Button>
-
               <div className="text-center mt-4">
                 <p className="text-sm text-gray-500">
-                  Already have an account?{' '}
-                  <Link to="/admin/login" className="text-blue-600 font-bold hover:underline">
-                    Sign In
-                  </Link>
+                  Already have an account? <Link to="/admin/login" className="text-blue-600 font-bold hover:underline">Sign In</Link>
                 </p>
               </div>
             </form>
