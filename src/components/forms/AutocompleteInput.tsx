@@ -6,36 +6,39 @@ import { supabase } from '@/lib/supabase';
 import { Check, Search, History, Loader2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
-interface DiagnosisInputProps {
+interface AutocompleteInputProps {
   value: string;
   onChange: (value: string) => void;
   placeholder?: string;
+  fieldName: 'name' | 'diagnosis';
+  clinicId?: string;
 }
 
-const DiagnosisInput = ({ value, onChange, placeholder }: DiagnosisInputProps) => {
+const AutocompleteInput = ({ value, onChange, placeholder, fieldName, clinicId }: AutocompleteInputProps) => {
   const [suggestions, setSuggestions] = useState<string[]>([]);
   const [filtered, setFiltered] = useState<string[]>([]);
   const [isOpen, setIsOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
 
-  const fetchDiagnoses = async () => {
+  const fetchSuggestions = async () => {
+    if (!clinicId) return;
     setIsLoading(true);
     try {
       const { data, error } = await supabase
         .from('patients')
-        .select('diagnosis')
+        .select(fieldName)
+        .eq('clinic_id', clinicId)
         .order('created_at', { ascending: false });
         
       if (error) throw error;
 
       if (data) {
-        // Group by case-insensitive name to "treat them as one"
         const counts: Record<string, number> = {};
-        const casings: Record<string, string> = {}; // Keep the first casing we find
+        const casings: Record<string, string> = {};
         
-        data.forEach(p => {
-          const d = p.diagnosis?.trim();
+        data.forEach((p: any) => {
+          const d = p[fieldName]?.trim();
           if (d) {
             const key = d.toLowerCase();
             counts[key] = (counts[key] || 0) + 1;
@@ -43,7 +46,6 @@ const DiagnosisInput = ({ value, onChange, placeholder }: DiagnosisInputProps) =
           }
         });
 
-        // Sort by most frequent so common diagnoses appear at the top
         const sorted = Object.keys(counts)
           .sort((a, b) => counts[b] - counts[a])
           .map(key => casings[key]);
@@ -51,15 +53,15 @@ const DiagnosisInput = ({ value, onChange, placeholder }: DiagnosisInputProps) =
         setSuggestions(sorted);
       }
     } catch (err) {
-      console.error("Diagnosis fetch error:", err);
+      console.error(`${fieldName} fetch error:`, err);
     } finally {
       setIsLoading(false);
     }
   };
 
   useEffect(() => {
-    fetchDiagnoses();
-  }, []);
+    fetchSuggestions();
+  }, [clinicId]);
 
   useEffect(() => {
     const query = (value || '').toLowerCase().trim();
@@ -68,7 +70,6 @@ const DiagnosisInput = ({ value, onChange, placeholder }: DiagnosisInputProps) =
       return;
     }
     
-    // Suggest anything that contains the search string
     const matches = suggestions.filter(s => 
       s.toLowerCase().includes(query)
     );
@@ -95,7 +96,7 @@ const DiagnosisInput = ({ value, onChange, placeholder }: DiagnosisInputProps) =
             setIsOpen(true);
           }}
           onFocus={() => {
-            fetchDiagnoses(); // Refresh list on every focus
+            fetchSuggestions();
             setIsOpen(true);
           }}
           placeholder={placeholder}
@@ -112,7 +113,7 @@ const DiagnosisInput = ({ value, onChange, placeholder }: DiagnosisInputProps) =
           <div className="p-1 max-h-[240px] overflow-y-auto">
             <div className="px-3 py-2 text-[10px] font-bold text-gray-400 uppercase tracking-widest flex items-center gap-1.5 border-b border-gray-50 mb-1">
               <History className="w-3 h-3" />
-              {value ? 'Suggestions' : 'Common Entries'}
+              {value ? 'Suggestions' : 'Previous Entries'}
             </div>
             {filtered.map((suggestion) => (
               <button
@@ -142,4 +143,4 @@ const DiagnosisInput = ({ value, onChange, placeholder }: DiagnosisInputProps) =
   );
 };
 
-export default DiagnosisInput;
+export default AutocompleteInput;

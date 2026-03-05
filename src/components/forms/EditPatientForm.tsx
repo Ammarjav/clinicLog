@@ -1,6 +1,6 @@
 "use client";
 
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
@@ -11,11 +11,11 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { toast } from 'sonner';
 import { Loader2, Save } from 'lucide-react';
-import DiagnosisInput from './DiagnosisInput';
+import AutocompleteInput from './AutocompleteInput';
 
 const formSchema = z.object({
-  name: z.string().nullable().transform(val => val === '' ? null : val),
-  age: z.coerce.number().min(0, "Age must be positive").max(120),
+  name: z.string().min(1, "Name is required"),
+  age: z.coerce.number().min(1, "Age must be at least 1").max(120),
   gender: z.enum(['Male', 'Female', 'Other']),
   diagnosis: z.string().min(1, "Diagnosis is required"),
   visit_type: z.enum(['New', 'Follow-up']),
@@ -67,7 +67,12 @@ const EditPatientForm = ({ patient, onSuccess, onCancel }: EditPatientFormProps)
             <FormItem>
               <FormLabel>Patient Name</FormLabel>
               <FormControl>
-                <Input placeholder="Full Name" className="rounded-xl h-12" {...field} value={field.value || ''} />
+                <AutocompleteInput 
+                  value={field.value} 
+                  onChange={field.onChange} 
+                  fieldName="name" 
+                  clinicId={patient.clinic_id} 
+                />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -82,7 +87,7 @@ const EditPatientForm = ({ patient, onSuccess, onCancel }: EditPatientFormProps)
               <FormItem>
                 <FormLabel>Age</FormLabel>
                 <FormControl>
-                  <Input type="number" className="rounded-xl h-12" {...field} />
+                  <Input type="number" min="1" max="120" className="rounded-xl h-12" {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -156,10 +161,11 @@ const EditPatientForm = ({ patient, onSuccess, onCancel }: EditPatientFormProps)
             <FormItem>
               <FormLabel>Diagnosis</FormLabel>
               <FormControl>
-                <DiagnosisInput 
+                <AutocompleteInput 
                   value={field.value} 
                   onChange={field.onChange} 
-                  placeholder="Enter or select diagnosis..." 
+                  fieldName="diagnosis" 
+                  clinicId={patient.clinic_id} 
                 />
               </FormControl>
               <FormMessage />

@@ -32,11 +32,11 @@ import {
 const Dashboard = () => {
   const navigate = useNavigate();
   const [patients, setPatients] = useState<any[]>([]);
+  const [clinicName, setClinicName] = useState('Admin Dashboard');
   const [loading, setLoading] = useState(true);
   const [deleteId, setDeleteId] = useState<string | null>(null);
   const [editPatient, setEditPatient] = useState<any | null>(null);
 
-  // Filter State
   const [filters, setFilters] = useState({
     search: '',
     gender: 'all',
@@ -62,15 +62,26 @@ const Dashboard = () => {
   };
 
   useEffect(() => {
-    const checkUser = async () => {
+    const initDashboard = async () => {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) {
         navigate('/admin/login');
-      } else {
-        fetchPatients();
+        return;
       }
+
+      const { data: userData } = await supabase
+        .from('users')
+        .select('clinic_id, clinics(name)')
+        .eq('id', user.id)
+        .single();
+      
+      if (userData?.clinics) {
+        setClinicName(userData.clinics.name);
+      }
+
+      fetchPatients();
     };
-    checkUser();
+    initDashboard();
   }, [navigate]);
 
   const handleFilterChange = (key: string, value: string) => {
@@ -88,7 +99,6 @@ const Dashboard = () => {
     });
   };
 
-  // Computed filtered patients
   const filteredPatients = useMemo(() => {
     return patients.filter(p => {
       const matchesSearch = !filters.search || 
@@ -115,9 +125,7 @@ const Dashboard = () => {
 
   const confirmDelete = async () => {
     if (!deleteId) return;
-    
     const { error } = await supabase.from('patients').delete().eq('id', deleteId);
-    
     if (error) {
       toast.error(error.message);
     } else {
@@ -133,7 +141,7 @@ const Dashboard = () => {
         <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
           <div className="flex items-center gap-2">
             <LayoutDashboard className="w-5 h-5 text-blue-600" />
-            <span className="font-bold text-gray-900 tracking-tight">Admin Dashboard</span>
+            <span className="font-bold text-gray-900 tracking-tight">{clinicName}</span>
           </div>
           <div className="flex items-center gap-4">
             <Button variant="ghost" size="icon" onClick={fetchPatients} className="rounded-xl">
@@ -175,13 +183,12 @@ const Dashboard = () => {
         </div>
       </main>
 
-      {/* Edit Patient Side Sheet */}
       <Sheet open={!!editPatient} onOpenChange={(open) => !open && setEditPatient(null)}>
         <SheetContent className="sm:max-w-md rounded-l-[2.5rem] border-none shadow-2xl">
           <SheetHeader className="pb-4 border-b border-gray-50">
             <SheetTitle className="text-2xl font-bold">Edit Patient Entry</SheetTitle>
             <SheetDescription>
-              Modify the details of the selected patient record.
+              Modify details for {editPatient?.name}.
             </SheetDescription>
           </SheetHeader>
           {editPatient && (
@@ -197,17 +204,16 @@ const Dashboard = () => {
         </SheetContent>
       </Sheet>
 
-      {/* Delete Confirmation Alert */}
       <AlertDialog open={!!deleteId} onOpenChange={(open) => !open && setDeleteId(null)}>
         <AlertDialogContent className="rounded-[2rem] border-none">
           <AlertDialogHeader>
-            <AlertDialogTitle className="text-xl font-bold">Are you absolutely sure?</AlertDialogTitle>
+            <AlertDialogTitle className="text-xl font-bold">Confirm Deletion</AlertDialogTitle>
             <AlertDialogDescription className="text-gray-500">
-              This action cannot be undone. This will permanently delete the patient record from the database.
+              This will permanently remove the record from your clinic's database.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter className="gap-2 sm:gap-0">
-            <AlertDialogCancel className="rounded-xl border-gray-100 hover:bg-gray-50">Cancel</AlertDialogCancel>
+            <AlertDialogCancel className="rounded-xl border-gray-100">Cancel</AlertDialogCancel>
             <AlertDialogAction 
               onClick={confirmDelete}
               className="rounded-xl bg-red-600 hover:bg-red-700 text-white"

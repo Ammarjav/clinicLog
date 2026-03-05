@@ -1,6 +1,6 @@
 "use client";
 
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
@@ -10,8 +10,8 @@ import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { toast } from 'sonner';
-import { Loader2, UserPlus } from 'lucide-react';
-import DiagnosisInput from './DiagnosisInput';
+import { Loader2, UserPlus, Info } from 'lucide-react';
+import AutocompleteInput from './AutocompleteInput';
 
 const formSchema = z.object({
   name: z.string().min(1, "Patient name is required"),
@@ -23,19 +23,44 @@ const formSchema = z.object({
   diagnosis: z.string().min(1, "Diagnosis is required"),
   visit_type: z.enum(['New', 'Follow-up']),
   visit_date: z.string(),
+  clinic_id: z.string().uuid(),
 });
 
 const PatientEntryForm = () => {
+  const [clinicId, setClinicId] = useState<string | null>(null);
+  const [isReady, setIsReady] = useState(false);
+
+  useEffect(() => {
+    const fetchUserClinic = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        const { data, error } = await supabase
+          .from('users')
+          .select('clinic_id')
+          .eq('id', user.id)
+          .single();
+        
+        if (data) {
+          setClinicId(data.clinic_id);
+          form.setValue('clinic_id', data.clinic_id);
+        }
+      }
+      setIsReady(true);
+    };
+    fetchUserClinic();
+  }, []);
+
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       name: '',
-      // @ts-ignore - Using empty string to keep field empty initially
+      // @ts-ignore
       age: '',
       gender: 'Male',
       diagnosis: '',
       visit_type: 'New',
       visit_date: new Date().toISOString().split('T')[0],
+      clinic_id: '',
     },
   });
 
@@ -53,11 +78,29 @@ const PatientEntryForm = () => {
         diagnosis: '',
         visit_type: 'New',
         visit_date: new Date().toISOString().split('T')[0],
+        clinic_id: clinicId || '',
       });
     } catch (error: any) {
       toast.error("Failed to save: " + error.message);
     }
   };
+
+  if (!isReady) return <div className="flex justify-center p-12"><Loader2 className="animate-spin text-blue-600" /></div>;
+
+  if (!clinicId) {
+    return (
+      <div className="max-w-2xl mx-auto p-8 bg-white rounded-[2rem] shadow-xl border border-gray-100 flex flex-col items-center text-center">
+        <div className="bg-amber-50 p-4 rounded-2xl mb-4">
+          <Info className="w-8 h-8 text-amber-600" />
+        </div>
+        <h2 className="text-xl font-bold">Account Setup Required</h2>
+        <p className="text-gray-500 mt-2">Please log in to your admin account to associate this form with your clinic.</p>
+        <Button className="mt-6 rounded-xl bg-blue-600" asChild>
+          <a href="/admin/login">Go to Login</a>
+        </Button>
+      </div>
+    );
+  }
 
   return (
     <div className="max-w-2xl mx-auto p-5 sm:p-8 bg-white rounded-[2rem] shadow-xl border border-gray-100">
@@ -81,7 +124,13 @@ const PatientEntryForm = () => {
                 <FormItem>
                   <FormLabel className="text-sm font-semibold">Patient Name</FormLabel>
                   <FormControl>
-                    <Input placeholder="Full Name" className="rounded-xl h-11 sm:h-12" {...field} />
+                    <AutocompleteInput 
+                      value={field.value} 
+                      onChange={field.onChange} 
+                      placeholder="Enter or select patient..." 
+                      fieldName="name"
+                      clinicId={clinicId}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -162,10 +211,12 @@ const PatientEntryForm = () => {
               <FormItem>
                 <FormLabel className="text-sm font-semibold">Diagnosis</FormLabel>
                 <FormControl>
-                  <DiagnosisInput 
+                  <AutocompleteInput 
                     value={field.value} 
                     onChange={field.onChange} 
                     placeholder="Enter or select diagnosis..." 
+                    fieldName="diagnosis"
+                    clinicId={clinicId}
                   />
                 </FormControl>
                 <FormMessage />
