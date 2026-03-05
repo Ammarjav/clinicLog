@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
@@ -10,7 +10,7 @@ import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { toast } from 'sonner';
-import { Loader2, UserPlus, Info } from 'lucide-react';
+import { Loader2, UserPlus, Info, CheckCircle2 } from 'lucide-react';
 import AutocompleteInput from './AutocompleteInput';
 
 const formSchema = z.object({
@@ -18,7 +18,7 @@ const formSchema = z.object({
   age: z.coerce.number({ 
     required_error: "Age is required",
     invalid_type_error: "Age must be a number" 
-  }).min(1, "Age must be at least 1").max(120, "Age cannot exceed 120"),
+  }).min(0, "Age cannot be negative").max(120, "Age cannot exceed 120"),
   gender: z.enum(['Male', 'Female', 'Other']),
   diagnosis: z.string().min(1, "Diagnosis is required"),
   visit_type: z.enum(['New', 'Follow-up']),
@@ -28,27 +28,8 @@ const formSchema = z.object({
 
 const PatientEntryForm = () => {
   const [clinicId, setClinicId] = useState<string | null>(null);
-  const [isReady, setIsReady] = useState(false);
-
-  useEffect(() => {
-    const fetchUserClinic = async () => {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (user) {
-        const { data, error } = await supabase
-          .from('users')
-          .select('clinic_id')
-          .eq('id', user.id)
-          .single();
-        
-        if (data) {
-          setClinicId(data.clinic_id);
-          form.setValue('clinic_id', data.clinic_id);
-        }
-      }
-      setIsReady(true);
-    };
-    fetchUserClinic();
-  }, []);
+  const [isLoading, setIsLoading] = useState(true);
+  const nameInputRef = useRef<any>(null);
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -64,12 +45,41 @@ const PatientEntryForm = () => {
     },
   });
 
+  useEffect(() => {
+    const fetchUserClinic = async () => {
+      try {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (user) {
+          const { data, error } = await supabase
+            .from('users')
+            .select('clinic_id')
+            .eq('id', user.id)
+            .single();
+          
+          if (data?.clinic_id) {
+            setClinicId(data.clinic_id);
+            form.setValue('clinic_id', data.clinic_id);
+          }
+        }
+      } catch (err) {
+        console.error("Auth fetch error:", err);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    fetchUserClinic();
+  }, [form]);
+
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     try {
       const { error } = await supabase.from('patients').insert([values]);
       if (error) throw error;
       
-      toast.success("Patient recorded successfully");
+      toast.success("Patient recorded successfully", {
+        icon: <CheckCircle2 className="w-4 h-4 text-green-500" />
+      });
+
+      // Reset for next entry but keep clinic_id and date
       form.reset({
         name: '',
         // @ts-ignore
@@ -77,57 +87,65 @@ const PatientEntryForm = () => {
         gender: 'Male',
         diagnosis: '',
         visit_type: 'New',
-        visit_date: new Date().toISOString().split('T')[0],
-        clinic_id: clinicId || '',
+        visit_date: values.visit_date,
+        clinic_id: values.clinic_id,
       });
+      
     } catch (error: any) {
       toast.error("Failed to save: " + error.message);
     }
   };
 
-  if (!isReady) return <div className="flex justify-center p-12"><Loader2 className="animate-spin text-blue-600" /></div>;
+  if (isLoading) {
+    return (
+      <div className="flex flex-col items-center justify-center p-20 space-y-4">
+        <Loader2 className="w-10 h-10 animate-spin text-blue-600" />
+        <p className="text-gray-500 font-medium">Loading session...</p>
+      </div>
+    );
+  }
 
   if (!clinicId) {
     return (
-      <div className="max-w-2xl mx-auto p-8 bg-white rounded-[2rem] shadow-xl border border-gray-100 flex flex-col items-center text-center">
-        <div className="bg-amber-50 p-4 rounded-2xl mb-4">
-          <Info className="w-8 h-8 text-amber-600" />
+      <div className="max-w-2xl mx-auto p-10 bg-white rounded-[2.5rem] shadow-xl border border-gray-100 flex flex-col items-center text-center">
+        <div className="bg-amber-50 p-5 rounded-3xl mb-6">
+          <Info className="w-10 h-10 text-amber-600" />
         </div>
-        <h2 className="text-xl font-bold">Account Setup Required</h2>
-        <p className="text-gray-500 mt-2">Please log in to your admin account to associate this form with your clinic.</p>
-        <Button className="mt-6 rounded-xl bg-blue-600" asChild>
-          <a href="/admin/login">Go to Login</a>
+        <h2 className="text-2xl font-bold text-gray-900">Portal Access Required</h2>
+        <p className="text-gray-500 mt-3 max-w-sm">Please log in to your clinic's admin account to start recording patient data.</p>
+        <Button className="mt-8 px-8 h-12 rounded-2xl bg-blue-600 hover:bg-blue-700 shadow-lg shadow-blue-100" asChild>
+          <a href="/admin/login">Log in to Clinic Portal</a>
         </Button>
       </div>
     );
   }
 
   return (
-    <div className="max-w-2xl mx-auto p-5 sm:p-8 bg-white rounded-[2rem] shadow-xl border border-gray-100">
-      <div className="flex items-center gap-3 sm:gap-4 mb-6 sm:mb-8">
-        <div className="bg-blue-50 p-2.5 sm:p-3 rounded-xl sm:rounded-2xl">
-          <UserPlus className="w-6 h-6 sm:w-7 sm:h-7 text-blue-600" />
+    <div className="max-w-2xl mx-auto p-6 sm:p-10 bg-white rounded-[2.5rem] shadow-2xl shadow-blue-50/50 border border-gray-100">
+      <div className="flex items-center gap-4 mb-8 sm:mb-10">
+        <div className="bg-blue-600 p-3 rounded-2xl shadow-lg shadow-blue-200">
+          <UserPlus className="w-7 h-7 text-white" />
         </div>
         <div>
-          <h1 className="text-xl sm:text-2xl font-bold text-gray-900 tracking-tight leading-none">Quick Patient Entry</h1>
-          <p className="text-gray-500 text-xs sm:text-sm mt-1 sm:mt-1.5">Enter patient details below</p>
+          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 tracking-tight leading-none">Record Entry</h1>
+          <p className="text-gray-500 text-sm sm:text-base mt-2">Instantly add a patient to your database</p>
         </div>
       </div>
 
       <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 sm:space-y-6 text-left">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
+        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5 sm:space-y-6 text-left">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-5 sm:gap-6">
             <FormField
               control={form.control}
               name="name"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="text-sm font-semibold">Patient Name</FormLabel>
+                  <FormLabel className="text-sm font-bold text-gray-700">Patient Name</FormLabel>
                   <FormControl>
                     <AutocompleteInput 
                       value={field.value} 
                       onChange={field.onChange} 
-                      placeholder="Enter or select patient..." 
+                      placeholder="e.g. John Doe" 
                       fieldName="name"
                       clinicId={clinicId}
                     />
@@ -141,14 +159,14 @@ const PatientEntryForm = () => {
               name="age"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="text-sm font-semibold">Age</FormLabel>
+                  <FormLabel className="text-sm font-bold text-gray-700">Age</FormLabel>
                   <FormControl>
                     <Input 
                       type="number" 
-                      min="1" 
+                      min="0" 
                       max="120" 
-                      placeholder="Enter age" 
-                      className="rounded-xl h-11 sm:h-12" 
+                      placeholder="Years" 
+                      className="rounded-2xl h-12 sm:h-14 bg-gray-50/50 border-gray-100 focus:bg-white transition-all text-lg" 
                       {...field} 
                     />
                   </FormControl>
@@ -158,20 +176,20 @@ const PatientEntryForm = () => {
             />
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-5 sm:gap-6">
             <FormField
               control={form.control}
               name="gender"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="text-sm font-semibold">Gender</FormLabel>
+                  <FormLabel className="text-sm font-bold text-gray-700">Gender</FormLabel>
                   <Select onValueChange={field.onChange} defaultValue={field.value}>
                     <FormControl>
-                      <SelectTrigger className="rounded-xl h-11 sm:h-12">
-                        <SelectValue placeholder="Select Gender" />
+                      <SelectTrigger className="rounded-2xl h-12 sm:h-14 bg-gray-50/50 border-gray-100 focus:bg-white text-base">
+                        <SelectValue placeholder="Select" />
                       </SelectTrigger>
                     </FormControl>
-                    <SelectContent className="rounded-xl">
+                    <SelectContent className="rounded-2xl">
                       <SelectItem value="Male">Male</SelectItem>
                       <SelectItem value="Female">Female</SelectItem>
                       <SelectItem value="Other">Other</SelectItem>
@@ -186,16 +204,16 @@ const PatientEntryForm = () => {
               name="visit_type"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="text-sm font-semibold">Visit Type</FormLabel>
+                  <FormLabel className="text-sm font-bold text-gray-700">Visit Status</FormLabel>
                   <Select onValueChange={field.onChange} defaultValue={field.value}>
                     <FormControl>
-                      <SelectTrigger className="rounded-xl h-11 sm:h-12">
-                        <SelectValue placeholder="Visit Type" />
+                      <SelectTrigger className="rounded-2xl h-12 sm:h-14 bg-gray-50/50 border-gray-100 focus:bg-white text-base">
+                        <SelectValue placeholder="Select" />
                       </SelectTrigger>
                     </FormControl>
-                    <SelectContent className="rounded-xl">
+                    <SelectContent className="rounded-2xl">
                       <SelectItem value="New">New Patient</SelectItem>
-                      <SelectItem value="Follow-up">Follow-up</SelectItem>
+                      <SelectItem value="Follow-up">Follow-up Visit</SelectItem>
                     </SelectContent>
                   </Select>
                   <FormMessage />
@@ -209,12 +227,12 @@ const PatientEntryForm = () => {
             name="diagnosis"
             render={({ field }) => (
               <FormItem>
-                <FormLabel className="text-sm font-semibold">Diagnosis</FormLabel>
+                <FormLabel className="text-sm font-bold text-gray-700">Diagnosis / Reason</FormLabel>
                 <FormControl>
                   <AutocompleteInput 
                     value={field.value} 
                     onChange={field.onChange} 
-                    placeholder="Enter or select diagnosis..." 
+                    placeholder="e.g. Hypertension, Routine checkup..." 
                     fieldName="diagnosis"
                     clinicId={clinicId}
                   />
@@ -229,9 +247,13 @@ const PatientEntryForm = () => {
             name="visit_date"
             render={({ field }) => (
               <FormItem>
-                <FormLabel className="text-sm font-semibold">Visit Date</FormLabel>
+                <FormLabel className="text-sm font-bold text-gray-700">Visit Date</FormLabel>
                 <FormControl>
-                  <Input type="date" className="rounded-xl h-11 sm:h-12" {...field} />
+                  <Input 
+                    type="date" 
+                    className="rounded-2xl h-12 sm:h-14 bg-gray-50/50 border-gray-100 focus:bg-white" 
+                    {...field} 
+                  />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -240,13 +262,17 @@ const PatientEntryForm = () => {
 
           <Button 
             type="submit" 
-            className="w-full h-12 sm:h-14 text-base sm:text-lg font-semibold rounded-2xl bg-blue-600 hover:bg-blue-700 shadow-lg shadow-blue-200 transition-all duration-200 mt-2"
+            className="w-full h-14 sm:h-16 text-lg sm:text-xl font-bold rounded-[1.25rem] bg-blue-600 hover:bg-blue-700 shadow-xl shadow-blue-200 transition-all duration-300 active:scale-[0.98] mt-4"
             disabled={form.formState.isSubmitting}
           >
             {form.formState.isSubmitting ? (
-              <Loader2 className="mr-2 h-5 w-5 animate-spin" />
-            ) : "Submit Entry"}
+              <Loader2 className="mr-3 h-6 w-6 animate-spin" />
+            ) : "Save Patient Entry"}
           </Button>
+          
+          <p className="text-center text-xs text-gray-400 font-medium uppercase tracking-widest mt-4">
+            Secured for clinic portal
+          </p>
         </form>
       </Form>
     </div>
