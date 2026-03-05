@@ -1,7 +1,7 @@
 "use client";
 
 import React from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
@@ -27,10 +27,23 @@ const Login = () => {
 
   const onSubmit = async (values: z.infer<typeof loginSchema>) => {
     try {
-      const { error } = await supabase.auth.signInWithPassword(values);
+      const { error, data } = await supabase.auth.signInWithPassword(values);
       if (error) throw error;
-      toast.success("Welcome back, Admin");
-      navigate('/admin/dashboard');
+      
+      // Fetch clinic slug for redirect if possible
+      const { data: userData } = await supabase
+        .from('users')
+        .select('clinics(slug)')
+        .eq('id', data.user.id)
+        .single();
+
+      toast.success("Welcome back");
+      
+      if (userData?.clinics?.slug) {
+        navigate(`/clinic/${userData.clinics.slug}/dashboard`);
+      } else {
+        navigate('/admin/dashboard');
+      }
     } catch (error: any) {
       toast.error(error.message);
     }
@@ -38,13 +51,12 @@ const Login = () => {
 
   return (
     <div className="min-h-screen bg-white flex items-center justify-center p-6 relative">
-      <button 
-        onClick={() => navigate('/')} 
+      <Link 
+        to="/" 
         className="absolute top-8 left-8 text-gray-400 hover:text-blue-600 transition-colors focus:outline-none"
-        aria-label="Back to home"
       >
         <ArrowLeft size={24} />
-      </button>
+      </Link>
 
       <div className="w-full max-w-md">
         <div className="flex flex-col items-center mb-8">
@@ -89,6 +101,15 @@ const Login = () => {
               >
                 {form.formState.isSubmitting ? <Loader2 className="animate-spin" /> : "Sign In"}
               </Button>
+
+              <div className="text-center mt-4">
+                <p className="text-sm text-gray-500">
+                  Don't have a clinic account?{' '}
+                  <Link to="/admin/signup" className="text-blue-600 font-bold hover:underline">
+                    Sign Up
+                  </Link>
+                </p>
+              </div>
             </form>
           </Form>
         </div>
