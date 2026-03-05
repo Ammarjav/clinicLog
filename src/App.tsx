@@ -6,7 +6,12 @@ import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 import Login from "./pages/admin/Login";
 import Signup from "./pages/admin/Signup";
-import Dashboard from "./pages/admin/Dashboard";
+import ClinicGuard from "./components/auth/ClinicGuard";
+import ClinicLayout from "./components/layout/ClinicLayout";
+import ClinicDashboard from "./pages/clinic/ClinicDashboard";
+import ClinicPatients from "./pages/clinic/ClinicPatients";
+import ClinicAnalytics from "./pages/clinic/ClinicAnalytics";
+import ClinicEntry from "./pages/clinic/ClinicEntry";
 
 const queryClient = new QueryClient();
 
@@ -19,9 +24,48 @@ const App = () => (
           <Route path="/" element={<Index />} />
           <Route path="/admin/login" element={<Login />} />
           <Route path="/admin/signup" element={<Signup />} />
-          {/* Support both the legacy and the new dynamic clinic routes */}
-          <Route path="/admin/dashboard" element={<Dashboard />} />
-          <Route path="/clinic/:slug/dashboard" element={<Dashboard />} />
+          
+          {/* Protected Clinic Routes */}
+          <Route path="/clinic/:slug" element={
+            <ClinicGuard>
+              <ClinicLayout>
+                <Navigate to="dashboard" replace />
+              </ClinicLayout>
+            </ClinicGuard>
+          } />
+          
+          <Route path="/clinic/:slug/dashboard" element={
+            <ClinicGuard>
+              <ClinicLayout>
+                <ClinicDashboard />
+              </ClinicLayout>
+            </ClinicGuard>
+          } />
+          
+          <Route path="/clinic/:slug/patients" element={
+            <ClinicGuard>
+              <ClinicLayout>
+                <ClinicPatients />
+              </ClinicLayout>
+            </ClinicGuard>
+          } />
+          
+          <Route path="/clinic/:slug/analytics" element={
+            <ClinicGuard>
+              <ClinicLayout>
+                <ClinicAnalytics />
+              </ClinicLayout>
+            </ClinicGuard>
+          } />
+          
+          <Route path="/clinic/:slug/entry" element={
+            <ClinicGuard>
+              <ClinicLayout>
+                <ClinicEntry />
+              </ClinicLayout>
+            </ClinicGuard>
+          } />
+
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>
