@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/button';
 import { RefreshCcw, UserPlus } from 'lucide-react';
 import { Link, useParams } from 'react-router-dom';
 import { toast } from 'sonner';
+import { cn } from '@/lib/utils';
 
 const ClinicDashboard = () => {
   const { slug } = useParams();
