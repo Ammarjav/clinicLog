@@ -127,8 +127,8 @@ const Index = () => {
         </div>
       </nav>
 
-      {/* Hero Section */}
-      <section className="pt-24 md:pt-36 pb-20 md:pb-32 px-4 md:px-6">
+      {/* Hero Section - Reduced bottom padding */}
+      <section className="pt-24 md:pt-36 pb-12 md:pb-20 px-4 md:px-6">
         <div className="max-w-6xl mx-auto text-center">
           <div className="inline-flex items-center gap-2 bg-white border border-slate-100 px-3 md:px-4 py-1.5 rounded-full shadow-sm mb-6 md:mb-8 animate-in fade-in slide-in-from-bottom-4">
             <Sparkles className="w-3.5 h-3.5 text-indigo-500" />
@@ -144,7 +144,7 @@ const Index = () => {
             Ditch the paperwork. A high-performance database for medical professionals who value speed, accuracy, and beautiful data.
           </p>
           
-          <div className="flex flex-col sm:flex-row gap-3 md:gap-4 justify-center mb-16 md:mb-24 animate-in fade-in slide-in-from-bottom-16 duration-1000 px-4">
+          <div className="flex flex-col sm:flex-row gap-3 md:gap-4 justify-center mb-12 md:mb-16 animate-in fade-in slide-in-from-bottom-16 duration-1000 px-4">
             <Button asChild size="lg" className="w-full sm:w-auto rounded-2xl bg-indigo-600 hover:bg-indigo-700 h-14 md:h-16 px-8 md:px-10 text-base md:text-lg font-bold shadow-2xl shadow-indigo-200 group">
               <Link to="/admin/signup" className="flex items-center justify-center">
                 Get Started <ChevronRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
@@ -182,9 +182,9 @@ const Index = () => {
         </div>
       </section>
 
-      {/* Vision Section */}
-      <section id="vision" className="py-20 md:py-32 px-4 md:px-6 relative overflow-hidden">
-        <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+      {/* Vision Section - Balanced spacing */}
+      <section id="vision" className="py-12 md:py-20 px-4 md:px-6 relative overflow-hidden">
+        <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
           <div className="relative order-2 lg:order-1">
             <div className="absolute -inset-4 bg-indigo-100/50 rounded-[3rem] blur-2xl -z-10" />
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
@@ -213,7 +213,7 @@ const Index = () => {
               </div>
             </div>
           </div>
-          <div className="order-1 lg:order-2 space-y-8">
+          <div className="order-1 lg:order-2 space-y-6">
             <div className="inline-block px-4 py-1.5 bg-indigo-50 rounded-full">
               <span className="text-xs font-black text-indigo-600 uppercase tracking-widest">Our Vision</span>
             </div>
@@ -224,7 +224,7 @@ const Index = () => {
             <p className="text-lg md:text-xl text-slate-500 leading-relaxed font-medium">
               We believe technology shouldn't come between a doctor and their patient. Our vision is to create a seamless digital layer that handles the complexity of data while leaving the space for care.
             </p>
-            <div className="pt-4 flex items-center gap-8">
+            <div className="pt-2 flex items-center gap-8">
               <div>
                 <p className="text-3xl font-black text-slate-900">50k+</p>
                 <p className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em]">Daily Logs</p>
@@ -239,12 +239,12 @@ const Index = () => {
         </div>
       </section>
 
-      {/* Bento Grid Features */}
-      <section id="features" className="py-20 md:py-32 px-4 md:px-6 bg-slate-50/50">
+      {/* Bento Grid Features - Reduced top/bottom padding */}
+      <section id="features" className="py-12 md:py-20 px-4 md:px-6 bg-slate-50/50">
         <div className="max-w-7xl mx-auto">
-          <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6 md:gap-8 mb-12 md:mb-20 px-2">
+          <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6 md:gap-8 mb-8 md:mb-12 px-2">
             <div className="max-w-2xl">
-              <h2 className="text-xs font-black text-indigo-600 uppercase tracking-[0.3em] mb-3 md:mb-4">The Platform</h2>
+              <h2 className="text-xs font-black text-indigo-600 uppercase tracking-[0.3em] mb-2 md:mb-3">The Platform</h2>
               <p className="text-3xl md:text-5xl font-black text-slate-900 tracking-tighter">Precision tools for modern medicine.</p>
             </div>
             <p className="text-base md:text-lg text-slate-500 max-w-sm">We've architected a system that simplifies clinical data management forever.</p>
@@ -317,14 +317,14 @@ const Index = () => {
         </div>
       </section>
 
-      {/* Dynamic CTA */}
-      <section className="py-24 md:py-40 px-4 md:px-6 relative overflow-hidden">
+      {/* Dynamic CTA - Reduced top/bottom padding */}
+      <section className="py-16 md:py-28 px-4 md:px-6 relative overflow-hidden">
         <div className="max-w-4xl mx-auto text-center px-4">
           <h2 className="text-4xl md:text-7xl font-black text-slate-900 mb-6 md:mb-8 tracking-tighter">
             Elevate your <br className="hidden sm:block" />
             <span className="text-indigo-600 underline decoration-emerald-400 decoration-4 md:decoration-8 underline-offset-4 md:underline-offset-8">practice standard.</span>
           </h2>
-          <p className="text-base md:text-xl text-slate-500 mb-10 md:mb-12 max-w-xl mx-auto">
+          <p className="text-base md:text-xl text-slate-500 mb-8 md:mb-10 max-w-xl mx-auto">
             Join the elite circle of data-driven clinics today. No credit card required.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
@@ -338,8 +338,8 @@ const Index = () => {
         </div>
       </section>
 
-      {/* Minimal Footer */}
-      <footer className="py-12 md:py-20 border-t border-slate-50 bg-white px-6">
+      {/* Minimal Footer - Tighter padding */}
+      <footer className="py-8 md:py-16 border-t border-slate-50 bg-white px-6">
         <div className="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-10">
           <div className="flex flex-col items-center md:items-start gap-4">
             <div className="flex items-center gap-2 md:gap-3">
