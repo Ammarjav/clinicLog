@@ -34,7 +34,7 @@ const Index = () => {
 
   const handleWhatsAppRedirect = (e: React.FormEvent) => {
     e.preventDefault();
-    const phone = "1234567890"; // Replace with your actual number
+    const phone = "923106960468"; 
     const text = `Hello ClinicLog! %0A%0AMy Name: ${contactForm.name}%0AContact Info: ${contactForm.info}%0A%0AMessage: ${contactForm.message}`;
     window.open(`https://wa.me/${phone}?text=${text}`, '_blank');
     setIsContactOpen(false);
