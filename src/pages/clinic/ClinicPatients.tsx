@@ -58,13 +58,17 @@ const ClinicPatients = () => {
       const matchesSearch = !filters.search || 
         p.name?.toLowerCase().includes(filters.search.toLowerCase()) || 
         p.diagnosis.toLowerCase().includes(filters.search.toLowerCase());
+      
       const matchesGender = filters.gender === 'all' || p.gender === filters.gender;
       const matchesVisit = filters.visitType === 'all' || p.visit_type === filters.visitType;
       const matchesDate = !filters.date || p.visit_date === filters.date;
+      
       const age = parseInt(p.age);
       const minAge = filters.minAge === '' ? 0 : parseInt(filters.minAge);
       const maxAge = filters.maxAge === '' ? Infinity : parseInt(filters.maxAge);
-      return matchesSearch && matchesGender && matchesVisit && matchesAge && matchesDate && age >= minAge && age <= maxAge;
+      const matchesAge = age >= minAge && age <= maxAge;
+
+      return matchesSearch && matchesGender && matchesVisit && matchesAge && matchesDate;
     });
   }, [patients, filters]);
 
