@@ -10,91 +10,162 @@ import {
   BarChart4, 
   Users, 
   ArrowRight, 
-  CheckCircle2,
+  Sparkles,
   Stethoscope,
-  Clock
+  Activity,
+  ChevronRight
 } from 'lucide-react';
 
 const Index = () => {
   return (
-    <div className="min-h-screen bg-white">
-      {/* Navigation */}
-      <nav className="fixed top-0 w-full z-50 bg-white/80 backdrop-blur-md border-b border-gray-100">
-        <div className="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
+    <div className="min-h-screen bg-[#FDFDFF] selection:bg-indigo-100">
+      {/* Dynamic Background Elements */}
+      <div className="fixed inset-0 overflow-hidden pointer-events-none -z-10">
+        <div className="absolute -top-[10%] -left-[10%] w-[40%] h-[40%] bg-indigo-50/50 rounded-full blur-[120px]" />
+        <div className="absolute bottom-[10%] -right-[5%] w-[30%] h-[30%] bg-emerald-50/50 rounded-full blur-[100px]" />
+      </div>
+
+      {/* Modern Navigation */}
+      <nav className="fixed top-6 left-1/2 -translate-x-1/2 w-[90%] max-w-5xl z-50">
+        <div className="bg-white/70 backdrop-blur-xl border border-white/40 shadow-2xl shadow-indigo-100/20 rounded-[2rem] px-6 h-16 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <Logo className="w-10 h-10" />
-            <span className="text-2xl font-bold text-gray-900 tracking-tight">ClinicLog</span>
+            <Logo className="w-8 h-8 rounded-xl" />
+            <span className="text-xl font-black text-slate-900 tracking-tighter">Clinic<span className="text-indigo-600">Log</span></span>
           </div>
-          <div className="hidden md:flex items-center gap-8">
-            <a href="#features" className="text-sm font-medium text-gray-600 hover:text-blue-600 transition-colors">Features</a>
-            <a href="#solutions" className="text-sm font-medium text-gray-600 hover:text-blue-600 transition-colors">Solutions</a>
-            <a href="#security" className="text-sm font-medium text-gray-600 hover:text-blue-600 transition-colors">Security</a>
+          <div className="hidden md:flex items-center gap-8 font-semibold text-slate-500 text-sm">
+            <a href="#vision" className="hover:text-indigo-600 transition-colors">Vision</a>
+            <a href="#technology" className="hover:text-indigo-600 transition-colors">Technology</a>
+            <a href="#security" className="hover:text-indigo-600 transition-colors">Compliance</a>
           </div>
-          <div className="flex items-center gap-3">
-            <Button variant="ghost" asChild className="rounded-xl font-semibold">
-              <Link to="/admin/login">Login</Link>
+          <div className="flex items-center gap-2">
+            <Button variant="ghost" asChild className="rounded-xl font-bold text-slate-600 hover:bg-indigo-50 hover:text-indigo-600">
+              <Link to="/admin/login">Sign In</Link>
             </Button>
-            <Button asChild className="rounded-xl bg-blue-600 hover:bg-blue-700 shadow-lg shadow-blue-100 font-semibold px-6">
-              <Link to="/admin/signup">Get Started</Link>
+            <Button asChild className="rounded-xl bg-slate-900 hover:bg-indigo-600 text-white shadow-lg transition-all px-6">
+              <Link to="/admin/signup">Join Now</Link>
             </Button>
           </div>
         </div>
       </nav>
 
-      {/* Hero Section */}
-      <section className="pt-32 pb-20 px-6">
-        <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
-          <div className="space-y-8 animate-in slide-in-from-left duration-700">
-            <div className="inline-flex items-center gap-2 bg-blue-50 px-4 py-2 rounded-full border border-blue-100">
-              <span className="flex h-2 w-2 rounded-full bg-blue-600 animate-pulse" />
-              <span className="text-sm font-bold text-blue-700 uppercase tracking-wider">Now HIPAA Compliant</span>
-            </div>
-            <h1 className="text-5xl lg:text-7xl font-bold text-gray-900 leading-[1.1] tracking-tight">
-              Streamline your <span className="text-blue-600">Clinic Workflow.</span>
-            </h1>
-            <p className="text-xl text-gray-500 max-w-lg leading-relaxed">
-              The ultimate patient logging system designed for modern healthcare practices. Capture data in seconds, analyze trends in real-time.
-            </p>
-            <div className="flex flex-col sm:flex-row gap-4">
-              <Button asChild size="lg" className="rounded-2xl bg-blue-600 hover:bg-blue-700 h-16 px-8 text-lg shadow-xl shadow-blue-100">
-                <Link to="/admin/signup">
-                  Register Your Clinic <ArrowRight className="ml-2 w-5 h-5" />
-                </Link>
-              </Button>
-              <Button asChild variant="outline" size="lg" className="rounded-2xl h-16 px-8 text-lg border-gray-200">
-                <Link to="/admin/login">View Demo</Link>
-              </Button>
-            </div>
-            <div className="flex items-center gap-6 pt-4">
-              <div className="flex -space-x-3">
-                {[1, 2, 3, 4].map((i) => (
-                  <div key={i} className="w-10 h-10 rounded-full border-2 border-white bg-gray-100 overflow-hidden">
-                    <img src={`https://i.pravatar.cc/100?img=${i + 10}`} alt="User" />
+      {/* Hero Section - Immersive Centered */}
+      <section className="pt-48 pb-32 px-6">
+        <div className="max-w-6xl mx-auto text-center">
+          <div className="inline-flex items-center gap-2 bg-white border border-slate-100 px-4 py-1.5 rounded-full shadow-sm mb-8 animate-in fade-in slide-in-from-bottom-4">
+            <Sparkles className="w-4 h-4 text-indigo-500" />
+            <span className="text-xs font-bold text-slate-600 uppercase tracking-widest">The Future of Patient Logging</span>
+          </div>
+          
+          <h1 className="text-6xl md:text-8xl font-black text-slate-900 leading-[0.95] tracking-tight mb-8 animate-in fade-in slide-in-from-bottom-8 duration-700">
+            Efficiency for <br/>
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-emerald-500">Modern Clinics.</span>
+          </h1>
+          
+          <p className="text-xl text-slate-500 max-w-2xl mx-auto leading-relaxed mb-12 animate-in fade-in slide-in-from-bottom-12 duration-1000">
+            Ditch the paperwork. A high-performance database for medical professionals who value speed, accuracy, and beautiful data.
+          </p>
+          
+          <div className="flex flex-col sm:flex-row gap-4 justify-center mb-24 animate-in fade-in slide-in-from-bottom-16 duration-1000">
+            <Button asChild size="lg" className="rounded-2xl bg-indigo-600 hover:bg-indigo-700 h-16 px-10 text-lg font-bold shadow-2xl shadow-indigo-200 group">
+              <Link to="/admin/signup">
+                Claim Your Clinic Portal <ChevronRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
+              </Link>
+            </Button>
+            <Button asChild variant="outline" size="lg" className="rounded-2xl h-16 px-10 text-lg font-bold border-slate-200 hover:bg-slate-50">
+              <Link to="/admin/login">Explore Demo</Link>
+            </Button>
+          </div>
+
+          {/* Floating Dashboard Preview */}
+          <div className="relative max-w-5xl mx-auto animate-in zoom-in-95 duration-1000">
+            <div className="absolute -inset-1 bg-gradient-to-tr from-indigo-500 to-emerald-400 rounded-[3rem] blur-2xl opacity-20" />
+            <div className="relative bg-white/40 backdrop-blur-sm p-4 rounded-[3rem] border border-white shadow-2xl overflow-hidden group">
+              <div className="absolute inset-0 bg-slate-900/5 group-hover:bg-transparent transition-colors duration-700" />
+              <img 
+                src="https://images.unsplash.com/photo-1576091160550-2173dba999ef?auto=format&fit=crop&q=80&w=2000" 
+                alt="ClinicLog Interface" 
+                className="rounded-[2.5rem] w-full shadow-2xl grayscale-[0.2] group-hover:grayscale-0 transition-all duration-700"
+              />
+              {/* Floating Stat Widget */}
+              <div className="absolute bottom-10 right-10 bg-white/90 backdrop-blur-md p-6 rounded-3xl shadow-2xl border border-white/50 animate-bounce-slow">
+                <div className="flex items-center gap-4">
+                  <div className="bg-emerald-100 p-3 rounded-2xl">
+                    <Activity className="w-6 h-6 text-emerald-600" />
                   </div>
-                ))}
+                  <div className="text-left">
+                    <p className="text-2xl font-black text-slate-900">99.8%</p>
+                    <p className="text-xs font-bold text-slate-400 uppercase tracking-widest">Data Uptime</p>
+                  </div>
+                </div>
               </div>
-              <p className="text-sm text-gray-500 font-medium">
-                Joined by <span className="text-gray-900 font-bold">500+</span> Medical Practitioners
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Bento Grid Features */}
+      <section id="technology" className="py-32 px-6 bg-slate-50/50">
+        <div className="max-w-7xl mx-auto">
+          <div className="flex flex-col md:flex-row justify-between items-end gap-8 mb-20">
+            <div className="max-w-2xl">
+              <h2 className="text-sm font-black text-indigo-600 uppercase tracking-[0.3em] mb-4">The Stack</h2>
+              <p className="text-4xl md:text-5xl font-black text-slate-900 tracking-tighter">Precision tools for precision medicine.</p>
+            </div>
+            <p className="text-lg text-slate-500 max-w-sm">We've architected a system that anticipates clinical needs before they arise.</p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-6 gap-6">
+            {/* Large Card */}
+            <div className="md:col-span-4 bg-white p-10 rounded-[3rem] border border-slate-100 shadow-sm hover:shadow-xl transition-all group overflow-hidden relative">
+              <div className="absolute top-0 right-0 w-64 h-64 bg-indigo-50 rounded-full translate-x-1/3 -translate-y-1/3 blur-3xl opacity-50 group-hover:scale-110 transition-transform duration-700" />
+              <div className="relative z-10">
+                <div className="w-14 h-14 rounded-2xl bg-indigo-50 flex items-center justify-center mb-8">
+                  <BarChart4 className="w-7 h-7 text-indigo-600" />
+                </div>
+                <h3 className="text-3xl font-black text-slate-900 mb-4 tracking-tight">Real-time Clinical Intelligence</h3>
+                <p className="text-lg text-slate-500 leading-relaxed max-w-md">
+                  Transform every entry into a data point. Visualize diagnosis trends, age demographics, and patient volume without leaving the dashboard.
+                </p>
+              </div>
+            </div>
+
+            {/* Square Card */}
+            <div className="md:col-span-2 bg-slate-900 p-10 rounded-[3rem] text-white hover:bg-indigo-900 transition-colors group">
+              <div className="w-14 h-14 rounded-2xl bg-white/10 flex items-center justify-center mb-8">
+                <ShieldCheck className="w-7 h-7 text-emerald-400" />
+              </div>
+              <h3 className="text-2xl font-black mb-4 tracking-tight">Isolated Privacy</h3>
+              <p className="text-slate-400 leading-relaxed">
+                Bank-grade RLS (Row Level Security) ensures your clinic's data is visible only to your team. Always.
               </p>
             </div>
-          </div>
-          <div className="relative animate-in zoom-in duration-1000">
-            <div className="absolute -inset-4 bg-blue-100/50 rounded-[3rem] blur-3xl -z-10" />
-            <div className="bg-white p-4 rounded-[2.5rem] shadow-2xl border border-gray-50">
-              <img 
-                src="https://images.unsplash.com/photo-1576091160550-2173dba999ef?auto=format&fit=crop&q=80&w=1000" 
-                alt="Clinic Management" 
-                className="rounded-[2rem] shadow-inner"
-              />
-              <div className="absolute -bottom-6 -left-6 bg-white p-6 rounded-3xl shadow-xl border border-gray-50 animate-bounce-slow">
-                <div className="flex items-center gap-4">
-                  <div className="bg-green-100 p-3 rounded-2xl">
-                    <CheckCircle2 className="w-6 h-6 text-green-600" />
-                  </div>
-                  <div>
-                    <p className="text-sm font-bold text-gray-900">Success Rate</p>
-                    <p className="text-xs text-gray-500">99.9% Data Accuracy</p>
-                  </div>
+
+            {/* Column Cards */}
+            <div className="md:col-span-2 bg-indigo-50 p-10 rounded-[3rem] border border-indigo-100 hover:border-indigo-300 transition-all">
+              <div className="w-14 h-14 rounded-2xl bg-white flex items-center justify-center mb-8">
+                <Zap className="w-7 h-7 text-indigo-600" />
+              </div>
+              <h3 className="text-2xl font-black text-slate-900 mb-4 tracking-tight">Zero-Latency Entry</h3>
+              <p className="text-indigo-900/60 leading-relaxed">
+                Smart autocomplete learns your common diagnoses, cutting entry time by up to 70%.
+              </p>
+            </div>
+
+            <div className="md:col-span-4 bg-white p-10 rounded-[3rem] border border-slate-100 shadow-sm flex flex-col md:flex-row gap-10 items-center">
+              <div className="flex-1">
+                <div className="w-14 h-14 rounded-2xl bg-slate-50 flex items-center justify-center mb-8">
+                  <Users className="w-7 h-7 text-slate-600" />
+                </div>
+                <h3 className="text-2xl font-black text-slate-900 mb-4 tracking-tight">Multi-Provider Sync</h3>
+                <p className="text-slate-500 leading-relaxed">
+                  Collaborate across your entire practice. Synchronize reports between doctors, nurses, and administrative staff instantly.
+                </p>
+              </div>
+              <div className="w-full md:w-1/3 flex justify-center">
+                <div className="grid grid-cols-2 gap-3">
+                  {[1,2,3,4].map(i => (
+                    <div key={i} className="w-12 h-12 rounded-2xl bg-slate-100 border-2 border-white shadow-sm" />
+                  ))}
                 </div>
               </div>
             </div>
@@ -102,110 +173,47 @@ const Index = () => {
         </div>
       </section>
 
-      {/* Features Grid */}
-      <section id="features" className="py-24 bg-gray-50/50">
-        <div className="max-w-7xl mx-auto px-6">
-          <div className="text-center max-w-3xl mx-auto mb-20">
-            <h2 className="text-sm font-bold text-blue-600 uppercase tracking-[0.2em] mb-4">Core Capabilities</h2>
-            <p className="text-4xl font-bold text-gray-900 mb-6 tracking-tight">Everything you need to run a data-driven practice</p>
-            <p className="text-lg text-gray-500">Built by clinicians, for clinicians. We've stripped away the complexity of traditional EMRs to focus on speed and insight.</p>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {[
-              { 
-                title: "Rapid Entry", 
-                desc: "Smart autocomplete and keyboard shortcuts for lightning-fast patient logging.", 
-                icon: Zap, 
-                color: "text-amber-600", 
-                bg: "bg-amber-50" 
-              },
-              { 
-                title: "Advanced Analytics", 
-                desc: "Visualize patient volume, demographics, and diagnosis trends instantly.", 
-                icon: BarChart4, 
-                color: "text-blue-600", 
-                bg: "bg-blue-50" 
-              },
-              { 
-                title: "Private & Secure", 
-                desc: "Bank-grade encryption and individual clinic isolation with Row Level Security.", 
-                icon: ShieldCheck, 
-                color: "text-green-600", 
-                bg: "bg-green-50" 
-              },
-              { 
-                title: "Multi-Provider", 
-                desc: "Easily manage multiple practitioners and staff under a single clinic umbrella.", 
-                icon: Users, 
-                color: "text-purple-600", 
-                bg: "bg-purple-50" 
-              },
-              { 
-                title: "Cross-Device", 
-                desc: "Record entries from your mobile or desktop seamlessly during patient visits.", 
-                icon: Stethoscope, 
-                color: "text-red-600", 
-                bg: "bg-red-50" 
-              },
-              { 
-                title: "Automatic History", 
-                desc: "Never type the same diagnosis twice. Smart learning improves your speed over time.", 
-                icon: Clock, 
-                color: "text-indigo-600", 
-                bg: "bg-indigo-50" 
-              },
-            ].map((f, i) => (
-              <div key={i} className="bg-white p-8 rounded-[2rem] border border-gray-100 hover:shadow-xl hover:shadow-blue-50/50 transition-all duration-300 group">
-                <div className={`w-14 h-14 rounded-2xl ${f.bg} flex items-center justify-center mb-6 group-hover:scale-110 transition-transform`}>
-                  <f.icon className={`w-7 h-7 ${f.color}`} />
-                </div>
-                <h3 className="text-xl font-bold text-gray-900 mb-3">{f.title}</h3>
-                <p className="text-gray-500 leading-relaxed">{f.desc}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* CTA Section */}
-      <section className="py-24 px-6">
-        <div className="max-w-5xl mx-auto bg-blue-600 rounded-[3rem] p-12 lg:p-20 text-center relative overflow-hidden shadow-2xl shadow-blue-200">
-          <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full -translate-y-1/2 translate-x-1/2 blur-3xl" />
-          <div className="absolute bottom-0 left-0 w-64 h-64 bg-black/10 rounded-full translate-y-1/2 -translate-x-1/2 blur-3xl" />
-          
-          <div className="relative z-10 space-y-8">
-            <h2 className="text-3xl lg:text-5xl font-bold text-white tracking-tight">Ready to modernize your clinic?</h2>
-            <p className="text-blue-100 text-lg lg:text-xl max-w-2xl mx-auto">
-              Join hundreds of medical professionals who have ditched paper logs for ClinicLog. Setup takes less than 2 minutes.
-            </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center pt-4">
-              <Button asChild size="lg" className="rounded-2xl bg-white text-blue-600 hover:bg-blue-50 h-16 px-10 text-lg font-bold">
-                <Link to="/admin/signup">Start Free Trial</Link>
-              </Button>
-              <Button asChild variant="outline" size="lg" className="rounded-2xl h-16 px-10 text-lg font-bold border-white/20 text-white hover:bg-white/10">
-                <Link to="/admin/login">Contact Support</Link>
-              </Button>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Footer */}
-      <footer className="py-12 border-t border-gray-100">
-        <div className="max-w-7xl mx-auto px-6 flex flex-col md:flex-row justify-between items-center gap-8">
-          <div className="flex items-center gap-3">
-            <Logo className="w-8 h-8" />
-            <span className="text-xl font-bold text-gray-900 tracking-tight">ClinicLog</span>
-          </div>
-          <div className="flex gap-8 text-sm font-medium text-gray-500">
-            <a href="#" className="hover:text-blue-600 transition-colors">Privacy Policy</a>
-            <a href="#" className="hover:text-blue-600 transition-colors">Terms of Service</a>
-            <a href="#" className="hover:text-blue-600 transition-colors">Help Center</a>
-          </div>
-          <p className="text-sm text-gray-400">
-            © {new Date().getFullYear()} ClinicLog. All rights reserved.
+      {/* Dynamic CTA */}
+      <section className="py-40 px-6 relative overflow-hidden">
+        <div className="max-w-4xl mx-auto text-center">
+          <h2 className="text-5xl md:text-7xl font-black text-slate-900 mb-8 tracking-tighter">
+            Elevate your <br/>
+            <span className="text-indigo-600 underline decoration-emerald-400 decoration-8 underline-offset-8">practice standard.</span>
+          </h2>
+          <p className="text-xl text-slate-500 mb-12 max-w-xl mx-auto">
+            Join the elite circle of data-driven clinics today. No credit card required to start your portal.
           </p>
+          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <Button asChild size="lg" className="rounded-2xl bg-slate-900 hover:bg-black h-16 px-12 text-lg font-bold">
+              <Link to="/admin/signup">Start My Free Portal</Link>
+            </Button>
+            <Button variant="ghost" className="h-16 px-8 text-lg font-bold text-slate-500 hover:text-indigo-600">
+              Talk to Clinical Support
+            </Button>
+          </div>
+        </div>
+      </section>
+
+      {/* Minimal Footer */}
+      <footer className="py-20 border-t border-slate-50 bg-white">
+        <div className="max-w-7xl mx-auto px-6 flex flex-col md:flex-row justify-between items-center gap-12">
+          <div className="flex flex-col items-center md:items-start gap-4">
+            <div className="flex items-center gap-3">
+              <Logo className="w-8 h-8" />
+              <span className="text-2xl font-black text-slate-900 tracking-tighter">ClinicLog</span>
+            </div>
+            <p className="text-sm text-slate-400 font-medium tracking-wide">THE CLINICAL LOGGING STANDARD.</p>
+          </div>
+          
+          <div className="flex flex-wrap justify-center gap-12 text-sm font-bold text-slate-400">
+            <a href="#" className="hover:text-indigo-600 transition-colors uppercase tracking-widest">Protocol</a>
+            <a href="#" className="hover:text-indigo-600 transition-colors uppercase tracking-widest">Privacy</a>
+            <a href="#" className="hover:text-indigo-600 transition-colors uppercase tracking-widest">Status</a>
+          </div>
+
+          <div className="text-slate-300 text-xs font-bold uppercase tracking-widest">
+            © {new Date().getFullYear()} DATA IS SECURE.
+          </div>
         </div>
       </footer>
     </div>
