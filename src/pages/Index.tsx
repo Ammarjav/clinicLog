@@ -65,9 +65,9 @@ const Index = () => {
             <a href="#features" className="hover:text-indigo-600 transition-colors">Features</a>
             <Dialog open={isContactOpen} onOpenChange={setIsContactOpen}>
               <DialogTrigger asChild>
-                <button className="hover:text-indigo-600 transition-colors focus:outline-none">Contact</button>
+                <button className="hover:text-indigo-600 hover:bg-indigo-50/50 px-4 py-2 rounded-xl transition-all focus:outline-none">Contact</button>
               </DialogTrigger>
-              <DialogContent className="sm:max-w-md rounded-[2.5rem] border-none shadow-2xl p-0 overflow-hidden">
+              <DialogContent className="sm:max-w-md rounded-[2.5rem] border-none shadow-2xl p-0 overflow-hidden animate-in fade-in zoom-in-95 slide-in-from-bottom-4 duration-500">
                 <div className="bg-indigo-600 p-8 text-white relative">
                   <DialogHeader className="text-left">
                     <DialogTitle className="text-2xl font-black tracking-tight">Direct Access</DialogTitle>
@@ -127,7 +127,7 @@ const Index = () => {
         </div>
       </nav>
 
-      {/* Hero Section - Reduced bottom padding */}
+      {/* Hero Section */}
       <section className="pt-24 md:pt-36 pb-12 md:pb-20 px-4 md:px-6">
         <div className="max-w-6xl mx-auto text-center">
           <div className="inline-flex items-center gap-2 bg-white border border-slate-100 px-3 md:px-4 py-1.5 rounded-full shadow-sm mb-6 md:mb-8 animate-in fade-in slide-in-from-bottom-4">
@@ -182,7 +182,7 @@ const Index = () => {
         </div>
       </section>
 
-      {/* Vision Section - Balanced spacing */}
+      {/* Vision Section */}
       <section id="vision" className="py-12 md:py-20 px-4 md:px-6 relative overflow-hidden">
         <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
           <div className="relative order-2 lg:order-1">
@@ -239,7 +239,7 @@ const Index = () => {
         </div>
       </section>
 
-      {/* Bento Grid Features - Reduced top/bottom padding */}
+      {/* Bento Grid Features */}
       <section id="features" className="py-12 md:py-20 px-4 md:px-6 bg-slate-50/50">
         <div className="max-w-7xl mx-auto">
           <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6 md:gap-8 mb-8 md:mb-12 px-2">
@@ -317,7 +317,7 @@ const Index = () => {
         </div>
       </section>
 
-      {/* Dynamic CTA - Reduced top/bottom padding */}
+      {/* Dynamic CTA */}
       <section className="py-16 md:py-28 px-4 md:px-6 relative overflow-hidden">
         <div className="max-w-4xl mx-auto text-center px-4">
           <h2 className="text-4xl md:text-7xl font-black text-slate-900 mb-6 md:mb-8 tracking-tighter">
@@ -328,17 +328,21 @@ const Index = () => {
             Join the elite circle of data-driven clinics today. No credit card required.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Button asChild size="lg" className="rounded-2xl bg-slate-900 hover:bg-black h-14 md:h-16 px-10 md:px-12 text-base md:text-lg font-bold shadow-xl shadow-slate-200">
+            <Button asChild size="lg" className="rounded-2xl bg-slate-900 hover:bg-black h-14 md:h-16 px-10 md:px-12 text-base md:text-lg font-bold shadow-xl shadow-slate-200 transition-all active:scale-[0.98]">
               <Link to="/admin/signup">Create Your Portal</Link>
             </Button>
-            <Button variant="ghost" onClick={() => setIsContactOpen(true)} className="h-14 md:h-16 px-8 text-base md:text-lg font-bold text-slate-500 hover:text-indigo-600">
+            <Button 
+              variant="ghost" 
+              onClick={() => setIsContactOpen(true)} 
+              className="h-14 md:h-16 px-8 text-base md:text-lg font-bold text-slate-500 hover:text-indigo-600 hover:bg-indigo-50 hover:rounded-2xl transition-all duration-300"
+            >
               Get in Touch
             </Button>
           </div>
         </div>
       </section>
 
-      {/* Minimal Footer - Tighter padding */}
+      {/* Minimal Footer */}
       <footer className="py-8 md:py-16 border-t border-slate-50 bg-white px-6">
         <div className="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-10">
           <div className="flex flex-col items-center md:items-start gap-4">
