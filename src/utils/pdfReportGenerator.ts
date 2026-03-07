@@ -41,8 +41,9 @@ export const generatePdfReport = (
   doc.text(`Period: ${dateRangeStr}`, margin, 34);
   doc.text(`Generated: ${new Date().toLocaleString()}`, margin, 38);
 
-  // 2. Summary Cards (Top row)
-  const cardWidth = (pageWidth - (margin * 2) - 10) / 3;
+  // 2. Summary Cards (Top row) - Now 4 cards
+  const cardGap = 4;
+  const cardWidth = (pageWidth - (margin * 2) - (cardGap * 3)) / 4;
   const cardY = 55;
 
   const drawCard = (x: number, y: number, title: string, value: string, color: number[]) => {
@@ -50,18 +51,19 @@ export const generatePdfReport = (
     doc.setDrawColor(241, 245, 249);
     doc.roundedRect(x, y, cardWidth, 25, 3, 3, 'FD');
     
-    doc.setFontSize(8);
+    doc.setFontSize(7);
     doc.setTextColor(148, 163, 184);
-    doc.text(title.toUpperCase(), x + 5, y + 8);
+    doc.text(title.toUpperCase(), x + 4, y + 8);
     
-    doc.setFontSize(14);
+    doc.setFontSize(12);
     doc.setTextColor(color[0], color[1], color[2]);
-    doc.text(value, x + 5, y + 18);
+    doc.text(value, x + 4, y + 18);
   };
 
   drawCard(margin, cardY, 'Total Patients', analytics.totalPatients.toString(), primaryColor);
-  drawCard(margin + cardWidth + 5, cardY, 'New Patients', analytics.newPatients.toString(), [16, 185, 129]);
-  drawCard(margin + (cardWidth + 5) * 2, cardY, 'Total Visits', analytics.totalVisits.toString(), [59, 130, 246]);
+  drawCard(margin + (cardWidth + cardGap), cardY, 'New Patients', analytics.newPatients.toString(), [16, 185, 129]);
+  drawCard(margin + (cardWidth + cardGap) * 2, cardY, 'Male Patients', analytics.malePatients.toString(), [59, 130, 246]);
+  drawCard(margin + (cardWidth + cardGap) * 3, cardY, 'Female Patients', analytics.femalePatients.toString(), [236, 72, 153]);
 
   // 3. Advanced Insights
   doc.setTextColor(15, 23, 42);
