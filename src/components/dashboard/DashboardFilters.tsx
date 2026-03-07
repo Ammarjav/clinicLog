@@ -1,10 +1,11 @@
 "use client";
 
 import React from 'react';
-import { Search, Calendar as CalendarIcon } from 'lucide-react';
+import { Search, Calendar as CalendarIcon, FilterX } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
+import { Card } from '@/components/ui/card';
 
 interface FilterState {
   search: string;
@@ -23,83 +24,91 @@ interface DashboardFiltersProps {
 
 const DashboardFilters = ({ filters, onFilterChange, onReset }: DashboardFiltersProps) => {
   return (
-    <div className="bg-white p-6 rounded-[2rem] shadow-sm border border-gray-100 mb-8 space-y-4 animate-in fade-in slide-in-from-top-4 duration-500">
-      <div className="flex flex-wrap items-center gap-4">
-        {/* Search */}
-        <div className="relative flex-1 min-w-[240px]">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-          <Input 
-            placeholder="Search by name or diagnosis..." 
-            className="pl-10 rounded-xl bg-gray-50 border-none h-11 focus-visible:ring-blue-500"
-            value={filters.search}
-            onChange={(e) => onFilterChange('search', e.target.value)}
-          />
+    <Card className="bg-white p-6 md:p-8 rounded-[2.5rem] shadow-sm border-none mb-8 animate-in fade-in slide-in-from-top-4 duration-500">
+      <div className="space-y-6">
+        <div className="flex items-center justify-between">
+          <h3 className="text-sm font-black text-slate-400 uppercase tracking-widest">Active Filters</h3>
+          <Button 
+            variant="ghost" 
+            onClick={onReset}
+            className="h-10 px-4 rounded-xl hover:bg-rose-50 text-rose-500 hover:text-rose-600 font-bold text-xs transition-colors"
+          >
+            <FilterX className="w-4 h-4 mr-2" />
+            Clear All
+          </Button>
         </div>
 
-        {/* Date Filter */}
-        <div className="relative">
-          <CalendarIcon className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
-          <Input 
-            type="date" 
-            className="pl-10 w-[180px] rounded-xl bg-gray-50 border-none h-11 focus-visible:ring-blue-500"
-            value={filters.date}
-            onChange={(e) => onFilterChange('date', e.target.value)}
-          />
+        <div className="flex flex-wrap items-center gap-4">
+          {/* Search */}
+          <div className="relative flex-1 min-w-[280px]">
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+            <Input 
+              placeholder="Search patients or conditions..." 
+              className="pl-12 h-14 rounded-2xl bg-slate-50 border-none focus-visible:ring-indigo-500/20 text-base"
+              value={filters.search}
+              onChange={(e) => onFilterChange('search', e.target.value)}
+            />
+          </div>
+
+          <div className="flex flex-wrap items-center gap-3 w-full lg:w-auto">
+            {/* Date Filter */}
+            <div className="relative flex-1 sm:flex-none">
+              <CalendarIcon className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none" />
+              <Input 
+                type="date" 
+                className="pl-12 w-full sm:w-[180px] h-14 rounded-2xl bg-slate-50 border-none focus-visible:ring-indigo-500/20"
+                value={filters.date}
+                onChange={(e) => onFilterChange('date', e.target.value)}
+              />
+            </div>
+
+            {/* Gender Filter */}
+            <Select value={filters.gender} onValueChange={(v) => onFilterChange('gender', v)}>
+              <SelectTrigger className="flex-1 sm:flex-none w-full sm:w-[150px] h-14 rounded-2xl bg-slate-50 border-none text-slate-600 font-medium">
+                <SelectValue placeholder="Gender" />
+              </SelectTrigger>
+              <SelectContent className="rounded-2xl border-none shadow-2xl">
+                <SelectItem value="all">All Genders</SelectItem>
+                <SelectItem value="Male">Male</SelectItem>
+                <SelectItem value="Female">Female</SelectItem>
+                <SelectItem value="Other">Other</SelectItem>
+              </SelectContent>
+            </Select>
+
+            {/* Visit Type Filter */}
+            <Select value={filters.visitType} onValueChange={(v) => onFilterChange('visitType', v)}>
+              <SelectTrigger className="flex-1 sm:flex-none w-full sm:w-[160px] h-14 rounded-2xl bg-slate-50 border-none text-slate-600 font-medium">
+                <SelectValue placeholder="Visit Status" />
+              </SelectTrigger>
+              <SelectContent className="rounded-2xl border-none shadow-2xl">
+                <SelectItem value="all">All Visits</SelectItem>
+                <SelectItem value="New">New Patient</SelectItem>
+                <SelectItem value="Follow-up">Follow-up</SelectItem>
+              </SelectContent>
+            </Select>
+
+            {/* Age Range */}
+            <div className="flex items-center gap-2 bg-slate-50 p-2 rounded-2xl flex-1 sm:flex-none">
+              <Input 
+                type="number" 
+                placeholder="Min Age" 
+                className="w-full sm:w-20 h-10 rounded-xl border-none bg-white text-sm font-bold"
+                value={filters.minAge}
+                onChange={(e) => onFilterChange('minAge', e.target.value)}
+              />
+              <span className="text-slate-300 font-black text-[10px]">TO</span>
+              <Input 
+                type="number" 
+                placeholder="Max Age" 
+                className="w-full sm:w-20 h-10 rounded-xl border-none bg-white text-sm font-bold"
+                value={filters.maxAge}
+                onChange={(e) => onFilterChange('maxAge', e.target.value)}
+              />
+            </div>
+          </div>
         </div>
-
-        {/* Gender Filter */}
-        <Select value={filters.gender} onValueChange={(v) => onFilterChange('gender', v)}>
-          <SelectTrigger className="w-[140px] rounded-xl bg-gray-50 border-none h-11">
-            <SelectValue placeholder="Gender" />
-          </SelectTrigger>
-          <SelectContent className="rounded-xl">
-            <SelectItem value="all">All Genders</SelectItem>
-            <SelectItem value="Male">Male</SelectItem>
-            <SelectItem value="Female">Female</SelectItem>
-            <SelectItem value="Other">Other</SelectItem>
-          </SelectContent>
-        </Select>
-
-        {/* Visit Type Filter */}
-        <Select value={filters.visitType} onValueChange={(v) => onFilterChange('visitType', v)}>
-          <SelectTrigger className="w-[160px] rounded-xl bg-gray-50 border-none h-11">
-            <SelectValue placeholder="Visit Type" />
-          </SelectTrigger>
-          <SelectContent className="rounded-xl">
-            <SelectItem value="all">All Visits</SelectItem>
-            <SelectItem value="New">New Patient</SelectItem>
-            <SelectItem value="Follow-up">Follow-up</SelectItem>
-          </SelectContent>
-        </Select>
-
-        {/* Age Range */}
-        <div className="flex items-center gap-2 bg-gray-50 p-1 rounded-xl">
-          <Input 
-            type="number" 
-            placeholder="Min Age" 
-            className="w-20 rounded-lg border-none bg-white h-9 text-sm"
-            value={filters.minAge}
-            onChange={(e) => onFilterChange('minAge', e.target.value)}
-          />
-          <span className="text-gray-400 text-xs font-bold px-1">to</span>
-          <Input 
-            type="number" 
-            placeholder="Max Age" 
-            className="w-20 rounded-lg border-none bg-white h-9 text-sm"
-            value={filters.maxAge}
-            onChange={(e) => onFilterChange('maxAge', e.target.value)}
-          />
-        </div>
-
-        <Button 
-          variant="ghost" 
-          onClick={onReset}
-          className="rounded-xl hover:bg-red-50 text-red-500 hover:text-red-600 font-medium text-sm transition-colors"
-        >
-          Reset Filters
-        </Button>
       </div>
-    </div>
+    </Card>
   );
 };
 
