@@ -161,9 +161,9 @@ const Index = () => {
             <div className="relative bg-white/40 backdrop-blur-sm p-2 md:p-4 rounded-3xl md:rounded-[3rem] border border-white shadow-2xl overflow-hidden group">
               <div className="absolute inset-0 bg-slate-900/5 group-hover:bg-transparent transition-colors duration-700" />
               <img 
-                src="https://images.unsplash.com/photo-1576091160550-2173bdd99625?auto=format&fit=crop&q=80&w=2000" 
+                src="https://images.unsplash.com/photo-1530497610245-94d3c16cda28?ixlib=rb-4.0.3&auto=format&fit=crop&w=2340&q=80" 
                 alt="ClinicLog Interface" 
-                className="rounded-2xl md:rounded-[2.5rem] w-full shadow-2xl grayscale-[0.2] group-hover:grayscale-0 transition-all duration-700 object-cover aspect-[21/9]"
+                className="rounded-2xl md:rounded-[2.5rem] w-full shadow-2xl transition-all duration-700 object-cover aspect-[21/9]"
               />
               {/* Floating Stat Widget */}
               <div className="hidden sm:block absolute bottom-6 right-6 md:bottom-10 md:right-10 bg-white/90 backdrop-blur-md p-4 md:p-6 rounded-2xl md:rounded-3xl shadow-2xl border border-white/50 animate-bounce-slow">
