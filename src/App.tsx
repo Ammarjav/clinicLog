@@ -11,6 +11,7 @@ import ClinicLayout from "./components/layout/ClinicLayout";
 import ClinicDashboard from "./pages/clinic/ClinicDashboard";
 import ClinicPatients from "./pages/clinic/ClinicPatients";
 import ClinicAnalytics from "./pages/clinic/ClinicAnalytics";
+import ClinicReports from "./pages/clinic/ClinicReports";
 import ClinicEntry from "./pages/clinic/ClinicEntry";
 
 const queryClient = new QueryClient();
@@ -54,6 +55,14 @@ const App = () => (
             <ClinicGuard>
               <ClinicLayout>
                 <ClinicAnalytics />
+              </ClinicLayout>
+            </ClinicGuard>
+          } />
+
+          <Route path="/clinic/:slug/reports" element={
+            <ClinicGuard>
+              <ClinicLayout>
+                <ClinicReports />
               </ClinicLayout>
             </ClinicGuard>
           } />

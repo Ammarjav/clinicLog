@@ -10,7 +10,8 @@ import {
   UserPlus, 
   LogOut, 
   Menu, 
-  X 
+  X,
+  FileText
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import Logo from '@/components/Logo';
@@ -43,6 +44,7 @@ export const ClinicLayout = ({ children }: ClinicLayoutProps) => {
     { name: 'Dashboard', path: `/clinic/${slug}/dashboard`, icon: LayoutDashboard },
     { name: 'Patients', path: `/clinic/${slug}/patients`, icon: Users },
     { name: 'Analytics', path: `/clinic/${slug}/analytics`, icon: BarChart3 },
+    { name: 'Reports', path: `/clinic/${slug}/reports`, icon: FileText },
     { name: 'New Entry', path: `/clinic/${slug}/entry`, icon: UserPlus },
   ];
 
