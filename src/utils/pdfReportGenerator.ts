@@ -27,6 +27,7 @@ export const generatePdfReport = (
   doc.setFillColor(252, 252, 253);
   doc.rect(0, 0, pageWidth, 45, 'F');
   
+  // Clinic Details
   doc.setTextColor(15, 23, 42);
   doc.setFont('helvetica', 'bold');
   doc.setFontSize(22);
@@ -41,7 +42,22 @@ export const generatePdfReport = (
   doc.text(`Period: ${dateRangeStr}`, margin, 34);
   doc.text(`Generated: ${new Date().toLocaleString()}`, margin, 38);
 
-  // 2. Summary Cards (Top row) - Now 4 cards
+  // Brand Logo (Top Right)
+  const logoX = pageWidth - margin - 35;
+  doc.setFillColor(79, 70, 229); // Indigo
+  doc.roundedRect(logoX, 12, 8, 8, 2, 2, 'F');
+  // Plus sign inside logo
+  doc.setDrawColor(255, 255, 255);
+  doc.setLineWidth(0.8);
+  doc.line(logoX + 4, 14, logoX + 4, 18);
+  doc.line(logoX + 2, 16, logoX + 6, 16);
+  
+  doc.setTextColor(15, 23, 42);
+  doc.setFont('helvetica', 'bold');
+  doc.setFontSize(14);
+  doc.text('ClinicLog', logoX + 10, 18);
+
+  // 2. Summary Cards
   const cardGap = 4;
   const cardWidth = (pageWidth - (margin * 2) - (cardGap * 3)) / 4;
   const cardY = 55;
@@ -107,16 +123,16 @@ export const generatePdfReport = (
     styles: { fontSize: 9, halign: 'center' }
   });
 
-  // 5. Patient Summary (Top 20)
+  // 5. Patient Summary (Full List)
   const patientTableY = (doc as any).lastAutoTable.finalY + 15;
   doc.setFontSize(12);
-  doc.text('Recent Patient Logs (Top 20)', margin, patientTableY);
+  doc.text('Patient Logs', margin, patientTableY);
 
   autoTable(doc, {
     startY: patientTableY + 5,
     margin: { left: margin, right: margin },
     head: [['Name', 'Age', 'Gender', 'Condition', 'Visit Date']],
-    body: data.slice(0, 20).map(p => [
+    body: data.map(p => [
       p.name,
       p.age,
       p.gender,
@@ -134,11 +150,6 @@ export const generatePdfReport = (
     doc.setPage(i);
     doc.setFontSize(8);
     doc.setTextColor(148, 163, 184);
-    doc.text(
-      'Full patient dataset can be exported via Excel from the ClinicLog dashboard.',
-      margin,
-      doc.internal.pageSize.getHeight() - 10
-    );
     doc.text(
       `Page ${i} of ${pageCount}`,
       pageWidth - margin - 20,
