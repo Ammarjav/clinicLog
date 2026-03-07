@@ -1,9 +1,11 @@
 "use client";
 
-import React from 'react';
+import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import Logo from '@/components/Logo';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
 import { 
   Zap, 
   ShieldCheck, 
@@ -11,12 +13,37 @@ import {
   Users, 
   Sparkles,
   Activity,
-  ChevronRight
+  ChevronRight,
+  Target,
+  Heart,
+  Globe,
+  MessageCircle,
+  X
 } from 'lucide-react';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 
 const Index = () => {
+  const [contactForm, setContactForm] = useState({ name: '', info: '', message: '' });
+  const [isContactOpen, setIsContactOpen] = useState(false);
+
+  const handleWhatsAppRedirect = (e: React.FormEvent) => {
+    e.preventDefault();
+    const phone = "1234567890"; // Replace with your actual number
+    const text = `Hello ClinicLog! %0A%0AMy Name: ${contactForm.name}%0AContact Info: ${contactForm.info}%0A%0AMessage: ${contactForm.message}`;
+    window.open(`https://wa.me/${phone}?text=${text}`, '_blank');
+    setIsContactOpen(false);
+    setContactForm({ name: '', info: '', message: '' });
+  };
+
   return (
-    <div className="min-h-screen bg-[#FDFDFF] selection:bg-indigo-100 overflow-x-hidden">
+    <div className="min-h-screen bg-[#FDFDFF] selection:bg-indigo-100 overflow-x-hidden scroll-smooth">
       {/* Dynamic Background Elements */}
       <div className="fixed inset-0 overflow-hidden pointer-events-none -z-10">
         <div className="absolute -top-[5%] -left-[10%] w-[60%] md:w-[40%] h-[40%] bg-indigo-50/50 rounded-full blur-[80px] md:blur-[120px]" />
@@ -34,6 +61,57 @@ const Index = () => {
           <div className="hidden md:flex items-center gap-8 font-semibold text-slate-500 text-sm">
             <a href="#vision" className="hover:text-indigo-600 transition-colors">Vision</a>
             <a href="#technology" className="hover:text-indigo-600 transition-colors">Technology</a>
+            <Dialog open={isContactOpen} onOpenChange={setIsContactOpen}>
+              <DialogTrigger asChild>
+                <button className="hover:text-indigo-600 transition-colors focus:outline-none">Contact</button>
+              </DialogTrigger>
+              <DialogContent className="sm:max-w-md rounded-[2.5rem] border-none shadow-2xl p-0 overflow-hidden">
+                <div className="bg-indigo-600 p-8 text-white relative">
+                  <DialogHeader className="text-left">
+                    <DialogTitle className="text-2xl font-black tracking-tight">Direct Access</DialogTitle>
+                    <DialogDescription className="text-indigo-100 font-medium">
+                      Fill this out and we'll jump straight to WhatsApp.
+                    </DialogDescription>
+                  </DialogHeader>
+                  <MessageCircle className="absolute right-6 top-6 w-12 h-12 text-white/10" />
+                </div>
+                <form onSubmit={handleWhatsAppRedirect} className="p-8 space-y-4 bg-white">
+                  <div className="space-y-1.5">
+                    <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Your Name</label>
+                    <Input 
+                      required
+                      placeholder="Dr. Jordan Smith" 
+                      className="rounded-xl h-12 bg-slate-50 border-none focus-visible:ring-indigo-500/20"
+                      value={contactForm.name}
+                      onChange={(e) => setContactForm({...contactForm, name: e.target.value})}
+                    />
+                  </div>
+                  <div className="space-y-1.5">
+                    <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Email or Phone</label>
+                    <Input 
+                      required
+                      placeholder="dr.smith@example.com" 
+                      className="rounded-xl h-12 bg-slate-50 border-none focus-visible:ring-indigo-500/20"
+                      value={contactForm.info}
+                      onChange={(e) => setContactForm({...contactForm, info: e.target.value})}
+                    />
+                  </div>
+                  <div className="space-y-1.5">
+                    <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Your Message</label>
+                    <Textarea 
+                      required
+                      placeholder="Tell us about your clinic's needs..." 
+                      className="rounded-xl min-h-[100px] bg-slate-50 border-none focus-visible:ring-indigo-500/20 resize-none"
+                      value={contactForm.message}
+                      onChange={(e) => setContactForm({...contactForm, message: e.target.value})}
+                    />
+                  </div>
+                  <Button type="submit" className="w-full h-14 rounded-2xl bg-indigo-600 hover:bg-indigo-700 font-bold text-lg shadow-xl shadow-indigo-100 mt-2">
+                    Send to WhatsApp
+                  </Button>
+                </form>
+              </DialogContent>
+            </Dialog>
           </div>
 
           <div className="flex items-center gap-2">
@@ -96,6 +174,63 @@ const Index = () => {
                     <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Uptime</p>
                   </div>
                 </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Vision Section */}
+      <section id="vision" className="py-20 md:py-32 px-4 md:px-6 relative overflow-hidden">
+        <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+          <div className="relative order-2 lg:order-1">
+            <div className="absolute -inset-4 bg-indigo-100/50 rounded-[3rem] blur-2xl -z-10" />
+            <div className="grid grid-cols-2 gap-4">
+              <div className="bg-white p-8 rounded-[2.5rem] shadow-xl shadow-indigo-100/20 border border-slate-50 transform translate-y-8">
+                <div className="w-12 h-12 bg-indigo-50 rounded-2xl flex items-center justify-center mb-6">
+                  <Target className="w-6 h-6 text-indigo-600" />
+                </div>
+                <h4 className="text-xl font-black text-slate-900 mb-2">Clarity</h4>
+                <p className="text-sm text-slate-500 font-medium">Removing noise to focus on patient outcomes.</p>
+              </div>
+              <div className="bg-slate-900 p-8 rounded-[2.5rem] shadow-2xl text-white">
+                <div className="w-12 h-12 bg-white/10 rounded-2xl flex items-center justify-center mb-6">
+                  <Heart className="w-6 h-6 text-emerald-400" />
+                </div>
+                <h4 className="text-xl font-black mb-2">Empathy</h4>
+                <p className="text-sm text-slate-400 font-medium">Built with the medical journey in mind.</p>
+              </div>
+              <div className="bg-indigo-600 p-8 rounded-[2.5rem] shadow-2xl text-white col-span-2">
+                <div className="flex items-center gap-4 mb-4">
+                  <div className="w-12 h-12 bg-white/20 rounded-2xl flex items-center justify-center">
+                    <Globe className="w-6 h-6 text-white" />
+                  </div>
+                  <h4 className="text-2xl font-black">Universal Access</h4>
+                </div>
+                <p className="text-base text-indigo-50 font-medium">Empowering healthcare providers globally with enterprise-grade tools, simplified for every scale.</p>
+              </div>
+            </div>
+          </div>
+          <div className="order-1 lg:order-2 space-y-8">
+            <div className="inline-block px-4 py-1.5 bg-indigo-50 rounded-full">
+              <span className="text-xs font-black text-indigo-600 uppercase tracking-widest">Our Vision</span>
+            </div>
+            <h2 className="text-4xl md:text-6xl font-black text-slate-900 tracking-tight leading-none">
+              The Protocol of <br />
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-indigo-400">Human Connection.</span>
+            </h2>
+            <p className="text-lg md:text-xl text-slate-500 leading-relaxed font-medium">
+              We believe technology shouldn't come between a doctor and their patient. Our vision is to create a seamless digital layer that handles the complexity of data while leaving the space for care.
+            </p>
+            <div className="pt-4 flex items-center gap-8">
+              <div>
+                <p className="text-3xl font-black text-slate-900">50k+</p>
+                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em]">Daily Logs</p>
+              </div>
+              <div className="w-px h-12 bg-slate-100" />
+              <div>
+                <p className="text-3xl font-black text-slate-900">200+</p>
+                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em]">Clinics Syncing</p>
               </div>
             </div>
           </div>
@@ -186,7 +321,7 @@ const Index = () => {
             <Button asChild size="lg" className="rounded-2xl bg-slate-900 hover:bg-black h-14 md:h-16 px-10 md:px-12 text-base md:text-lg font-bold">
               <Link to="/admin/signup">Create Your Portal</Link>
             </Button>
-            <Button variant="ghost" className="h-14 md:h-16 px-8 text-base md:text-lg font-bold text-slate-500 hover:text-indigo-600">
+            <Button variant="ghost" onClick={() => setIsContactOpen(true)} className="h-14 md:h-16 px-8 text-base md:text-lg font-bold text-slate-500 hover:text-indigo-600">
               Get in Touch
             </Button>
           </div>
@@ -205,8 +340,8 @@ const Index = () => {
           </div>
           
           <div className="flex flex-wrap justify-center gap-6 md:gap-12 text-xs md:text-sm font-bold text-slate-400">
-            <a href="#" className="hover:text-indigo-600 transition-colors uppercase tracking-widest">Protocol</a>
-            <a href="#" className="hover:text-indigo-600 transition-colors uppercase tracking-widest">Privacy</a>
+            <a href="#vision" className="hover:text-indigo-600 transition-colors uppercase tracking-widest">Protocol</a>
+            <a href="#technology" className="hover:text-indigo-600 transition-colors uppercase tracking-widest">Technology</a>
             <a href="#" className="hover:text-indigo-600 transition-colors uppercase tracking-widest">Status</a>
           </div>
 
