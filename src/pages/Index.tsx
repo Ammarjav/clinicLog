@@ -48,14 +48,14 @@ const Index = () => {
       </nav>
 
       {/* Hero Section */}
-      <section className="pt-32 md:pt-48 pb-20 md:pb-32 px-4 md:px-6">
+      <section className="pt-24 md:pt-36 pb-20 md:pb-32 px-4 md:px-6">
         <div className="max-w-6xl mx-auto text-center">
           <div className="inline-flex items-center gap-2 bg-white border border-slate-100 px-3 md:px-4 py-1.5 rounded-full shadow-sm mb-6 md:mb-8 animate-in fade-in slide-in-from-bottom-4">
             <Sparkles className="w-3.5 h-3.5 text-indigo-500" />
             <span className="text-[10px] md:text-xs font-bold text-slate-600 uppercase tracking-widest text-center">The Future of Patient Logging</span>
           </div>
           
-          <h1 className="text-4xl sm:text-6xl md:text-8xl font-black text-slate-900 leading-[1.1] md:leading-[0.95] tracking-tight mb-6 md:mb-8 animate-in fade-in slide-in-from-bottom-8 duration-700">
+          <h1 className="text-4xl sm:text-6xl md:text-8xl font-black text-slate-900 leading-[1.1] md:leading-[1.1] tracking-tight mb-6 md:mb-8 animate-in fade-in slide-in-from-bottom-8 duration-700">
             Efficiency for <br className="hidden sm:block" />
             <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-emerald-500">Modern Clinics.</span>
           </h1>
@@ -85,7 +85,7 @@ const Index = () => {
                 alt="ClinicLog Interface" 
                 className="rounded-2xl md:rounded-[2.5rem] w-full shadow-2xl grayscale-[0.2] group-hover:grayscale-0 transition-all duration-700"
               />
-              {/* Floating Stat Widget - Hidden on very small screens */}
+              {/* Floating Stat Widget */}
               <div className="hidden sm:block absolute bottom-6 right-6 md:bottom-10 md:right-10 bg-white/90 backdrop-blur-md p-4 md:p-6 rounded-2xl md:rounded-3xl shadow-2xl border border-white/50 animate-bounce-slow">
                 <div className="flex items-center gap-3 md:gap-4">
                   <div className="bg-emerald-100 p-2 md:p-3 rounded-xl md:rounded-2xl">
