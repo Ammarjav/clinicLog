@@ -10,7 +10,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { toast } from 'sonner';
-import { Loader2, ArrowLeft, Building2 } from 'lucide-react';
+import { Loader2, ArrowLeft, Building2, Mail, Lock } from 'lucide-react';
 import Logo from '@/components/Logo';
 
 const signupSchema = z.object({
@@ -36,7 +36,6 @@ const Signup = () => {
 
   const onSubmit = async (values: z.infer<typeof signupSchema>) => {
     try {
-      // 1. Create user in Supabase Auth
       const { data: authData, error: authError } = await supabase.auth.signUp({
         email: values.email,
         password: values.password,
@@ -44,7 +43,7 @@ const Signup = () => {
 
       if (authError) {
         if (authError.message.toLowerCase().includes("rate limit")) {
-          toast.error("Security limit reached. Please wait 10 minutes or try a different email address.");
+          toast.error("Security limit reached. Please wait 10 minutes.");
           return;
         }
         throw authError;
@@ -55,7 +54,6 @@ const Signup = () => {
       const userId = authData.user.id;
       const slug = generateSlug(values.clinicName);
 
-      // 2. Create the clinic record
       const { data: clinicData, error: clinicError } = await supabase
         .from('clinics')
         .insert({
@@ -68,7 +66,6 @@ const Signup = () => {
 
       if (clinicError) throw clinicError;
 
-      // 3. Associate user with clinic
       const { error: userTableError } = await supabase
         .from('users')
         .insert({
@@ -80,7 +77,7 @@ const Signup = () => {
       if (userTableError) throw userTableError;
 
       if (!authData.session) {
-        toast.info("Registration successful! Please verify your email or wait a few minutes before logging in.");
+        toast.info("Registration successful! Please verify your email.");
         navigate('/admin/login');
       } else {
         toast.success("Clinic registered successfully!");
@@ -92,19 +89,31 @@ const Signup = () => {
   };
 
   return (
-    <div className="min-h-screen bg-white flex items-center justify-center p-6 relative">
-      <Link to="/" className="absolute top-8 left-8 text-gray-400 hover:text-blue-600 transition-colors">
-        <ArrowLeft size={24} />
+    <div className="min-h-screen bg-[#FDFDFF] flex flex-col items-center justify-center p-6 relative overflow-hidden">
+      {/* Background Blurs */}
+      <div className="fixed inset-0 overflow-hidden pointer-events-none -z-10">
+        <div className="absolute top-[5%] -right-[5%] w-[40%] h-[40%] bg-indigo-50/50 rounded-full blur-[100px]" />
+        <div className="absolute bottom-[10%] -left-[5%] w-[30%] h-[30%] bg-emerald-50/50 rounded-full blur-[80px]" />
+      </div>
+
+      <Link 
+        to="/" 
+        className="absolute top-8 left-8 flex items-center gap-2 text-slate-400 hover:text-indigo-600 transition-all font-bold text-sm group focus:outline-none"
+      >
+        <div className="w-8 h-8 rounded-full bg-white shadow-sm border border-slate-100 flex items-center justify-center group-hover:border-indigo-100 group-hover:bg-indigo-50">
+          <ArrowLeft size={16} />
+        </div>
+        Back to Home
       </Link>
 
-      <div className="w-full max-w-md">
-        <div className="flex flex-col items-center mb-8">
-          <Logo className="w-16 h-16 mb-4" />
-          <h1 className="text-3xl font-bold text-gray-900">Get Started</h1>
-          <p className="text-gray-500 mt-2 text-center">Create your clinic account today</p>
+      <div className="w-full max-w-md animate-in fade-in slide-in-from-bottom-4 duration-700">
+        <div className="flex flex-col items-center mb-10 text-center">
+          <Logo className="w-14 h-14 mb-6" />
+          <h1 className="text-3xl font-black text-slate-900 tracking-tighter">Get Started</h1>
+          <p className="text-slate-500 mt-2 font-medium">Create your clinic's digital hub</p>
         </div>
 
-        <div className="bg-white p-8 rounded-[2.5rem] border border-gray-100 shadow-2xl">
+        <div className="bg-white p-8 md:p-10 rounded-[2.5rem] border border-slate-100 shadow-2xl shadow-indigo-100/20">
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5">
               <FormField
@@ -112,11 +121,11 @@ const Signup = () => {
                 name="clinicName"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Clinic Name</FormLabel>
+                    <FormLabel className="text-xs font-black uppercase tracking-widest text-slate-400">Clinic Name</FormLabel>
                     <FormControl>
                       <div className="relative">
-                        <Building2 className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-                        <Input placeholder="General Hospital" className="h-12 rounded-xl pl-10" {...field} />
+                        <Building2 className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-300" />
+                        <Input placeholder="General Hospital" className="h-14 rounded-2xl pl-12 bg-slate-50/50 border-slate-100 focus:bg-white focus:ring-indigo-500/20 transition-all text-base" {...field} />
                       </div>
                     </FormControl>
                     <FormMessage />
@@ -128,9 +137,12 @@ const Signup = () => {
                 name="email"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Admin Email</FormLabel>
+                    <FormLabel className="text-xs font-black uppercase tracking-widest text-slate-400">Admin Email</FormLabel>
                     <FormControl>
-                      <Input placeholder="admin@clinic.com" className="h-12 rounded-xl" {...field} />
+                      <div className="relative">
+                        <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-300" />
+                        <Input placeholder="admin@clinic.com" className="h-14 rounded-2xl pl-12 bg-slate-50/50 border-slate-100 focus:bg-white focus:ring-indigo-500/20 transition-all text-base" {...field} />
+                      </div>
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -141,9 +153,12 @@ const Signup = () => {
                 name="password"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Password</FormLabel>
+                    <FormLabel className="text-xs font-black uppercase tracking-widest text-slate-400">Secure Password</FormLabel>
                     <FormControl>
-                      <Input type="password" placeholder="••••••••" className="h-12 rounded-xl" {...field} />
+                      <div className="relative">
+                        <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-300" />
+                        <Input type="password" placeholder="••••••••" className="h-14 rounded-2xl pl-12 bg-slate-50/50 border-slate-100 focus:bg-white focus:ring-indigo-500/20 transition-all text-base" {...field} />
+                      </div>
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -151,19 +166,26 @@ const Signup = () => {
               />
               <Button 
                 type="submit" 
-                className="w-full h-12 text-lg font-semibold rounded-xl bg-blue-600"
+                className="w-full h-14 text-base font-bold rounded-2xl bg-indigo-600 hover:bg-indigo-700 shadow-lg shadow-indigo-100/50 transition-all active:scale-[0.98] mt-2"
                 disabled={form.formState.isSubmitting}
               >
-                {form.formState.isSubmitting ? <Loader2 className="animate-spin" /> : "Create Clinic Account"}
+                {form.formState.isSubmitting ? <Loader2 className="animate-spin" /> : "Create Clinic Portal"}
               </Button>
-              <div className="text-center mt-4">
-                <p className="text-sm text-gray-500">
-                  Already have an account? <Link to="/admin/login" className="text-blue-600 font-bold hover:underline">Sign In</Link>
+              <div className="text-center pt-2">
+                <p className="text-sm text-slate-400 font-medium">
+                  Already have an account?{' '}
+                  <Link to="/admin/login" className="text-indigo-600 font-bold hover:underline underline-offset-4">
+                    Sign In
+                  </Link>
                 </p>
               </div>
             </form>
           </Form>
         </div>
+        
+        <p className="mt-8 text-center text-[10px] font-bold text-slate-300 uppercase tracking-[0.2em]">
+          DATA ENCRYPTED & HIPAA READY
+        </p>
       </div>
     </div>
   );
