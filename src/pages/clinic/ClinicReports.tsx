@@ -90,29 +90,29 @@ const ClinicReports = () => {
   };
 
   return (
-    <div className="max-w-6xl mx-auto space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
+    <div className="max-w-6xl mx-auto space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700 pb-20">
+      <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6">
         <div>
-          <h1 className="text-4xl font-black text-slate-900 tracking-tighter">Clinic Reports</h1>
-          <p className="text-slate-500 font-medium">Professional documentation of your practice performance</p>
+          <h1 className="text-3xl md:text-4xl font-black text-slate-900 tracking-tighter">Clinic Reports</h1>
+          <p className="text-slate-500 font-medium text-sm md:text-base">Professional documentation of your practice performance</p>
         </div>
         
-        <div className="flex items-center gap-3">
+        <div className="flex flex-col sm:flex-row items-center gap-3 w-full lg:w-auto">
           <Button 
             onClick={handleExportExcel}
-            className="rounded-2xl h-14 px-8 bg-slate-900 hover:bg-black font-bold shadow-xl shadow-slate-200"
+            className="w-full sm:w-auto rounded-2xl h-14 px-8 bg-slate-900 hover:bg-black font-bold shadow-xl shadow-slate-200"
             disabled={loading || patients.length === 0}
           >
             <Download className="w-5 h-5 mr-2" />
-            Export to Excel
+            Excel Export
           </Button>
           <Button 
             onClick={handleExportPdf}
-            className="rounded-2xl h-14 px-8 bg-indigo-600 hover:bg-indigo-700 font-bold shadow-xl shadow-indigo-100"
+            className="w-full sm:w-auto rounded-2xl h-14 px-8 bg-indigo-600 hover:bg-indigo-700 font-bold shadow-xl shadow-indigo-100"
             disabled={loading || patients.length === 0}
           >
             <FileText className="w-5 h-5 mr-2" />
-            Generate PDF
+            PDF Report
           </Button>
         </div>
       </div>
@@ -125,7 +125,7 @@ const ClinicReports = () => {
       />
 
       {loading ? (
-        <div className="flex flex-col items-center justify-center p-20 gap-4">
+        <div className="flex flex-col items-center justify-center p-12 md:p-20 gap-4 text-center">
           <Loader2 className="w-12 h-12 animate-spin text-indigo-600" />
           <p className="text-slate-500 font-bold animate-pulse">Analyzing Patient Data...</p>
         </div>
@@ -140,7 +140,7 @@ const ClinicReports = () => {
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
             {/* AI Insights Card */}
-            <div className="bg-slate-900 p-8 rounded-[2.5rem] shadow-2xl text-white relative overflow-hidden group">
+            <div className="bg-slate-900 p-6 md:p-8 rounded-[2.5rem] shadow-2xl text-white relative overflow-hidden group">
               <div className="absolute top-0 right-0 w-32 h-32 bg-indigo-500/20 rounded-full translate-x-1/2 -translate-y-1/2 blur-2xl group-hover:bg-indigo-400/30 transition-all duration-700" />
               <div className="relative z-10">
                 <div className="flex items-center gap-3 mb-6">
@@ -161,14 +161,14 @@ const ClinicReports = () => {
             </div>
 
             {/* Condition Trend Card */}
-            <div className="bg-white p-8 rounded-[2.5rem] border border-slate-100 shadow-sm shadow-indigo-100/20">
+            <div className="bg-white p-6 md:p-8 rounded-[2.5rem] border border-slate-100 shadow-sm shadow-indigo-100/20">
               <h3 className="text-lg font-black text-slate-900 mb-6 tracking-tight">Dominant Conditions</h3>
               <div className="space-y-5">
                 {analytics?.topConditions.map((c, i) => (
                   <div key={i} className="space-y-2">
                     <div className="flex justify-between text-sm font-bold text-slate-700">
-                      <span>{c.name}</span>
-                      <span className="text-indigo-600">{c.count} Patients</span>
+                      <span className="truncate pr-2">{c.name}</span>
+                      <span className="text-indigo-600 shrink-0">{c.count}</span>
                     </div>
                     <div className="h-2 bg-slate-50 rounded-full overflow-hidden">
                       <div 
@@ -183,9 +183,9 @@ const ClinicReports = () => {
           </div>
         </div>
       ) : (
-        <div className="bg-slate-50 border-2 border-dashed border-slate-200 rounded-[2.5rem] p-20 flex flex-col items-center text-center">
+        <div className="bg-slate-50 border-2 border-dashed border-slate-200 rounded-[2.5rem] p-12 md:p-20 flex flex-col items-center text-center">
           <AlertCircle className="w-12 h-12 text-slate-300 mb-4" />
-          <h3 className="text-xl font-bold text-slate-900">No Data for this Period</h3>
+          <h3 className="text-xl font-bold text-slate-900">No Data Found</h3>
           <p className="text-slate-500 mt-2 max-w-xs">Try selecting a different month or expanding your custom date range.</p>
         </div>
       )}
