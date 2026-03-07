@@ -67,7 +67,8 @@ const Index = () => {
               <DialogTrigger asChild>
                 <button className="hover:text-indigo-600 hover:bg-indigo-50/50 px-4 py-2 rounded-xl transition-all focus:outline-none">Contact</button>
               </DialogTrigger>
-              <DialogContent className="sm:max-w-md rounded-[2.5rem] border-none shadow-2xl p-0 overflow-hidden animate-in fade-in zoom-in-95 slide-in-from-bottom-4 duration-500">
+              {/* Slowed down duration to 1000ms for a nicer effect */}
+              <DialogContent className="sm:max-w-md rounded-[2.5rem] border-none shadow-2xl p-0 overflow-hidden animate-in fade-in zoom-in-95 slide-in-from-bottom-8 duration-1000 ease-in-out">
                 <div className="bg-indigo-600 p-8 text-white relative">
                   <DialogHeader className="text-left">
                     <DialogTitle className="text-2xl font-black tracking-tight">Direct Access</DialogTitle>
