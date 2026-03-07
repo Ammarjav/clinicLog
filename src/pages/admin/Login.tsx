@@ -58,12 +58,12 @@ const Login = () => {
 
       <Link 
         to="/" 
-        className="absolute top-8 left-8 flex items-center gap-2 text-slate-400 hover:text-indigo-600 transition-all font-bold text-sm group focus:outline-none"
+        className="absolute top-6 left-6 md:top-8 md:left-8 flex items-center gap-2 text-slate-400 hover:text-indigo-600 transition-all font-bold text-sm group focus:outline-none z-50"
       >
-        <div className="w-8 h-8 rounded-full bg-white shadow-sm border border-slate-100 flex items-center justify-center group-hover:border-indigo-100 group-hover:bg-indigo-50">
-          <ArrowLeft size={16} />
+        <div className="w-10 h-10 md:w-8 md:h-8 rounded-full bg-white shadow-md md:shadow-sm border border-slate-100 flex items-center justify-center group-hover:border-indigo-100 group-hover:bg-indigo-50">
+          <ArrowLeft size={20} className="md:w-4 md:h-4" />
         </div>
-        Back to Home
+        <span className="hidden md:block">Back to Home</span>
       </Link>
 
       <div className="w-full max-w-md animate-in fade-in slide-in-from-bottom-4 duration-700">
