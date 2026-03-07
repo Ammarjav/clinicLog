@@ -17,8 +17,7 @@ import {
   Target,
   Heart,
   Globe,
-  MessageCircle,
-  X
+  MessageCircle
 } from 'lucide-react';
 import {
   Dialog,
@@ -133,7 +132,7 @@ const Index = () => {
             <span className="text-[10px] md:text-xs font-bold text-slate-600 uppercase tracking-widest text-center">The Future of Patient Logging</span>
           </div>
           
-          <h1 className="text-4xl sm:text-6xl md:text-8xl font-black text-slate-900 leading-[1.1] md:leading-[1.1] tracking-tight mb-6 md:mb-8 animate-in fade-in slide-in-from-bottom-8 duration-700">
+          <h1 className="text-4xl sm:text-6xl md:text-8xl font-black text-slate-900 leading-[1.2] md:leading-[1.2] tracking-tight mb-6 md:mb-8 animate-in fade-in slide-in-from-bottom-8 duration-700">
             Efficiency for <br className="hidden sm:block" />
             <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-emerald-500">Modern Clinics.</span>
           </h1>
@@ -185,8 +184,8 @@ const Index = () => {
         <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
           <div className="relative order-2 lg:order-1">
             <div className="absolute -inset-4 bg-indigo-100/50 rounded-[3rem] blur-2xl -z-10" />
-            <div className="grid grid-cols-2 gap-4">
-              <div className="bg-white p-8 rounded-[2.5rem] shadow-xl shadow-indigo-100/20 border border-slate-50 transform translate-y-8">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+              <div className="bg-white p-8 rounded-[2.5rem] shadow-xl shadow-indigo-100/20 border border-slate-50">
                 <div className="w-12 h-12 bg-indigo-50 rounded-2xl flex items-center justify-center mb-6">
                   <Target className="w-6 h-6 text-indigo-600" />
                 </div>
@@ -200,7 +199,7 @@ const Index = () => {
                 <h4 className="text-xl font-black mb-2">Empathy</h4>
                 <p className="text-sm text-slate-400 font-medium">Built with the medical journey in mind.</p>
               </div>
-              <div className="bg-indigo-600 p-8 rounded-[2.5rem] shadow-2xl text-white col-span-2">
+              <div className="bg-indigo-600 p-8 rounded-[2.5rem] shadow-2xl text-white sm:col-span-2">
                 <div className="flex items-center gap-4 mb-4">
                   <div className="w-12 h-12 bg-white/20 rounded-2xl flex items-center justify-center">
                     <Globe className="w-6 h-6 text-white" />
