@@ -69,9 +69,9 @@ const Charts = ({ data }: ChartsProps) => {
   const CustomTooltip = ({ active, payload, label }: any) => {
     if (active && payload && payload.length) {
       return (
-        <div className="bg-white p-3 border-none shadow-xl rounded-xl">
-          <p className="text-sm font-bold text-gray-900 mb-1">{label || payload[0].name}</p>
-          <p className="text-sm font-medium text-blue-600">
+        <div className="bg-white dark:bg-slate-900 p-3 border-none shadow-xl rounded-xl">
+          <p className="text-sm font-bold text-gray-900 dark:text-white mb-1">{label || payload[0].name}</p>
+          <p className="text-sm font-medium text-blue-600 dark:text-blue-400">
             {payload[0].value} Patients
           </p>
         </div>
@@ -84,12 +84,12 @@ const Charts = ({ data }: ChartsProps) => {
     <div className="space-y-8">
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         {/* Patient Volume Trend */}
-        <Card className="p-6 border-none shadow-sm rounded-3xl bg-white">
-          <h3 className="text-lg font-bold text-gray-900 mb-6">Patient Volume Trend (Last 14 Days)</h3>
+        <Card className="p-6 border-none shadow-sm dark:shadow-none rounded-3xl bg-white dark:bg-slate-900">
+          <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-6">Patient Volume Trend</h3>
           <div className="h-[300px]">
             <ResponsiveContainer width="100%" height="100%">
               <LineChart data={trendData}>
-                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f0f0f0" />
+                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f0f0f0" strokeOpacity={0.1} />
                 <XAxis 
                   dataKey="date" 
                   tickFormatter={(str) => new Date(str).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}
@@ -117,12 +117,12 @@ const Charts = ({ data }: ChartsProps) => {
         </Card>
 
         {/* Diagnosis Distribution */}
-        <Card className="p-6 border-none shadow-sm rounded-3xl bg-white">
-          <h3 className="text-lg font-bold text-gray-900 mb-6">Most Common Conditions</h3>
+        <Card className="p-6 border-none shadow-sm dark:shadow-none rounded-3xl bg-white dark:bg-slate-900">
+          <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-6">Most Common Conditions</h3>
           <div className="h-[300px]">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={diagData} layout="vertical" margin={{ left: 40 }}>
-                <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="#f0f0f0" />
+                <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="#f0f0f0" strokeOpacity={0.1} />
                 <XAxis type="number" hide />
                 <YAxis 
                   dataKey="name" 
@@ -142,8 +142,8 @@ const Charts = ({ data }: ChartsProps) => {
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
         {/* Gender Distribution */}
-        <Card className="p-6 border-none shadow-sm rounded-3xl bg-white">
-          <h3 className="text-sm font-bold text-gray-400 uppercase tracking-widest mb-6">Gender Ratio</h3>
+        <Card className="p-6 border-none shadow-sm dark:shadow-none rounded-3xl bg-white dark:bg-slate-900">
+          <h3 className="text-sm font-bold text-gray-400 dark:text-slate-500 uppercase tracking-widest mb-6">Gender Ratio</h3>
           <div className="h-[240px]">
             <ResponsiveContainer width="100%" height="100%">
               <PieChart>
@@ -165,8 +165,8 @@ const Charts = ({ data }: ChartsProps) => {
         </Card>
 
         {/* Visit Type Distribution */}
-        <Card className="p-6 border-none shadow-sm rounded-3xl bg-white">
-          <h3 className="text-sm font-bold text-gray-400 uppercase tracking-widest mb-6">Visit Composition</h3>
+        <Card className="p-6 border-none shadow-sm dark:shadow-none rounded-3xl bg-white dark:bg-slate-900">
+          <h3 className="text-sm font-bold text-gray-400 dark:text-slate-500 uppercase tracking-widest mb-6">Visit Composition</h3>
           <div className="h-[240px]">
             <ResponsiveContainer width="100%" height="100%">
               <PieChart>
@@ -188,8 +188,8 @@ const Charts = ({ data }: ChartsProps) => {
         </Card>
 
         {/* Age Demographics */}
-        <Card className="p-6 border-none shadow-sm rounded-3xl bg-white">
-          <h3 className="text-sm font-bold text-gray-400 uppercase tracking-widest mb-6">Age Demographics</h3>
+        <Card className="p-6 border-none shadow-sm dark:shadow-none rounded-3xl bg-white dark:bg-slate-900">
+          <h3 className="text-sm font-bold text-gray-400 dark:text-slate-500 uppercase tracking-widest mb-6">Age Demographics</h3>
           <div className="h-[240px]">
             <ResponsiveContainer width="100%" height="100%">
               <PieChart>

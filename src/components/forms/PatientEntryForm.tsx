@@ -114,20 +114,20 @@ const PatientEntryForm = () => {
     return (
       <div className="flex flex-col items-center justify-center p-20 space-y-4">
         <Loader2 className="w-10 h-10 animate-spin text-blue-600" />
-        <p className="text-gray-500 font-medium">Loading session...</p>
+        <p className="text-gray-500 dark:text-slate-400 font-medium">Loading session...</p>
       </div>
     );
   }
 
   if (!clinicId) {
     return (
-      <div className="max-w-2xl mx-auto p-10 bg-white rounded-[2.5rem] shadow-xl border border-gray-100 flex flex-col items-center text-center">
-        <div className="bg-amber-50 p-5 rounded-3xl mb-6">
-          <Info className="w-10 h-10 text-amber-600" />
+      <div className="max-w-2xl mx-auto p-10 bg-white dark:bg-slate-900 rounded-[2.5rem] shadow-xl dark:shadow-none border border-gray-100 dark:border-slate-800 flex flex-col items-center text-center">
+        <div className="bg-amber-50 dark:bg-amber-900/20 p-5 rounded-3xl mb-6">
+          <Info className="w-10 h-10 text-amber-600 dark:text-amber-400" />
         </div>
-        <h2 className="text-2xl font-bold text-gray-900">Portal Access Required</h2>
-        <p className="text-gray-500 mt-3 max-w-sm">Please log in to your clinic's admin account to start recording patient data.</p>
-        <Button className="mt-8 px-8 h-12 rounded-2xl bg-blue-600 hover:bg-blue-700 shadow-lg shadow-blue-100" asChild>
+        <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Portal Access Required</h2>
+        <p className="text-gray-500 dark:text-slate-400 mt-3 max-w-sm">Please log in to your clinic's admin account to start recording patient data.</p>
+        <Button className="mt-8 px-8 h-12 rounded-2xl bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 shadow-lg dark:shadow-none transition-all" asChild>
           <a href="/admin/login">Log in to Clinic Portal</a>
         </Button>
       </div>
@@ -135,14 +135,14 @@ const PatientEntryForm = () => {
   }
 
   return (
-    <div className="max-w-2xl mx-auto p-6 sm:p-10 bg-white rounded-[2.5rem] shadow-2xl shadow-blue-50/50 border border-gray-100">
+    <div className="max-w-2xl mx-auto p-6 sm:p-10 bg-white dark:bg-slate-900 rounded-[2.5rem] shadow-2xl shadow-blue-50/50 dark:shadow-none border border-gray-100 dark:border-slate-800">
       <div className="flex items-center gap-4 mb-8 sm:mb-10">
-        <div className="bg-blue-600 p-3 rounded-2xl shadow-lg shadow-blue-200">
+        <div className="bg-blue-600 dark:bg-blue-500 p-3 rounded-2xl shadow-lg dark:shadow-none">
           <UserPlus className="w-7 h-7 text-white" />
         </div>
         <div>
-          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 tracking-tight leading-none">Record Entry</h1>
-          <p className="text-gray-500 text-sm sm:text-base mt-2">Instantly add a patient to your database</p>
+          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white tracking-tight leading-none">Record Entry</h1>
+          <p className="text-gray-500 dark:text-slate-400 text-sm sm:text-base mt-2">Instantly add a patient to your database</p>
         </div>
       </div>
 
@@ -154,7 +154,7 @@ const PatientEntryForm = () => {
               name="name"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="text-sm font-bold text-gray-700">Patient Name</FormLabel>
+                  <FormLabel className="text-sm font-bold text-gray-700 dark:text-slate-300">Patient Name</FormLabel>
                   <FormControl>
                     <AutocompleteInput 
                       value={field.value} 
@@ -174,14 +174,14 @@ const PatientEntryForm = () => {
               name="age"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="text-sm font-bold text-gray-700">Age</FormLabel>
+                  <FormLabel className="text-sm font-bold text-gray-700 dark:text-slate-300">Age</FormLabel>
                   <FormControl>
                     <Input 
                       type="number" 
                       min="0" 
                       max="120" 
                       placeholder="Years" 
-                      className="rounded-2xl h-12 sm:h-14 bg-gray-50/50 border-gray-100 focus:bg-white transition-all text-lg" 
+                      className="rounded-2xl h-12 sm:h-14 bg-gray-50/50 dark:bg-slate-800 border-gray-100 dark:border-slate-800 focus:bg-white dark:focus:bg-slate-800 dark:text-white transition-all text-lg" 
                       {...field} 
                     />
                   </FormControl>
@@ -197,14 +197,14 @@ const PatientEntryForm = () => {
               name="gender"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="text-sm font-bold text-gray-700">Gender</FormLabel>
+                  <FormLabel className="text-sm font-bold text-gray-700 dark:text-slate-300">Gender</FormLabel>
                   <Select onValueChange={field.onChange} value={field.value}>
                     <FormControl>
-                      <SelectTrigger className="rounded-2xl h-12 sm:h-14 bg-gray-50/50 border-gray-100 focus:bg-white text-base">
+                      <SelectTrigger className="rounded-2xl h-12 sm:h-14 bg-gray-50/50 dark:bg-slate-800 border-gray-100 dark:border-slate-800 focus:bg-white dark:focus:bg-slate-800 text-base dark:text-white">
                         <SelectValue placeholder="Select" />
                       </SelectTrigger>
                     </FormControl>
-                    <SelectContent className="rounded-2xl">
+                    <SelectContent className="rounded-2xl dark:bg-slate-900 dark:border-slate-800">
                       <SelectItem value="Male">Male</SelectItem>
                       <SelectItem value="Female">Female</SelectItem>
                       <SelectItem value="Other">Other</SelectItem>
@@ -219,14 +219,14 @@ const PatientEntryForm = () => {
               name="visit_type"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="text-sm font-bold text-gray-700">Visit Status</FormLabel>
+                  <FormLabel className="text-sm font-bold text-gray-700 dark:text-slate-300">Visit Status</FormLabel>
                   <Select onValueChange={field.onChange} value={field.value}>
                     <FormControl>
-                      <SelectTrigger className="rounded-2xl h-12 sm:h-14 bg-gray-50/50 border-gray-100 focus:bg-white text-base">
+                      <SelectTrigger className="rounded-2xl h-12 sm:h-14 bg-gray-50/50 dark:bg-slate-800 border-gray-100 dark:border-slate-800 focus:bg-white dark:focus:bg-slate-800 text-base dark:text-white">
                         <SelectValue placeholder="Select" />
                       </SelectTrigger>
                     </FormControl>
-                    <SelectContent className="rounded-2xl">
+                    <SelectContent className="rounded-2xl dark:bg-slate-900 dark:border-slate-800">
                       <SelectItem value="New">New Patient</SelectItem>
                       <SelectItem value="Follow-up">Follow-up Visit</SelectItem>
                     </SelectContent>
@@ -242,7 +242,7 @@ const PatientEntryForm = () => {
             name="diagnosis"
             render={({ field }) => (
               <FormItem>
-                <FormLabel className="text-sm font-bold text-gray-700">Diagnosis / Reason</FormLabel>
+                <FormLabel className="text-sm font-bold text-gray-700 dark:text-slate-300">Diagnosis / Reason</FormLabel>
                 <FormControl>
                   <AutocompleteInput 
                     value={field.value} 
@@ -262,11 +262,11 @@ const PatientEntryForm = () => {
             name="visit_date"
             render={({ field }) => (
               <FormItem>
-                <FormLabel className="text-sm font-bold text-gray-700">Visit Date</FormLabel>
+                <FormLabel className="text-sm font-bold text-gray-700 dark:text-slate-300">Visit Date</FormLabel>
                 <FormControl>
                   <Input 
                     type="date" 
-                    className="rounded-2xl h-12 sm:h-14 bg-gray-50/50 border-gray-100 focus:bg-white" 
+                    className="rounded-2xl h-12 sm:h-14 bg-gray-50/50 dark:bg-slate-800 border-gray-100 dark:border-slate-800 focus:bg-white dark:focus:bg-slate-800 dark:text-white" 
                     {...field} 
                   />
                 </FormControl>
@@ -277,7 +277,7 @@ const PatientEntryForm = () => {
 
           <Button 
             type="submit" 
-            className="w-full h-14 sm:h-16 text-lg sm:text-xl font-bold rounded-[1.25rem] bg-blue-600 hover:bg-blue-700 shadow-xl shadow-blue-200 transition-all duration-300 active:scale-[0.98] mt-4"
+            className="w-full h-14 sm:h-16 text-lg sm:text-xl font-bold rounded-[1.25rem] bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 shadow-xl shadow-blue-200 dark:shadow-none transition-all duration-300 active:scale-[0.98] mt-4"
             disabled={form.formState.isSubmitting}
           >
             {form.formState.isSubmitting ? (
@@ -285,7 +285,7 @@ const PatientEntryForm = () => {
             ) : "Save Patient Entry"}
           </Button>
           
-          <p className="text-center text-xs text-gray-400 font-medium uppercase tracking-widest mt-4">
+          <p className="text-center text-xs text-gray-400 dark:text-slate-600 font-medium uppercase tracking-widest mt-4">
             Secured for clinic portal
           </p>
         </form>
