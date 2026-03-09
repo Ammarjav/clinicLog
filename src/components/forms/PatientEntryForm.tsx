@@ -8,9 +8,9 @@ import { supabase } from '@/lib/supabase';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/form/ui/form';
 import { toast } from 'sonner';
-import { Loader2, UserPlus, Info, CheckCircle2 } from 'lucide-react';
+import { Loader2, UserPlus, Info, CheckCircle2, History } from 'lucide-react';
 import AutocompleteInput from './AutocompleteInput';
 
 const formSchema = z.object({
@@ -29,7 +29,6 @@ const formSchema = z.object({
 const PatientEntryForm = () => {
   const [clinicId, setClinicId] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
-  const nameInputRef = useRef<any>(null);
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -69,6 +68,21 @@ const PatientEntryForm = () => {
     };
     fetchUserClinic();
   }, [form]);
+
+  // Handle autofill when a returning patient is selected
+  const handleRecordSelect = (record: any) => {
+    if (record) {
+      form.setValue('age', record.age);
+      form.setValue('gender', record.gender);
+      form.setValue('diagnosis', record.diagnosis);
+      form.setValue('visit_type', 'Follow-up'); // Default to follow-up for returning patients
+      
+      toast.success(`Imported data for returning patient: ${record.name}`, {
+        icon: <History className="w-4 h-4 text-blue-500" />,
+        duration: 3000
+      });
+    }
+  };
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     try {
@@ -145,6 +159,7 @@ const PatientEntryForm = () => {
                     <AutocompleteInput 
                       value={field.value} 
                       onChange={field.onChange} 
+                      onSelectRecord={handleRecordSelect}
                       placeholder="e.g. John Doe" 
                       fieldName="name"
                       clinicId={clinicId}
@@ -183,7 +198,7 @@ const PatientEntryForm = () => {
               render={({ field }) => (
                 <FormItem>
                   <FormLabel className="text-sm font-bold text-gray-700">Gender</FormLabel>
-                  <Select onValueChange={field.onChange} defaultValue={field.value}>
+                  <Select onValueChange={field.onChange} value={field.value}>
                     <FormControl>
                       <SelectTrigger className="rounded-2xl h-12 sm:h-14 bg-gray-50/50 border-gray-100 focus:bg-white text-base">
                         <SelectValue placeholder="Select" />
@@ -205,7 +220,7 @@ const PatientEntryForm = () => {
               render={({ field }) => (
                 <FormItem>
                   <FormLabel className="text-sm font-bold text-gray-700">Visit Status</FormLabel>
-                  <Select onValueChange={field.onChange} defaultValue={field.value}>
+                  <Select onValueChange={field.onChange} value={field.value}>
                     <FormControl>
                       <SelectTrigger className="rounded-2xl h-12 sm:h-14 bg-gray-50/50 border-gray-100 focus:bg-white text-base">
                         <SelectValue placeholder="Select" />

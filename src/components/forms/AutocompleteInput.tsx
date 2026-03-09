@@ -9,13 +9,15 @@ import { cn } from '@/lib/utils';
 interface AutocompleteInputProps {
   value: string;
   onChange: (value: string) => void;
+  onSelectRecord?: (record: any) => void;
   placeholder?: string;
   fieldName: 'name' | 'diagnosis';
   clinicId?: string;
 }
 
-const AutocompleteInput = ({ value, onChange, placeholder, fieldName, clinicId }: AutocompleteInputProps) => {
+const AutocompleteInput = ({ value, onChange, onSelectRecord, placeholder, fieldName, clinicId }: AutocompleteInputProps) => {
   const [suggestions, setSuggestions] = useState<string[]>([]);
+  const [fullDataMap, setFullDataMap] = useState<Record<string, any>>({});
   const [filtered, setFiltered] = useState<string[]>([]);
   const [isOpen, setIsOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -25,9 +27,12 @@ const AutocompleteInput = ({ value, onChange, placeholder, fieldName, clinicId }
     if (!clinicId) return;
     setIsLoading(true);
     try {
+      // If it's a name field, we fetch all columns to enable autofill
+      const selectQuery = fieldName === 'name' ? '*' : fieldName;
+      
       const { data, error } = await supabase
         .from('patients')
-        .select(fieldName)
+        .select(selectQuery)
         .eq('clinic_id', clinicId)
         .order('created_at', { ascending: false });
         
@@ -36,21 +41,26 @@ const AutocompleteInput = ({ value, onChange, placeholder, fieldName, clinicId }
       if (data) {
         const counts: Record<string, number> = {};
         const casings: Record<string, string> = {};
+        const records: Record<string, any> = {};
         
         data.forEach((p: any) => {
           const d = p[fieldName]?.trim();
           if (d) {
             const key = d.toLowerCase();
             counts[key] = (counts[key] || 0) + 1;
-            if (!casings[key]) casings[key] = d;
+            if (!casings[key]) {
+              casings[key] = d;
+              records[key] = p; // Store the latest record for this unique entry
+            }
           }
         });
 
-        const sorted = Object.keys(counts)
+        const sortedNames = Object.keys(counts)
           .sort((a, b) => counts[b] - counts[a])
           .map(key => casings[key]);
 
-        setSuggestions(sorted);
+        setSuggestions(sortedNames);
+        setFullDataMap(records);
       }
     } catch (err) {
       console.error(`${fieldName} fetch error:`, err);
@@ -125,6 +135,10 @@ const AutocompleteInput = ({ value, onChange, placeholder, fieldName, clinicId }
                 )}
                 onClick={() => {
                   onChange(suggestion);
+                  // Pass the full record back if requested (for autofill)
+                  if (onSelectRecord) {
+                    onSelectRecord(fullDataMap[suggestion.toLowerCase()]);
+                  }
                   setIsOpen(false);
                 }}
               >
