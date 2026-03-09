@@ -55,13 +55,13 @@ const Index = () => {
 
       {/* Modern Navigation */}
       <nav className="fixed top-4 md:top-6 left-1/2 -translate-x-1/2 w-[94%] max-w-6xl z-50">
-        <div className="bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border border-white/40 dark:border-slate-800 shadow-2xl shadow-indigo-100/20 dark:shadow-none rounded-2xl md:rounded-[2rem] px-4 md:px-6 h-14 md:h-16 flex items-center justify-between">
-          <div className="flex items-center gap-2 md:gap-3">
-            <Logo className="w-7 h-7 md:w-8 md:h-8 rounded-lg md:rounded-xl" />
-            <span className="text-lg md:text-xl font-black text-slate-900 dark:text-white tracking-tighter">Clinic<span className="text-indigo-600">Log</span></span>
+        <div className="bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border border-white/40 dark:border-slate-800 shadow-2xl shadow-indigo-100/20 dark:shadow-none rounded-2xl md:rounded-[2rem] px-2.5 md:px-6 h-14 md:h-16 flex items-center justify-between">
+          <div className="flex items-center gap-1.5 md:gap-3">
+            <Logo className="w-6 h-6 md:w-8 md:h-8 rounded-lg md:rounded-xl" />
+            <span className="text-base md:text-xl font-black text-slate-900 dark:text-white tracking-tighter">Clinic<span className="text-indigo-600">Log</span></span>
           </div>
           
-          <div className="hidden md:flex items-center gap-8 font-semibold text-slate-500 dark:text-slate-400 text-sm">
+          <div className="hidden lg:flex items-center gap-8 font-semibold text-slate-500 dark:text-slate-400 text-sm">
             <a href="#vision" className="hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">Vision</a>
             <a href="#features" className="hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">Features</a>
             <Dialog open={isContactOpen} onOpenChange={setIsContactOpen}>
@@ -117,12 +117,12 @@ const Index = () => {
             </Dialog>
           </div>
 
-          <div className="flex items-center gap-2 md:gap-3">
+          <div className="flex items-center gap-1 md:gap-3">
             <ModeToggle />
-            <Button variant="ghost" asChild className="rounded-xl font-bold text-slate-600 dark:text-slate-400 hover:bg-indigo-50 dark:hover:bg-indigo-900/20 hover:text-indigo-600 dark:hover:text-indigo-400 text-xs md:text-sm px-3 h-9 md:h-10">
+            <Button variant="ghost" asChild className="rounded-xl font-bold text-slate-600 dark:text-slate-400 hover:bg-indigo-50 dark:hover:bg-indigo-900/20 hover:text-indigo-600 dark:hover:text-indigo-400 text-[10px] md:text-sm px-2 md:px-3 h-8 md:h-10">
               <Link to="/admin/login">Sign In</Link>
             </Button>
-            <Button asChild className="rounded-xl bg-slate-900 dark:bg-white dark:text-slate-900 hover:bg-indigo-600 dark:hover:bg-indigo-400 text-white shadow-lg transition-all px-4 md:px-6 text-xs md:text-sm h-9 md:h-10">
+            <Button asChild className="rounded-xl bg-slate-900 dark:bg-white dark:text-slate-900 hover:bg-indigo-600 dark:hover:bg-indigo-400 text-white shadow-lg dark:shadow-none transition-all px-3 md:px-6 text-[10px] md:text-sm h-8 md:h-10">
               <Link to="/admin/signup">Join Now</Link>
             </Button>
           </div>
@@ -147,7 +147,7 @@ const Index = () => {
           </p>
           
           <div className="flex flex-col sm:flex-row gap-3 md:gap-4 justify-center mb-12 md:mb-16 animate-in fade-in slide-in-from-bottom-16 duration-1000 px-4">
-            <Button asChild size="lg" className="w-full sm:w-auto rounded-2xl bg-indigo-600 hover:bg-indigo-700 h-14 md:h-16 px-8 md:px-10 text-base md:text-lg font-bold shadow-2xl shadow-indigo-200 group">
+            <Button asChild size="lg" className="w-full sm:w-auto rounded-2xl bg-indigo-600 hover:bg-indigo-700 h-14 md:h-16 px-8 md:px-10 text-base md:text-lg font-bold shadow-2xl shadow-indigo-200 dark:shadow-none group">
               <Link to="/admin/signup" className="flex items-center justify-center">
                 Get Started <ChevronRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
               </Link>
@@ -160,15 +160,15 @@ const Index = () => {
           {/* Floating Dashboard Preview */}
           <div className="relative max-w-5xl mx-auto animate-in zoom-in-95 duration-1000 px-2 md:px-0">
             <div className="absolute -inset-1 bg-gradient-to-tr from-indigo-500 to-emerald-400 rounded-3xl md:rounded-[3rem] blur-xl md:blur-2xl opacity-20" />
-            <div className="relative bg-white/40 dark:bg-slate-900/40 backdrop-blur-sm p-2 md:p-4 rounded-3xl md:rounded-[3rem] border border-white dark:border-slate-800 shadow-2xl overflow-hidden group">
+            <div className="relative bg-white/40 dark:bg-slate-900/40 backdrop-blur-sm p-2 md:p-4 rounded-3xl md:rounded-[3rem] border border-white dark:border-slate-800 shadow-2xl dark:shadow-none overflow-hidden group">
               <div className="absolute inset-0 bg-slate-900/5 dark:bg-white/5 group-hover:bg-transparent transition-colors duration-700" />
               <img 
                 src="https://images.unsplash.com/photo-1530497610245-94d3c16cda28?ixlib=rb-4.0.3&auto=format&fit=crop&w=2340&q=80" 
                 alt="ClinicLog Interface" 
-                className="rounded-2xl md:rounded-[2.5rem] w-full shadow-2xl transition-all duration-700 object-cover aspect-[21/9]"
+                className="rounded-2xl md:rounded-[2.5rem] w-full shadow-2xl dark:shadow-none transition-all duration-700 object-cover aspect-[21/9]"
               />
               {/* Floating Stat Widget */}
-              <div className="hidden sm:block absolute bottom-6 right-6 md:bottom-10 md:right-10 bg-white/90 dark:bg-slate-900/90 backdrop-blur-md p-4 md:p-6 rounded-2xl md:rounded-3xl shadow-2xl border border-white/50 dark:border-slate-800 animate-bounce-slow">
+              <div className="hidden sm:block absolute bottom-6 right-6 md:bottom-10 md:right-10 bg-white/90 dark:bg-slate-900/90 backdrop-blur-md p-4 md:p-6 rounded-2xl md:rounded-3xl shadow-2xl dark:shadow-none border border-white/50 dark:border-slate-800 animate-bounce-slow">
                 <div className="flex items-center gap-3 md:gap-4">
                   <div className="bg-emerald-100 dark:bg-emerald-900/30 p-2 md:p-3 rounded-xl md:rounded-2xl">
                     <Activity className="w-5 h-5 md:w-6 md:h-6 text-emerald-600 dark:text-emerald-400" />
@@ -197,14 +197,14 @@ const Index = () => {
                 <h4 className="text-xl font-black text-slate-900 dark:text-white mb-2">Clarity</h4>
                 <p className="text-sm text-slate-500 dark:text-slate-400 font-medium">Removing noise to focus on patient outcomes.</p>
               </div>
-              <div className="bg-slate-900 dark:bg-slate-800 p-8 rounded-[2.5rem] shadow-2xl text-white">
+              <div className="bg-slate-900 dark:bg-slate-800 p-8 rounded-[2.5rem] shadow-2xl dark:shadow-none text-white">
                 <div className="w-12 h-12 bg-white/10 rounded-2xl flex items-center justify-center mb-6">
                   <Heart className="w-6 h-6 text-emerald-400" />
                 </div>
                 <h4 className="text-xl font-black mb-2">Empathy</h4>
                 <p className="text-sm text-slate-400 font-medium">Built with the medical journey in mind.</p>
               </div>
-              <div className="bg-indigo-600 p-8 rounded-[2.5rem] shadow-2xl text-white sm:col-span-2">
+              <div className="bg-indigo-600 p-8 rounded-[2.5rem] shadow-2xl dark:shadow-none text-white sm:col-span-2">
                 <div className="flex items-center gap-4 mb-4">
                   <div className="w-12 h-12 bg-white/20 rounded-2xl flex items-center justify-center">
                     <Globe className="w-6 h-6 text-white" />

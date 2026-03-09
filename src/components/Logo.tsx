@@ -8,7 +8,7 @@ interface LogoProps {
 
 export const Logo = ({ className, iconClassName }: LogoProps) => {
   return (
-    <div className={cn("bg-indigo-600 rounded-2xl flex items-center justify-center overflow-hidden shadow-xl shadow-indigo-100", className)}>
+    <div className={cn("bg-indigo-600 rounded-2xl flex items-center justify-center overflow-hidden shadow-xl shadow-indigo-100 dark:shadow-none", className)}>
       <svg 
         viewBox="0 0 100 100" 
         className={cn("w-full h-full text-white p-2", iconClassName)}
