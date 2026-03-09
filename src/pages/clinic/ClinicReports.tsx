@@ -93,14 +93,14 @@ const ClinicReports = () => {
     <div className="max-w-6xl mx-auto space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700 pb-20">
       <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6">
         <div>
-          <h1 className="text-3xl md:text-4xl font-black text-slate-900 tracking-tighter">Clinic Reports</h1>
-          <p className="text-slate-500 font-medium text-sm md:text-base">Professional documentation of your practice performance</p>
+          <h1 className="text-3xl md:text-4xl font-black text-slate-900 dark:text-white tracking-tighter">Clinic Reports</h1>
+          <p className="text-slate-500 dark:text-slate-400 font-medium text-sm md:text-base">Professional documentation of your practice performance</p>
         </div>
         
         <div className="flex flex-col sm:flex-row items-center gap-3 w-full lg:w-auto">
           <Button 
             onClick={handleExportExcel}
-            className="w-full sm:w-auto rounded-2xl h-14 px-8 bg-slate-900 hover:bg-black font-bold shadow-xl shadow-slate-200"
+            className="w-full sm:w-auto rounded-2xl h-14 px-8 bg-slate-900 dark:bg-white text-white dark:text-slate-900 hover:bg-black dark:hover:bg-indigo-50 font-bold shadow-xl shadow-slate-200 dark:shadow-none"
             disabled={loading || patients.length === 0}
           >
             <Download className="w-5 h-5 mr-2" />
@@ -108,7 +108,7 @@ const ClinicReports = () => {
           </Button>
           <Button 
             onClick={handleExportPdf}
-            className="w-full sm:w-auto rounded-2xl h-14 px-8 bg-indigo-600 hover:bg-indigo-700 font-bold shadow-xl shadow-indigo-100"
+            className="w-full sm:w-auto rounded-2xl h-14 px-8 bg-indigo-600 hover:bg-indigo-700 dark:bg-indigo-500 dark:hover:bg-indigo-600 font-bold shadow-xl shadow-indigo-100 dark:shadow-none"
             disabled={loading || patients.length === 0}
           >
             <FileText className="w-5 h-5 mr-2" />
@@ -127,20 +127,20 @@ const ClinicReports = () => {
       {loading ? (
         <div className="flex flex-col items-center justify-center p-12 md:p-20 gap-4 text-center">
           <Loader2 className="w-12 h-12 animate-spin text-indigo-600" />
-          <p className="text-slate-500 font-bold animate-pulse">Analyzing Patient Data...</p>
+          <p className="text-slate-500 dark:text-slate-400 font-bold animate-pulse">Analyzing Patient Data...</p>
         </div>
       ) : patients.length > 0 ? (
         <div className="space-y-8">
           <div className="flex items-center gap-2 mb-2">
-            <TrendingUp className="w-5 h-5 text-indigo-600" />
-            <h2 className="text-xl font-black text-slate-900 tracking-tight">Report Preview</h2>
+            <TrendingUp className="w-5 h-5 text-indigo-600 dark:text-indigo-400" />
+            <h2 className="text-xl font-black text-slate-900 dark:text-white tracking-tight">Report Preview</h2>
           </div>
           
           <StatCards data={patients} />
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
             {/* AI Insights Card */}
-            <div className="bg-slate-900 p-6 md:p-8 rounded-[2.5rem] shadow-2xl text-white relative overflow-hidden group">
+            <div className="bg-slate-900 dark:bg-slate-900 p-6 md:p-8 rounded-[2.5rem] shadow-2xl dark:shadow-none text-white relative overflow-hidden group border border-transparent dark:border-slate-800">
               <div className="absolute top-0 right-0 w-32 h-32 bg-indigo-500/20 rounded-full translate-x-1/2 -translate-y-1/2 blur-2xl group-hover:bg-indigo-400/30 transition-all duration-700" />
               <div className="relative z-10">
                 <div className="flex items-center gap-3 mb-6">
@@ -161,16 +161,16 @@ const ClinicReports = () => {
             </div>
 
             {/* Condition Trend Card */}
-            <div className="bg-white p-6 md:p-8 rounded-[2.5rem] border border-slate-100 shadow-sm shadow-indigo-100/20">
-              <h3 className="text-lg font-black text-slate-900 mb-6 tracking-tight">Dominant Conditions</h3>
+            <div className="bg-white dark:bg-slate-900 p-6 md:p-8 rounded-[2.5rem] border border-slate-100 dark:border-slate-800 shadow-sm dark:shadow-none">
+              <h3 className="text-lg font-black text-slate-900 dark:text-white mb-6 tracking-tight">Dominant Conditions</h3>
               <div className="space-y-5">
                 {analytics?.topConditions.map((c, i) => (
                   <div key={i} className="space-y-2">
-                    <div className="flex justify-between text-sm font-bold text-slate-700">
+                    <div className="flex justify-between text-sm font-bold text-slate-700 dark:text-slate-300">
                       <span className="truncate pr-2">{c.name}</span>
-                      <span className="text-indigo-600 shrink-0">{c.count}</span>
+                      <span className="text-indigo-600 dark:text-indigo-400 shrink-0">{c.count}</span>
                     </div>
-                    <div className="h-2 bg-slate-50 rounded-full overflow-hidden">
+                    <div className="h-2 bg-slate-50 dark:bg-slate-800 rounded-full overflow-hidden">
                       <div 
                         className="h-full bg-indigo-500 rounded-full transition-all duration-1000" 
                         style={{ width: `${(c.count / patients.length) * 100}%` }} 
@@ -183,10 +183,10 @@ const ClinicReports = () => {
           </div>
         </div>
       ) : (
-        <div className="bg-slate-50 border-2 border-dashed border-slate-200 rounded-[2.5rem] p-12 md:p-20 flex flex-col items-center text-center">
-          <AlertCircle className="w-12 h-12 text-slate-300 mb-4" />
-          <h3 className="text-xl font-bold text-slate-900">No Data Found</h3>
-          <p className="text-slate-500 mt-2 max-w-xs">Try selecting a different month or expanding your custom date range.</p>
+        <div className="bg-slate-50 dark:bg-slate-900 border-2 border-dashed border-slate-200 dark:border-slate-800 rounded-[2.5rem] p-12 md:p-20 flex flex-col items-center text-center">
+          <AlertCircle className="w-12 h-12 text-slate-300 dark:text-slate-700 mb-4" />
+          <h3 className="text-xl font-bold text-slate-900 dark:text-white">No Data Found</h3>
+          <p className="text-slate-500 dark:text-slate-400 mt-2 max-w-xs">Try selecting a different month or expanding your custom date range.</p>
         </div>
       )}
     </div>

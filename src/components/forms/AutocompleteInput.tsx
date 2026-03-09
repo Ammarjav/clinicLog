@@ -27,7 +27,6 @@ const AutocompleteInput = ({ value, onChange, onSelectRecord, placeholder, field
     if (!clinicId) return;
     setIsLoading(true);
     try {
-      // If it's a name field, we fetch all columns to enable autofill
       const selectQuery = fieldName === 'name' ? '*' : fieldName;
       
       const { data, error } = await supabase
@@ -50,7 +49,7 @@ const AutocompleteInput = ({ value, onChange, onSelectRecord, placeholder, field
             counts[key] = (counts[key] || 0) + 1;
             if (!casings[key]) {
               casings[key] = d;
-              records[key] = p; // Store the latest record for this unique entry
+              records[key] = p;
             }
           }
         });
@@ -110,18 +109,18 @@ const AutocompleteInput = ({ value, onChange, onSelectRecord, placeholder, field
             setIsOpen(true);
           }}
           placeholder={placeholder}
-          className="rounded-xl h-11 sm:h-12 pr-10 focus-visible:ring-blue-500 w-full shadow-sm"
+          className="rounded-xl h-11 sm:h-12 pr-10 focus-visible:ring-indigo-500 w-full shadow-sm dark:shadow-none bg-slate-50/50 dark:bg-slate-800 border-gray-100 dark:border-slate-800 dark:text-white"
         />
         <div className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center gap-2">
           {isLoading && <Loader2 className="w-4 h-4 animate-spin text-blue-400" />}
-          <Search className="w-4 h-4 text-gray-400" />
+          <Search className="w-4 h-4 text-gray-400 dark:text-slate-500" />
         </div>
       </div>
 
       {isOpen && filtered.length > 0 && (
-        <div className="absolute z-[100] w-full mt-2 bg-white rounded-2xl shadow-2xl border border-gray-100 overflow-hidden animate-in fade-in slide-in-from-top-2 duration-200">
+        <div className="absolute z-[100] w-full mt-2 bg-white dark:bg-slate-900 rounded-2xl shadow-2xl dark:shadow-none border border-gray-100 dark:border-slate-800 overflow-hidden animate-in fade-in slide-in-from-top-2 duration-200">
           <div className="p-1 max-h-[240px] overflow-y-auto">
-            <div className="px-3 py-2 text-[10px] font-bold text-gray-400 uppercase tracking-widest flex items-center gap-1.5 border-b border-gray-50 mb-1">
+            <div className="px-3 py-2 text-[10px] font-bold text-gray-400 dark:text-slate-500 uppercase tracking-widest flex items-center gap-1.5 border-b border-gray-50 dark:border-slate-800 mb-1">
               <History className="w-3 h-3" />
               {value ? 'Suggestions' : 'Previous Entries'}
             </div>
@@ -130,23 +129,22 @@ const AutocompleteInput = ({ value, onChange, onSelectRecord, placeholder, field
                 key={suggestion}
                 type="button"
                 className={cn(
-                  "w-full text-left px-4 py-3 text-sm hover:bg-blue-50 rounded-xl transition-all flex items-center justify-between group",
-                  value.toLowerCase() === suggestion.toLowerCase() && "bg-blue-50"
+                  "w-full text-left px-4 py-3 text-sm hover:bg-indigo-50 dark:hover:bg-indigo-900/30 rounded-xl transition-all flex items-center justify-between group",
+                  value.toLowerCase() === suggestion.toLowerCase() && "bg-indigo-50 dark:bg-indigo-900/40"
                 )}
                 onClick={() => {
                   onChange(suggestion);
-                  // Pass the full record back if requested (for autofill)
                   if (onSelectRecord) {
                     onSelectRecord(fullDataMap[suggestion.toLowerCase()]);
                   }
                   setIsOpen(false);
                 }}
               >
-                <span className="text-gray-700 group-hover:text-blue-700 font-medium truncate pr-2">
+                <span className="text-gray-700 dark:text-slate-300 group-hover:text-indigo-700 dark:group-hover:text-indigo-400 font-medium truncate pr-2">
                   {suggestion}
                 </span>
                 {value.toLowerCase() === suggestion.toLowerCase() && (
-                  <Check className="w-4 h-4 text-blue-600 shrink-0" />
+                  <Check className="w-4 h-4 text-indigo-600 dark:text-indigo-400 shrink-0" />
                 )}
               </button>
             ))}
