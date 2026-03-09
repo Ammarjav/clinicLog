@@ -1,3 +1,4 @@
+import React from "react";
 import { Toaster } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
@@ -50,41 +51,40 @@ const App = () => {
                 <ClinicGuard>
                   <ClinicLayout>
                     <ClinicPatients />
-                  </ClinicPatients>
-                </ClinicLayout>
-              </ClinicGuard>
-            } />
-            
-            <Route path="/clinic/:slug/analytics" element={
-              <ClinicGuard>
-                <ClinicLayout>
-                  <ClinicAnalytics />
-                </ClinicLayout>
-              </ClinicGuard>
-            } />
+                  </ClinicLayout>
+                </ClinicGuard>
+              } />
+              
+              <Route path="/clinic/:slug/analytics" element={
+                <ClinicGuard>
+                  <ClinicLayout>
+                    <ClinicAnalytics />
+                  </ClinicLayout>
+                </ClinicGuard>
+              } />
 
-            <Route path="/clinic/:slug/reports" element={
-              <ClinicGuard>
-                <ClinicLayout>
-                  <ClinicReports />
-                </ClinicLayout>
-              </ClinicGuard>
-            } />
-            
-            <Route path="/clinic/:slug/entry" element={
-              <ClinicGuard>
-                <ClinicLayout>
-                  <ClinicEntry />
-                </ClinicLayout>
-              </ClinicGuard>
-            } />
+              <Route path="/clinic/:slug/reports" element={
+                <ClinicGuard>
+                  <ClinicLayout>
+                    <ClinicReports />
+                  </ClinicLayout>
+                </ClinicGuard>
+              } />
+              
+              <Route path="/clinic/:slug/entry" element={
+                <ClinicGuard>
+                  <ClinicLayout>
+                    <ClinicEntry />
+                  </ClinicLayout>
+                </ClinicGuard>
+              } />
 
-            <Route path="*" element={<NotFound />} />
-          </Routes>
-        </BrowserRouter>
-      </TooltipProvider>
-    </ThemeProvider>
-  </QueryClientProvider>
+              <Route path="*" element={<NotFound />} />
+            </Routes>
+          </BrowserRouter>
+        </TooltipProvider>
+      </ThemeProvider>
+    </QueryClientProvider>
   );
 };
 
