@@ -17,39 +17,41 @@ import ClinicEntry from "./pages/clinic/ClinicEntry";
 
 const queryClient = new QueryClient();
 
-const App = () => (
-  <QueryClientProvider client={queryClient}>
-    <ThemeProvider defaultTheme="light" storageKey="clinic-log-theme" attribute="class">
-      <TooltipProvider>
-        <Toaster position="top-center" richColors />
-        <BrowserRouter>
-          <Routes>
-            <Route path="/" element={<Index />} />
-            <Route path="/admin/login" element={<Login />} />
-            <Route path="/admin/signup" element={<Signup />} />
-            
-            {/* Protected Clinic Routes */}
-            <Route path="/clinic/:slug" element={
-              <ClinicGuard>
-                <ClinicLayout>
-                  <Navigate to="dashboard" replace />
-                </ClinicLayout>
-              </ClinicGuard>
-            } />
-            
-            <Route path="/clinic/:slug/dashboard" element={
-              <ClinicGuard>
-                <ClinicLayout>
-                  <ClinicDashboard />
-                </ClinicLayout>
-              </ClinicGuard>
-            } />
-            
-            <Route path="/clinic/:slug/patients" element={
-              <ClinicGuard>
-                <ClinicLayout>
-                  <ClinicPatients />
+const App = () => {
+  return (
+    <QueryClientProvider client={queryClient}>
+      <ThemeProvider defaultTheme="light" storageKey="clinic-log-theme" attribute="class">
+        <TooltipProvider>
+          <Toaster position="top-center" richColors />
+          <BrowserRouter>
+            <Routes>
+              <Route path="/" element={<Index />} />
+              <Route path="/admin/login" element={<Login />} />
+              <Route path="/admin/signup" element={<Signup />} />
+              
+              {/* Protected Clinic Routes */}
+              <Route path="/clinic/:slug" element={
+                <ClinicGuard>
+                  <ClinicLayout>
+                    <Navigate to="dashboard" replace />
+                  </ClinicLayout>
                 </ClinicGuard>
+              } />
+              
+              <Route path="/clinic/:slug/dashboard" element={
+                <ClinicGuard>
+                  <ClinicLayout>
+                    <ClinicDashboard />
+                  </ClinicLayout>
+                </ClinicGuard>
+              } />
+              
+              <Route path="/clinic/:slug/patients" element={
+                <ClinicGuard>
+                  <ClinicLayout>
+                    <ClinicPatients />
+                  </ClinicPatients>
+                </ClinicLayout>
               </ClinicGuard>
             } />
             
@@ -83,6 +85,7 @@ const App = () => (
       </TooltipProvider>
     </ThemeProvider>
   </QueryClientProvider>
-);
+  );
+};
 
 export default App;
