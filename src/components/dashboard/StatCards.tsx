@@ -60,10 +60,10 @@ const StatCards = ({ data }: StatCardsProps) => {
             <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">{stat.title}</p>
             <div className="flex items-baseline gap-3">
               <h3 className="text-4xl font-black text-slate-900 tracking-tighter">{stat.value}</h3>
-              <div className="flex items-center gap-1.5 px-3 py-1 bg-slate-50 rounded-xl border border-slate-100">
-                <CalendarDays className="w-3 h-3 text-slate-400" />
-                <span className="text-[10px] font-black text-slate-400 uppercase tracking-tight">Today</span>
-                <span className={cn("text-xs font-black", stat.color)}>{stat.today}</span>
+              <div className="flex items-center gap-2 px-4 py-1.5 bg-slate-50 rounded-xl border border-slate-100">
+                <CalendarDays className="w-4 h-4 text-slate-400" />
+                <span className="text-xs font-black text-slate-400 uppercase tracking-tight">Today</span>
+                <span className={cn("text-base font-black", stat.color)}>{stat.today}</span>
               </div>
             </div>
           </div>
