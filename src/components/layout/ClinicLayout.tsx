@@ -14,6 +14,7 @@ import {
   FileText
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { ModeToggle } from '@/components/ModeToggle';
 import Logo from '@/components/Logo';
 import { cn } from '@/lib/utils';
 
@@ -54,12 +55,15 @@ export const ClinicLayout = ({ children }: ClinicLayoutProps) => {
   };
 
   return (
-    <div className="min-h-screen bg-[#fcfcfd] flex flex-col md:flex-row">
+    <div className="min-h-screen bg-[#fcfcfd] dark:bg-slate-950 flex flex-col md:flex-row">
       {/* Sidebar - Desktop */}
-      <aside className="hidden md:flex w-64 flex-col bg-white border-r border-gray-100 sticky top-0 h-screen">
-        <div className="p-6 border-b border-gray-50 flex items-center gap-3">
-          <Logo className="w-8 h-8" />
-          <span className="font-bold text-gray-900 truncate">{clinicName}</span>
+      <aside className="hidden md:flex w-64 flex-col bg-white dark:bg-slate-900 border-r border-gray-100 dark:border-slate-800 sticky top-0 h-screen transition-colors">
+        <div className="p-6 border-b border-gray-50 dark:border-slate-800 flex items-center justify-between gap-3">
+          <div className="flex items-center gap-3 overflow-hidden">
+            <Logo className="w-8 h-8 shrink-0" />
+            <span className="font-bold text-gray-900 dark:text-white truncate">{clinicName}</span>
+          </div>
+          <ModeToggle />
         </div>
         
         <nav className="flex-1 p-4 space-y-2 mt-4">
@@ -70,8 +74,8 @@ export const ClinicLayout = ({ children }: ClinicLayoutProps) => {
               className={cn(
                 "flex items-center gap-3 px-4 py-3 rounded-2xl transition-all duration-200 font-medium text-sm",
                 location.pathname === item.path 
-                  ? "bg-blue-50 text-blue-600 shadow-sm shadow-blue-100/50" 
-                  : "text-gray-500 hover:bg-gray-50 hover:text-gray-900"
+                  ? "bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 shadow-sm shadow-blue-100/50 dark:shadow-none" 
+                  : "text-gray-500 dark:text-slate-400 hover:bg-gray-50 dark:hover:bg-slate-800 hover:text-gray-900 dark:hover:text-white"
               )}
             >
               <item.icon className="w-5 h-5" />
@@ -80,11 +84,11 @@ export const ClinicLayout = ({ children }: ClinicLayoutProps) => {
           ))}
         </nav>
 
-        <div className="p-4 border-t border-gray-50">
+        <div className="p-4 border-t border-gray-50 dark:border-slate-800">
           <Button 
             variant="ghost" 
             onClick={handleLogout} 
-            className="w-full justify-start rounded-2xl text-red-500 hover:bg-red-50 hover:text-red-600 h-12"
+            className="w-full justify-start rounded-2xl text-red-500 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/30 hover:text-red-600 dark:hover:text-red-300 h-12"
           >
             <LogOut className="w-5 h-5 mr-3" />
             Logout
@@ -93,19 +97,22 @@ export const ClinicLayout = ({ children }: ClinicLayoutProps) => {
       </aside>
 
       {/* Mobile Header */}
-      <header className="md:hidden bg-white border-b border-gray-100 px-6 h-16 flex items-center justify-between sticky top-0 z-30">
+      <header className="md:hidden bg-white dark:bg-slate-900 border-b border-gray-100 dark:border-slate-800 px-6 h-16 flex items-center justify-between sticky top-0 z-30 transition-colors">
         <div className="flex items-center gap-2">
           <Logo className="w-8 h-8" />
-          <span className="font-bold text-gray-900">{clinicName}</span>
+          <span className="font-bold text-gray-900 dark:text-white">{clinicName}</span>
         </div>
-        <Button variant="ghost" size="icon" onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}>
-          {isMobileMenuOpen ? <X /> : <Menu />}
-        </Button>
+        <div className="flex items-center gap-2">
+          <ModeToggle />
+          <Button variant="ghost" size="icon" className="dark:text-white" onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}>
+            {isMobileMenuOpen ? <X /> : <Menu />}
+          </Button>
+        </div>
       </header>
 
       {/* Mobile Menu Overlay */}
       {isMobileMenuOpen && (
-        <div className="md:hidden fixed inset-0 z-20 bg-white pt-20">
+        <div className="md:hidden fixed inset-0 z-20 bg-white dark:bg-slate-900 pt-20 transition-colors">
           <nav className="p-6 space-y-4">
             {navItems.map((item) => (
               <Link
@@ -114,7 +121,9 @@ export const ClinicLayout = ({ children }: ClinicLayoutProps) => {
                 onClick={() => setIsMobileMenuOpen(false)}
                 className={cn(
                   "flex items-center gap-4 px-6 py-4 rounded-3xl font-semibold text-lg",
-                  location.pathname === item.path ? "bg-blue-50 text-blue-600" : "text-gray-500"
+                  location.pathname === item.path 
+                    ? "bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400" 
+                    : "text-gray-500 dark:text-slate-400"
                 )}
               >
                 <item.icon className="w-6 h-6" />
@@ -124,7 +133,7 @@ export const ClinicLayout = ({ children }: ClinicLayoutProps) => {
             <Button 
               variant="ghost" 
               onClick={handleLogout} 
-              className="w-full justify-start rounded-3xl text-red-500 text-lg h-14"
+              className="w-full justify-start rounded-3xl text-red-500 dark:text-red-400 text-lg h-14"
             >
               <LogOut className="w-6 h-6 mr-4" />
               Logout
@@ -134,7 +143,7 @@ export const ClinicLayout = ({ children }: ClinicLayoutProps) => {
       )}
 
       {/* Main Content */}
-      <main className="flex-1 p-6 md:p-10 lg:p-12 overflow-x-hidden">
+      <main className="flex-1 p-6 md:p-10 lg:p-12 overflow-x-hidden dark:bg-slate-950 transition-colors">
         {children}
       </main>
     </div>
