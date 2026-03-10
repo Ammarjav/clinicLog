@@ -21,6 +21,7 @@ export type Patient = {
   id: string;
   clinic_id: string;
   name: string;
+  phone?: string;
   age: number;
   gender: 'Male' | 'Female' | 'Other';
   diagnosis: string;

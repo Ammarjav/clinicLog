@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
@@ -10,12 +10,13 @@ import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { toast } from 'sonner';
-import { Loader2, Save } from 'lucide-react';
+import { Loader2, Save, Phone } from 'lucide-react';
 import AutocompleteInput from './AutocompleteInput';
 
 const formSchema = z.object({
   name: z.string().min(1, "Name is required"),
-  age: z.coerce.number().min(1, "Age must be at least 1").max(120),
+  phone: z.string().optional(),
+  age: z.coerce.number().min(0, "Age cannot be negative").max(120),
   gender: z.enum(['Male', 'Female', 'Other']),
   diagnosis: z.string().min(1, "Diagnosis is required"),
   visit_type: z.enum(['New', 'Follow-up']),
@@ -33,6 +34,7 @@ const EditPatientForm = ({ patient, onSuccess, onCancel }: EditPatientFormProps)
     resolver: zodResolver(formSchema),
     defaultValues: {
       name: patient.name || '',
+      phone: patient.phone || '',
       age: patient.age,
       gender: patient.gender,
       diagnosis: patient.diagnosis,
@@ -59,7 +61,7 @@ const EditPatientForm = ({ patient, onSuccess, onCancel }: EditPatientFormProps)
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6 pt-4">
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5 pt-4">
         <FormField
           control={form.control}
           name="name"
@@ -78,6 +80,27 @@ const EditPatientForm = ({ patient, onSuccess, onCancel }: EditPatientFormProps)
             </FormItem>
           )}
         />
+
+        <FormField
+          control={form.control}
+          name="phone"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Phone Number</FormLabel>
+              <FormControl>
+                <div className="relative">
+                  <Phone className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                  <Input 
+                    placeholder="0300 1234567" 
+                    className="rounded-xl h-12 pl-12 bg-gray-50/50 dark:bg-slate-800" 
+                    {...field} 
+                  />
+                </div>
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
         
         <div className="grid grid-cols-2 gap-4">
           <FormField
@@ -87,7 +110,7 @@ const EditPatientForm = ({ patient, onSuccess, onCancel }: EditPatientFormProps)
               <FormItem>
                 <FormLabel>Age</FormLabel>
                 <FormControl>
-                  <Input type="number" min="1" max="120" className="rounded-xl h-12" {...field} />
+                  <Input type="number" className="rounded-xl h-12" {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>

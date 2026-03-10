@@ -10,12 +10,13 @@ import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { toast } from 'sonner';
-import { Loader2, UserPlus, Info, CheckCircle2, History, AlertTriangle } from 'lucide-react';
+import { Loader2, UserPlus, CheckCircle2, History, AlertTriangle, Phone } from 'lucide-react';
 import AutocompleteInput from './AutocompleteInput';
 import { Link, useParams } from 'react-router-dom';
 
 const formSchema = z.object({
   name: z.string().min(1, "Patient name is required"),
+  phone: z.string().optional(),
   age: z.coerce.number({ 
     required_error: "Age is required",
     invalid_type_error: "Age must be a number" 
@@ -37,6 +38,7 @@ const PatientEntryForm = () => {
     resolver: zodResolver(formSchema),
     defaultValues: {
       name: '',
+      phone: '',
       // @ts-ignore
       age: '',
       gender: 'Male',
@@ -80,6 +82,7 @@ const PatientEntryForm = () => {
 
   const handleRecordSelect = (record: any) => {
     if (record) {
+      form.setValue('phone', record.phone || '');
       form.setValue('age', record.age);
       form.setValue('gender', record.gender);
       form.setValue('diagnosis', record.diagnosis);
@@ -106,11 +109,11 @@ const PatientEntryForm = () => {
         icon: <CheckCircle2 className="w-4 h-4 text-green-500" />
       });
 
-      // Update count locally
       setCurrentPatients(prev => prev + 1);
 
       form.reset({
         name: '',
+        phone: '',
         // @ts-ignore
         age: '',
         gender: 'Male',
@@ -137,11 +140,7 @@ const PatientEntryForm = () => {
   if (!clinicData) {
     return (
       <div className="max-w-2xl mx-auto p-10 bg-white dark:bg-slate-900 rounded-[2.5rem] shadow-xl dark:shadow-none border border-gray-100 dark:border-slate-800 flex flex-col items-center text-center">
-        <div className="bg-amber-50 dark:bg-amber-900/20 p-5 rounded-3xl mb-6">
-          <Info className="w-10 h-10 text-amber-600 dark:text-amber-400" />
-        </div>
         <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Portal Access Required</h2>
-        <p className="text-gray-500 dark:text-slate-400 mt-3 max-w-sm">Please log in to your clinic's admin account.</p>
         <Button className="mt-8 px-8 h-12 rounded-2xl bg-blue-600 hover:bg-blue-700" asChild>
           <a href="/admin/login">Log in to Clinic Portal</a>
         </Button>
@@ -159,7 +158,7 @@ const PatientEntryForm = () => {
             </div>
             <h3 className="text-xl font-black text-slate-900 dark:text-white mb-2">Limit Reached</h3>
             <p className="text-slate-500 dark:text-slate-400 font-medium text-sm mb-6">
-              You've hit your plan limit of {clinicData.patient_limit} patients. Upgrade to continue recording data.
+              You've hit your plan limit of {clinicData.patient_limit} patients.
             </p>
             <Button asChild className="w-full h-12 rounded-xl bg-indigo-600 hover:bg-indigo-700 font-bold">
               <Link to={`/clinic/${slug}/billing`}>Upgrade Now</Link>
@@ -203,6 +202,29 @@ const PatientEntryForm = () => {
             />
             <FormField
               control={form.control}
+              name="phone"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel className="text-sm font-bold text-gray-700 dark:text-slate-300">Phone Number</FormLabel>
+                  <FormControl>
+                    <div className="relative">
+                      <Phone className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                      <Input 
+                        placeholder="0300 1234567" 
+                        className="rounded-2xl h-12 sm:h-14 pl-12 bg-gray-50/50 dark:bg-slate-800 border-gray-100 dark:border-slate-800 focus:bg-white dark:focus:bg-slate-800 dark:text-white transition-all text-base" 
+                        {...field} 
+                      />
+                    </div>
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-5 sm:gap-6">
+            <FormField
+              control={form.control}
               name="age"
               render={({ field }) => (
                 <FormItem>
@@ -213,7 +235,7 @@ const PatientEntryForm = () => {
                       min="0" 
                       max="120" 
                       placeholder="Years" 
-                      className="rounded-2xl h-12 sm:h-14 bg-gray-50/50 dark:bg-slate-800 border-gray-100 dark:border-slate-800 focus:bg-white dark:focus:bg-slate-800 dark:text-white transition-all text-lg" 
+                      className="rounded-2xl h-12 sm:h-14 bg-gray-50/50 dark:bg-slate-800 border-gray-100 dark:border-slate-800 focus:bg-white dark:focus:bg-slate-800 dark:text-white transition-all text-base" 
                       {...field} 
                     />
                   </FormControl>
@@ -221,9 +243,6 @@ const PatientEntryForm = () => {
                 </FormItem>
               )}
             />
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-5 sm:gap-6">
             <FormField
               control={form.control}
               name="gender"
@@ -236,7 +255,7 @@ const PatientEntryForm = () => {
                         <SelectValue placeholder="Select" />
                       </SelectTrigger>
                     </FormControl>
-                    <SelectContent className="rounded-2xl dark:bg-slate-900 dark:border-slate-800">
+                    <SelectContent className="rounded-2xl dark:bg-slate-900">
                       <SelectItem value="Male">Male</SelectItem>
                       <SelectItem value="Female">Female</SelectItem>
                       <SelectItem value="Other">Other</SelectItem>
@@ -246,6 +265,9 @@ const PatientEntryForm = () => {
                 </FormItem>
               )}
             />
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-5 sm:gap-6">
             <FormField
               control={form.control}
               name="visit_type"
@@ -258,11 +280,28 @@ const PatientEntryForm = () => {
                         <SelectValue placeholder="Select" />
                       </SelectTrigger>
                     </FormControl>
-                    <SelectContent className="rounded-2xl dark:bg-slate-900 dark:border-slate-800">
+                    <SelectContent className="rounded-2xl dark:bg-slate-900">
                       <SelectItem value="New">New Patient</SelectItem>
                       <SelectItem value="Follow-up">Follow-up Visit</SelectItem>
                     </SelectContent>
                   </Select>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="visit_date"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel className="text-sm font-bold text-gray-700 dark:text-slate-300">Visit Date</FormLabel>
+                  <FormControl>
+                    <Input 
+                      type="date" 
+                      className="rounded-2xl h-12 sm:h-14 bg-gray-50/50 dark:bg-slate-800 border-gray-100 dark:border-slate-800 focus:bg-white dark:focus:bg-slate-800 dark:text-white" 
+                      {...field} 
+                    />
+                  </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
@@ -282,24 +321,6 @@ const PatientEntryForm = () => {
                     placeholder="e.g. Hypertension, Routine checkup..." 
                     fieldName="diagnosis"
                     clinicId={clinicData.id}
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
-          <FormField
-            control={form.control}
-            name="visit_date"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel className="text-sm font-bold text-gray-700 dark:text-slate-300">Visit Date</FormLabel>
-                <FormControl>
-                  <Input 
-                    type="date" 
-                    className="rounded-2xl h-12 sm:h-14 bg-gray-50/50 dark:bg-slate-800 border-gray-100 dark:border-slate-800 focus:bg-white dark:focus:bg-slate-800 dark:text-white" 
-                    {...field} 
                   />
                 </FormControl>
                 <FormMessage />

@@ -7,6 +7,7 @@ export const exportToExcel = (data: Patient[], fileName: string) => {
   const worksheet = XLSX.utils.json_to_sheet(
     data.map(p => ({
       'Patient Name': p.name,
+      'Phone Number': p.phone || 'N/A',
       'Age': p.age,
       'Gender': p.gender,
       'Condition': p.diagnosis,
