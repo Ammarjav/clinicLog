@@ -68,8 +68,8 @@ export const ClinicLayout = ({ children }: ClinicLayoutProps) => {
   return (
     <div className="min-h-screen bg-[#fcfcfd] dark:bg-slate-950 flex flex-col md:flex-row">
       {/* Sidebar - Desktop */}
-      <aside className="hidden md:flex w-72 flex-col bg-white dark:bg-slate-900 border-r border-gray-100 dark:border-slate-800 sticky top-0 h-screen transition-colors">
-        <div className="p-6 border-b border-gray-50 dark:border-slate-800 flex items-center justify-between gap-3">
+      <aside className="hidden md:flex w-72 flex-col bg-white dark:bg-slate-900 border-r border-gray-100 dark:border-slate-800 sticky top-0 h-screen transition-colors overflow-hidden">
+        <div className="p-6 border-b border-gray-50 dark:border-slate-800 flex items-center justify-between gap-3 shrink-0">
           <div className="flex items-center gap-3 overflow-hidden">
             <Logo className="w-8 h-8 shrink-0" />
             <span className="font-bold text-gray-900 dark:text-white truncate">{clinic?.name || 'Portal'}</span>
@@ -77,7 +77,8 @@ export const ClinicLayout = ({ children }: ClinicLayoutProps) => {
           <ModeToggle />
         </div>
         
-        <nav className="flex-1 p-4 space-y-2 mt-4">
+        {/* Scrollable Nav Area */}
+        <nav className="flex-1 p-4 space-y-1 mt-4 overflow-y-auto custom-scrollbar">
           {navItems.map((item) => (
             <Link
               key={item.path}
@@ -95,7 +96,8 @@ export const ClinicLayout = ({ children }: ClinicLayoutProps) => {
           ))}
         </nav>
 
-        <div className="p-4 space-y-4 border-t border-gray-50 dark:border-slate-800">
+        {/* Fixed Bottom Section */}
+        <div className="p-4 space-y-3 border-t border-gray-50 dark:border-slate-800 shrink-0">
           {clinic && (
             <UsageStats 
               current={patientCount} 
@@ -106,7 +108,7 @@ export const ClinicLayout = ({ children }: ClinicLayoutProps) => {
           <Button 
             variant="ghost" 
             onClick={handleLogout} 
-            className="w-full justify-start rounded-2xl text-red-500 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/30 hover:text-red-600 dark:hover:text-red-300 h-12"
+            className="w-full justify-start rounded-2xl text-red-500 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/30 hover:text-red-600 dark:hover:text-red-300 h-11"
           >
             <LogOut className="w-5 h-5 mr-3" />
             Logout
@@ -130,7 +132,7 @@ export const ClinicLayout = ({ children }: ClinicLayoutProps) => {
 
       {/* Mobile Menu Overlay */}
       {isMobileMenuOpen && (
-        <div className="md:hidden fixed inset-0 z-20 bg-white dark:bg-slate-900 pt-20 transition-colors">
+        <div className="md:hidden fixed inset-0 z-20 bg-white dark:bg-slate-900 pt-20 transition-colors overflow-y-auto">
           <nav className="p-6 space-y-4">
             {navItems.map((item) => (
               <Link
