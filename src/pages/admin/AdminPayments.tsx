@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { 
-  CheckCircle2, XCircle, Landmark, CreditCard, Smartphone, Loader2, AlertTriangle, Lock, ShieldCheck, UserX, Sun, Moon, ArrowRight
+  CheckCircle2, XCircle, Landmark, CreditCard, Smartphone, Loader2, AlertTriangle, Lock, ShieldCheck, UserX, Sun, Moon, KeyRound
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -20,7 +20,11 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { Input } from "@/components/ui/input";
+import {
+  InputOTP,
+  InputOTPGroup,
+  InputOTPSlot,
+} from "@/components/ui/input-otp";
 import { useNavigate } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 
@@ -65,15 +69,13 @@ const AdminPayments = () => {
     }
   }, [isAuthorized, isAuthenticated]);
 
-  const handleVerify = async (e?: React.FormEvent) => {
-    if (e) e.preventDefault();
-    if (pinValue.length < 4) return;
+  const handleVerify = async (value: string) => {
+    if (value.length !== 6) return;
     
     setIsVerifying(true);
     try {
-      // Direct invocation of the Edge Function
       const { data, error } = await supabase.functions.invoke('verify-admin-pin', {
-        body: { pin: pinValue }
+        body: { pin: value }
       });
 
       if (error) throw error;
@@ -222,46 +224,46 @@ const AdminPayments = () => {
             </Button>
           </div>
           
-          <div className="w-full max-w-sm space-y-8 animate-in fade-in slide-in-from-bottom-8 duration-700">
+          <div className="w-full max-w-md space-y-10 animate-in fade-in slide-in-from-bottom-8 duration-700">
             <div className="flex flex-col items-center gap-6">
-              <div className="w-20 h-20 bg-indigo-600 rounded-[2rem] shadow-2xl flex items-center justify-center relative group overflow-hidden">
+              <div className="w-24 h-24 bg-indigo-600 rounded-[2.5rem] shadow-2xl flex items-center justify-center relative group overflow-hidden">
                 <div className="absolute inset-0 bg-white/10 opacity-0 group-hover:opacity-100 transition-opacity" />
-                {isVerifying ? <Loader2 className="w-10 h-10 text-white animate-spin" /> : <Lock className="w-10 h-10 text-white" />}
+                {isVerifying ? <Loader2 className="w-10 h-10 text-white animate-spin" /> : <KeyRound className="w-10 h-10 text-white" />}
               </div>
-              <div className="space-y-2">
-                <h1 className="text-3xl font-black tracking-tighter">Terminal Lock</h1>
-                <p className="text-slate-500 dark:text-slate-400 font-medium text-sm">Enter the protocol code to unlock management.</p>
+              <div className="space-y-3">
+                <h1 className="text-4xl font-black tracking-tighter">Terminal Lock</h1>
+                <p className="text-slate-500 dark:text-slate-400 font-medium text-base">Verify your identity to unlock administrative controls.</p>
               </div>
             </div>
             
-            <form onSubmit={handleVerify} className="bg-white dark:bg-slate-900 p-8 rounded-[2.5rem] border border-slate-200 dark:border-slate-800 shadow-xl space-y-4">
-              <div className="relative">
-                <Input 
-                  type="password" 
-                  placeholder="Enter 6-digit code" 
-                  value={pinValue}
-                  onChange={(e) => setPinValue(e.target.value)}
-                  className="h-14 rounded-2xl text-center text-2xl font-black tracking-[0.5em] bg-slate-50 dark:bg-slate-800 border-none focus-visible:ring-indigo-500/20"
-                  autoFocus
-                  maxLength={6}
-                />
+            <div className="bg-white dark:bg-slate-900 p-10 md:p-12 rounded-[3rem] border border-slate-200 dark:border-slate-800 shadow-2xl flex flex-col items-center space-y-8">
+              <div className="space-y-1.5 text-center">
+                <span className="text-[10px] font-black uppercase text-slate-400 dark:text-slate-500 tracking-[0.3em]">Enter Protocol Code</span>
               </div>
-              <Button 
-                type="submit" 
-                disabled={isVerifying || pinValue.length < 4}
-                className="w-full h-14 rounded-2xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-lg shadow-xl shadow-indigo-500/20"
+              
+              <InputOTP 
+                maxLength={6} 
+                value={pinValue} 
+                onChange={setPinValue} 
+                onComplete={handleVerify} 
+                disabled={isVerifying}
+                autoFocus
               >
-                {isVerifying ? <Loader2 className="animate-spin w-6 h-6" /> : (
-                  <span className="flex items-center gap-2">
-                    Unlock Portal <ArrowRight className="w-5 h-5" />
-                  </span>
-                )}
-              </Button>
-            </form>
-            
-            <div className="flex items-center justify-center gap-2 text-[10px] font-black text-slate-400 dark:text-slate-700 uppercase tracking-[0.2em]">
-              <ShieldCheck className="w-3 h-3" />
-              Secure Protocol Active
+                <InputOTPGroup className="gap-2 sm:gap-3">
+                  {[0, 1, 2, 3, 4, 5].map((i) => (
+                    <InputOTPSlot 
+                      key={i} 
+                      index={i} 
+                      className="w-12 h-16 sm:w-14 sm:h-20 rounded-2xl border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 text-2xl font-black text-indigo-600 dark:text-indigo-400 focus:ring-2 focus:ring-indigo-500/20 shadow-sm" 
+                    />
+                  ))}
+                </InputOTPGroup>
+              </InputOTP>
+
+              <div className="flex items-center gap-2 text-[10px] font-black text-slate-400 dark:text-slate-600 uppercase tracking-[0.2em] pt-4">
+                <ShieldCheck className="w-4 h-4" />
+                Secure Protocol Active
+              </div>
             </div>
           </div>
         </div>
