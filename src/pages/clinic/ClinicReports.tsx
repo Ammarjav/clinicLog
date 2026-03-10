@@ -4,7 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { supabase } from '@/lib/supabase';
 import { Button } from '@/components/ui/button';
-import { FileText, Download, Loader2, Sparkles, TrendingUp, AlertCircle, Lock } from 'lucide-react';
+import { FileText, Download, Loader2, Sparkles, TrendingUp, AlertCircle, Lock, Star } from 'lucide-react';
 import ReportFilters from '@/components/reports/ReportFilters';
 import StatCards from '@/components/dashboard/StatCards';
 import { computeReportAnalytics, ReportAnalytics } from '@/utils/reportDataUtils';
@@ -86,7 +86,13 @@ const ClinicReports = () => {
 
   const handleExportExcel = () => {
     if (isFeatureLocked('excel')) {
-      toast.error("Excel export is only available in the Pro plan.");
+      toast.error("Excel export is exclusive to the Pro plan.", {
+        description: "Upgrade your clinic to Pro to unlock bulk data management.",
+        action: {
+          label: "Upgrade",
+          onClick: () => window.location.href = `/clinic/${slug}/billing`
+        }
+      });
       return;
     }
     if (patients.length === 0) return toast.error("No data to export");
@@ -96,7 +102,13 @@ const ClinicReports = () => {
 
   const handleExportPdf = () => {
     if (isFeatureLocked('pdf')) {
-      toast.error("PDF reports are available in Basic and Pro plans.");
+      toast.error("Professional PDF reports require Basic or Pro plan.", {
+        description: "Free clinics can view reports but not export them.",
+        action: {
+          label: "Upgrade",
+          onClick: () => window.location.href = `/clinic/${slug}/billing`
+        }
+      });
       return;
     }
     if (!analytics || patients.length === 0) return toast.error("No data to generate report");
@@ -109,43 +121,37 @@ const ClinicReports = () => {
       <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6">
         <div>
           <h1 className="text-3xl md:text-4xl font-black text-slate-900 dark:text-white tracking-tighter">Clinic Reports</h1>
-          <p className="text-slate-500 dark:text-slate-400 font-medium text-sm md:text-base">Professional documentation of your practice performance</p>
+          <p className="text-slate-500 dark:text-slate-400 font-medium text-sm md:text-base">Document your practice performance for administration</p>
         </div>
         
         <div className="flex flex-col sm:flex-row items-center gap-3 w-full lg:w-auto">
-          <div className="relative group w-full sm:w-auto">
-            <Button 
-              onClick={handleExportExcel}
-              className="w-full sm:w-auto rounded-2xl h-14 px-8 bg-slate-900 dark:bg-white text-white dark:text-slate-900 hover:bg-black dark:hover:bg-indigo-50 font-bold shadow-xl shadow-slate-200 dark:shadow-none"
-              disabled={loading || patients.length === 0}
-            >
-              {isFeatureLocked('excel') && <Lock className="w-4 h-4 mr-2 text-amber-400" />}
-              <Download className="w-5 h-5 mr-2" />
-              Excel Export
-            </Button>
-            {isFeatureLocked('excel') && (
-              <div className="absolute -top-10 left-1/2 -translate-x-1/2 bg-slate-900 text-white text-[10px] px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none">
-                Pro Feature
-              </div>
-            )}
-          </div>
+          <Button 
+            onClick={handleExportExcel}
+            variant={isFeatureLocked('excel') ? 'outline' : 'default'}
+            className={`w-full sm:w-auto rounded-2xl h-14 px-8 font-bold shadow-xl transition-all ${
+              isFeatureLocked('excel') 
+              ? 'border-slate-200 dark:border-slate-800 text-slate-400 dark:text-slate-500' 
+              : 'bg-slate-900 dark:bg-white text-white dark:text-slate-900 hover:bg-black'
+            }`}
+            disabled={loading || (patients.length === 0 && !isFeatureLocked('excel'))}
+          >
+            {isFeatureLocked('excel') ? <Lock className="w-4 h-4 mr-2" /> : <Download className="w-5 h-5 mr-2" />}
+            Excel Export
+          </Button>
           
-          <div className="relative group w-full sm:w-auto">
-            <Button 
-              onClick={handleExportPdf}
-              className="w-full sm:w-auto rounded-2xl h-14 px-8 bg-indigo-600 hover:bg-indigo-700 dark:bg-indigo-500 dark:hover:bg-indigo-600 font-bold shadow-xl shadow-indigo-100 dark:shadow-none"
-              disabled={loading || patients.length === 0}
-            >
-              {isFeatureLocked('pdf') && <Lock className="w-4 h-4 mr-2 text-indigo-200" />}
-              <FileText className="w-5 h-5 mr-2" />
-              PDF Report
-            </Button>
-            {isFeatureLocked('pdf') && (
-              <div className="absolute -top-10 left-1/2 -translate-x-1/2 bg-slate-900 text-white text-[10px] px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none">
-                Basic/Pro Feature
-              </div>
-            )}
-          </div>
+          <Button 
+            onClick={handleExportPdf}
+            variant={isFeatureLocked('pdf') ? 'outline' : 'default'}
+            className={`w-full sm:w-auto rounded-2xl h-14 px-8 font-bold shadow-xl transition-all ${
+              isFeatureLocked('pdf') 
+              ? 'border-slate-200 dark:border-slate-800 text-slate-400 dark:text-slate-500' 
+              : 'bg-indigo-600 hover:bg-indigo-700 text-white'
+            }`}
+            disabled={loading || (patients.length === 0 && !isFeatureLocked('pdf'))}
+          >
+            {isFeatureLocked('pdf') ? <Lock className="w-4 h-4 mr-2" /> : <FileText className="w-5 h-5 mr-2" />}
+            PDF Report
+          </Button>
         </div>
       </div>
 
@@ -156,16 +162,19 @@ const ClinicReports = () => {
         onChange={(k, v) => setFilters(prev => ({ ...prev, [k]: v }))}
       />
 
-      {(isFeatureLocked('pdf') && isFeatureLocked('excel')) && (
-        <div className="bg-indigo-50 dark:bg-indigo-900/20 p-6 rounded-[2.5rem] border border-indigo-100 dark:border-indigo-900/30 flex items-center justify-between gap-6">
-          <div className="flex items-center gap-4">
-            <div className="bg-white dark:bg-slate-900 p-3 rounded-2xl">
-              <Star className="w-6 h-6 text-indigo-600" />
+      {clinic?.plan === 'Free' && (
+        <div className="bg-indigo-50 dark:bg-indigo-900/20 p-6 rounded-[2.5rem] border border-indigo-100 dark:border-indigo-900/30 flex flex-col md:flex-row items-center justify-between gap-6 shadow-sm">
+          <div className="flex items-center gap-4 text-center md:text-left">
+            <div className="bg-white dark:bg-slate-900 p-3 rounded-2xl shadow-sm">
+              <Star className="w-6 h-6 text-indigo-600 dark:text-indigo-400" />
             </div>
-            <p className="text-indigo-900 dark:text-indigo-200 font-bold">Upgrade your plan to unlock professional PDF and Excel reports.</p>
+            <div>
+              <p className="text-sm font-black text-indigo-900 dark:text-indigo-200 uppercase tracking-widest">Upgrade to Export</p>
+              <p className="text-indigo-800/60 dark:text-indigo-300/60 font-medium text-xs">Professional documentation tools are available in Basic and Pro plans.</p>
+            </div>
           </div>
-          <Button asChild className="rounded-xl bg-indigo-600 hover:bg-indigo-700 h-10 px-6 font-bold">
-            <Link to={`/clinic/${slug}/billing`}>Upgrade</Link>
+          <Button asChild className="w-full md:w-auto rounded-xl bg-indigo-600 hover:bg-indigo-700 h-11 px-8 font-bold shadow-lg shadow-indigo-100 dark:shadow-none">
+            <Link to={`/clinic/${slug}/billing`}>Unlock All Features</Link>
           </Button>
         </div>
       )}
