@@ -7,15 +7,29 @@ import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { 
   CheckCircle2, XCircle, Clock, Search, 
-  ExternalLink, CreditCard, Landmark, Smartphone, Loader2 
+  ExternalLink, CreditCard, Landmark, Smartphone, Loader2, AlertTriangle
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 const AdminPayments = () => {
   const [payments, setPayments] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [processingId, setProcessingId] = useState<string | null>(null);
+  
+  // Dialog States
+  const [confirmApprove, setConfirmApprove] = useState<any | null>(null);
+  const [confirmReject, setConfirmReject] = useState<any | null>(null);
 
   const fetchPayments = async () => {
     setLoading(true);
@@ -31,15 +45,18 @@ const AdminPayments = () => {
 
   useEffect(() => { fetchPayments(); }, []);
 
-  const handleApprove = async (payment: any) => {
+  const handleApprove = async () => {
+    const payment = confirmApprove;
+    if (!payment) return;
+    
     setProcessingId(payment.id);
+    setConfirmApprove(null);
+    
     try {
-      // 1. Determine plan limits
       let limit = 50;
       if (payment.plan_requested === 'Basic') limit = 200;
-      if (payment.plan_requested === 'Pro') limit = 2147483647; // Unlimited
+      if (payment.plan_requested === 'Pro') limit = 2147483647;
 
-      // 2. Update Clinic Plan & Limits
       const { error: clinicError } = await supabase
         .from('clinics')
         .update({
@@ -52,7 +69,6 @@ const AdminPayments = () => {
 
       if (clinicError) throw clinicError;
 
-      // 3. Mark Payment as Approved
       const { error: paymentError } = await supabase
         .from('payments')
         .update({ status: 'approved' })
@@ -69,16 +85,27 @@ const AdminPayments = () => {
     }
   };
 
-  const handleReject = async (id: string) => {
-    const { error } = await supabase
-      .from('payments')
-      .update({ status: 'rejected' })
-      .eq('id', id);
+  const handleReject = async () => {
+    const paymentId = confirmReject?.id;
+    if (!paymentId) return;
     
-    if (error) toast.error(error.message);
-    else {
+    setProcessingId(paymentId);
+    setConfirmReject(null);
+    
+    try {
+      const { error } = await supabase
+        .from('payments')
+        .update({ status: 'rejected' })
+        .eq('id', paymentId);
+      
+      if (error) throw error;
+      
       toast.success("Payment rejected");
       fetchPayments();
+    } catch (err: any) {
+      toast.error(err.message);
+    } finally {
+      setProcessingId(null);
     }
   };
 
@@ -96,12 +123,12 @@ const AdminPayments = () => {
             <h1 className="text-4xl font-black text-slate-900 tracking-tighter">Payment Manager</h1>
             <p className="text-slate-500 font-medium mt-1">Verify manual transactions and activate plans</p>
           </div>
-          <Button onClick={fetchPayments} variant="outline" className="rounded-xl">
-            Refresh List
+          <Button onClick={fetchPayments} variant="outline" className="rounded-xl h-12 px-6 font-bold" disabled={loading}>
+            {loading ? <Loader2 className="animate-spin w-4 h-4 mr-2" /> : "Refresh List"}
           </Button>
         </div>
 
-        <Card className="rounded-[2.5rem] border-none shadow-2xl shadow-indigo-100/20 overflow-hidden">
+        <Card className="rounded-[2.5rem] border-none shadow-2xl shadow-indigo-100/20 overflow-hidden bg-white">
           <Table>
             <TableHeader>
               <TableRow className="bg-slate-50/50 border-none">
@@ -113,7 +140,7 @@ const AdminPayments = () => {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {loading ? (
+              {loading && payments.length === 0 ? (
                 <TableRow><TableCell colSpan={5} className="h-40 text-center"><Loader2 className="animate-spin mx-auto text-indigo-600" /></TableCell></TableRow>
               ) : payments.length === 0 ? (
                 <TableRow><TableCell colSpan={5} className="h-40 text-center text-slate-400 font-bold uppercase text-xs tracking-widest">No payment requests found</TableCell></TableRow>
@@ -138,9 +165,9 @@ const AdminPayments = () => {
                     </TableCell>
                     <TableCell className="px-4 py-6">
                       <Badge variant="outline" className={cn(
-                        "rounded-full px-3 py-1 font-black uppercase text-[10px] tracking-widest",
+                        "rounded-full px-3 py-1 font-black uppercase text-[10px] tracking-widest shadow-none",
                         p.status === 'pending' ? 'border-amber-400 text-amber-500' : 
-                        p.status === 'approved' ? 'border-emerald-400 text-emerald-500' : 'border-rose-400 text-rose-500'
+                        p.status === 'approved' ? 'border-emerald-400 text-emerald-500 bg-emerald-50' : 'border-rose-400 text-rose-500 bg-rose-50'
                       )}>
                         {p.status}
                       </Badge>
@@ -151,23 +178,28 @@ const AdminPayments = () => {
                           <Button 
                             variant="ghost" 
                             size="icon" 
-                            className="rounded-xl text-rose-500 hover:bg-rose-50"
-                            onClick={() => handleReject(p.id)}
+                            className="rounded-xl text-rose-500 hover:bg-rose-50 h-10 w-10"
+                            onClick={() => setConfirmReject(p)}
                             disabled={!!processingId}
                           >
-                            <XCircle className="w-5 h-5" />
+                            {processingId === p.id ? <Loader2 className="w-4 h-4 animate-spin" /> : <XCircle className="w-5 h-5" />}
                           </Button>
                           <Button 
-                            className="rounded-xl bg-emerald-600 hover:bg-emerald-700 h-10 px-4 font-bold"
-                            onClick={() => handleApprove(p)}
+                            className="rounded-xl bg-emerald-600 hover:bg-emerald-700 h-10 px-4 font-bold shadow-sm"
+                            onClick={() => setConfirmApprove(p)}
                             disabled={!!processingId}
                           >
-                            {processingId === p.id ? <Loader2 className="w-4 h-4 animate-spin" /> : <CheckCircle2 className="w-4 h-4 mr-2" />}
+                            <CheckCircle2 className="w-4 h-4 mr-2" />
                             Approve
                           </Button>
                         </div>
                       ) : (
-                        <span className="text-xs font-bold text-slate-300 uppercase italic">Processed</span>
+                        <div className="flex justify-end">
+                           <div className="flex items-center gap-1.5 text-[10px] font-black uppercase tracking-widest text-slate-300">
+                             <CheckCircle2 className="w-3 h-3" />
+                             Verified
+                           </div>
+                        </div>
                       )}
                     </TableCell>
                   </TableRow>
@@ -177,11 +209,51 @@ const AdminPayments = () => {
           </Table>
         </Card>
       </div>
+
+      {/* Confirmation Dialogs */}
+      <AlertDialog open={!!confirmApprove} onOpenChange={() => setConfirmApprove(null)}>
+        <AlertDialogContent className="rounded-[2.5rem] border-none shadow-2xl p-8">
+          <AlertDialogHeader>
+            <div className="w-12 h-12 bg-emerald-50 rounded-2xl flex items-center justify-center mb-4">
+              <CheckCircle2 className="w-6 h-6 text-emerald-600" />
+            </div>
+            <AlertDialogTitle className="text-2xl font-black tracking-tight text-slate-900">Confirm Activation</AlertDialogTitle>
+            <AlertDialogDescription className="font-medium text-slate-500">
+              You are about to activate the <span className="text-indigo-600 font-bold">{confirmApprove?.plan_requested}</span> plan for <span className="text-slate-900 font-bold">{confirmApprove?.clinics?.name}</span>. This will update their patient limits immediately.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter className="mt-8 gap-3">
+            <AlertDialogCancel className="rounded-xl h-12 border-slate-100 font-bold">Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={handleApprove} className="rounded-xl h-12 bg-emerald-600 hover:bg-emerald-700 text-white font-bold">
+              Yes, Approve Plan
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      <AlertDialog open={!!confirmReject} onOpenChange={() => setConfirmReject(null)}>
+        <AlertDialogContent className="rounded-[2.5rem] border-none shadow-2xl p-8">
+          <AlertDialogHeader>
+            <div className="w-12 h-12 bg-rose-50 rounded-2xl flex items-center justify-center mb-4">
+              <AlertTriangle className="w-6 h-6 text-rose-600" />
+            </div>
+            <AlertDialogTitle className="text-2xl font-black tracking-tight text-slate-900">Reject Payment?</AlertDialogTitle>
+            <AlertDialogDescription className="font-medium text-slate-500">
+              Are you sure you want to reject this payment request from <span className="text-slate-900 font-bold">{confirmReject?.clinics?.name}</span>? The user will be notified to try again.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter className="mt-8 gap-3">
+            <AlertDialogCancel className="rounded-xl h-12 border-slate-100 font-bold">Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={handleReject} className="rounded-xl h-12 bg-rose-600 hover:bg-rose-700 text-white font-bold">
+              Confirm Rejection
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };
 
-// Helper for conditional classes
 function cn(...classes: any[]) {
   return classes.filter(Boolean).join(' ');
 }

@@ -5,7 +5,7 @@ import { supabase } from '@/lib/supabase';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Check, Info, ShieldCheck, Zap, Star, Landmark } from 'lucide-react';
+import { Check, Info, ShieldCheck, Zap, Star, Landmark, AlertCircle, MessageCircle } from 'lucide-react';
 import PaymentModal from '@/components/billing/PaymentModal';
 import { toast } from 'sonner';
 
@@ -59,15 +59,15 @@ const ClinicBilling = () => {
       if (userData?.clinics) {
         setClinic(userData.clinics);
         
-        // Check for pending payments
+        // Check for latest non-approved payment
         const { data: paymentData } = await supabase
           .from('payments')
           .select('*')
           .eq('clinic_id', userData.clinic_id)
-          .eq('status', 'pending')
+          .neq('status', 'approved')
           .order('created_at', { ascending: false })
           .limit(1)
-          .single();
+          .maybeSingle();
         
         setPendingPayment(paymentData);
       }
@@ -97,7 +97,7 @@ const ClinicBilling = () => {
         </p>
       </div>
 
-      {pendingPayment && (
+      {pendingPayment && pendingPayment.status === 'pending' && (
         <div className="bg-amber-50 dark:bg-amber-900/20 p-6 rounded-[2rem] border border-amber-100 dark:border-amber-900/30 flex flex-col md:flex-row items-center justify-between gap-6 max-w-4xl mx-auto">
           <div className="flex items-center gap-4 text-center md:text-left">
             <div className="bg-amber-100 dark:bg-amber-800/40 p-3 rounded-2xl">
@@ -111,6 +111,31 @@ const ClinicBilling = () => {
             </div>
           </div>
           <Badge className="bg-amber-500 text-white hover:bg-amber-600 rounded-xl px-4 py-1.5 font-bold uppercase tracking-widest text-[10px]">Pending Verification</Badge>
+        </div>
+      )}
+
+      {pendingPayment && pendingPayment.status === 'rejected' && (
+        <div className="bg-rose-50 dark:bg-rose-900/20 p-6 rounded-[2rem] border border-rose-100 dark:border-rose-900/30 flex flex-col md:flex-row items-center justify-between gap-6 max-w-4xl mx-auto">
+          <div className="flex items-center gap-4 text-center md:text-left">
+            <div className="bg-rose-100 dark:bg-rose-800/40 p-3 rounded-2xl">
+              <AlertCircle className="w-6 h-6 text-rose-600 dark:text-rose-400" />
+            </div>
+            <div>
+              <p className="text-sm font-black text-rose-800 dark:text-rose-300 uppercase tracking-widest">Payment Rejected</p>
+              <p className="text-rose-700/80 dark:text-rose-400/80 font-medium text-sm">
+                We couldn't verify your last transaction ({pendingPayment.transaction_id}). Please try again or contact support.
+              </p>
+            </div>
+          </div>
+          <div className="flex gap-2">
+             <Button variant="outline" className="rounded-xl bg-white dark:bg-slate-900 h-10 font-bold text-xs" onClick={() => window.open('https://wa.me/923106960468', '_blank')}>
+               <MessageCircle className="w-3.5 h-3.5 mr-2" />
+               Support
+             </Button>
+             <Button className="bg-rose-600 hover:bg-rose-700 text-white rounded-xl px-4 h-10 font-bold uppercase tracking-widest text-[10px]" onClick={() => setPendingPayment(null)}>
+               Try Again
+             </Button>
+          </div>
         </div>
       )}
 
