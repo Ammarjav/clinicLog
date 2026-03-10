@@ -31,6 +31,7 @@ const AdminPayments = () => {
   const navigate = useNavigate();
   const [isAuthorized, setIsAuthorized] = useState(false);
   const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
+  const [isVerifying, setIsVerifying] = useState(false);
   const [pinValue, setPinValue] = useState("");
   const [payments, setPayments] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
@@ -39,12 +40,9 @@ const AdminPayments = () => {
   const [confirmApprove, setConfirmApprove] = useState<any | null>(null);
   const [confirmReject, setConfirmReject] = useState<any | null>(null);
 
-  const MASTER_PIN = "200317";
-
   useEffect(() => {
     const checkUser = async () => {
       const { data: { user } } = await supabase.auth.getUser();
-      // In a real production app, you would check if user.email === 'your@email.com'
       setIsAuthenticated(!!user);
     };
     checkUser();
@@ -68,17 +66,29 @@ const AdminPayments = () => {
     }
   }, [isAuthorized, isAuthenticated]);
 
-  const handlePinComplete = (value: string) => {
-    if (value === MASTER_PIN) {
+  const handlePinComplete = async (value: string) => {
+    setIsVerifying(true);
+    try {
+      // Calling the server-side function to check the PIN
+      const { data, error } = await supabase.functions.invoke('verify-admin-pin', {
+        body: { pin: value }
+      });
+
+      if (error || !data.authorized) {
+        throw new Error("Invalid protocol code");
+      }
+
       setIsAuthorized(true);
       toast.success("Identity Verified", {
         description: "Administrative access granted."
       });
-    } else {
+    } catch (err: any) {
       toast.error("Security Alert", {
         description: "Invalid protocol code. Attempt logged."
       });
       setPinValue("");
+    } finally {
+      setIsVerifying(false);
     }
   };
 
@@ -142,7 +152,7 @@ const AdminPayments = () => {
         <div className="w-full max-w-sm space-y-8 animate-in fade-in slide-in-from-bottom-8 duration-700">
           <div className="flex flex-col items-center gap-6">
             <div className="w-20 h-20 bg-indigo-600 rounded-[2rem] shadow-2xl flex items-center justify-center relative group overflow-hidden">
-              <Lock className="w-10 h-10 text-white" />
+              {isVerifying ? <Loader2 className="w-10 h-10 text-white animate-spin" /> : <Lock className="w-10 h-10 text-white" />}
             </div>
             <div className="space-y-2">
               <h1 className="text-3xl font-black text-slate-900 dark:text-white tracking-tighter">Terminal Lock</h1>
@@ -150,7 +160,7 @@ const AdminPayments = () => {
             </div>
           </div>
           <div className="bg-white dark:bg-slate-900 p-10 rounded-[2.5rem] border border-slate-100 dark:border-slate-800 shadow-xl flex flex-col items-center">
-            <InputOTP maxLength={6} value={pinValue} onChange={setPinValue} onComplete={handlePinComplete}>
+            <InputOTP maxLength={6} value={pinValue} onChange={setPinValue} onComplete={handlePinComplete} disabled={isVerifying}>
               <InputOTPGroup className="gap-2">
                 <InputOTPSlot index={0} className="w-12 h-14 rounded-xl border-slate-200 dark:border-slate-800 text-xl font-bold" />
                 <InputOTPSlot index={1} className="w-12 h-14 rounded-xl border-slate-200 dark:border-slate-800 text-xl font-bold" />
