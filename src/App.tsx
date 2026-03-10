@@ -16,6 +16,7 @@ import ClinicAnalytics from "./pages/clinic/ClinicAnalytics";
 import ClinicReports from "./pages/clinic/ClinicReports";
 import ClinicEntry from "./pages/clinic/ClinicEntry";
 import ClinicBilling from "./pages/clinic/ClinicBilling";
+import AdminPayments from "./pages/admin/AdminPayments";
 
 const queryClient = new QueryClient();
 
@@ -31,6 +32,9 @@ const App = () => {
               <Route path="/admin/login" element={<Login />} />
               <Route path="/admin/signup" element={<Signup />} />
               
+              {/* Internal Admin Payment Tool */}
+              <Route path="/admin/payments-management" element={<AdminPayments />} />
+
               {/* Protected Clinic Routes */}
               <Route path="/clinic/:slug" element={
                 <ClinicGuard>
