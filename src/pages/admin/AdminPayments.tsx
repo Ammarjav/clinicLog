@@ -51,12 +51,11 @@ const AdminPayments = () => {
     setConfirmApprove(null);
     
     try {
-      // 1. Determine plan limits
       let limit = 50;
       if (payment.plan_requested === 'Basic') limit = 200;
       if (payment.plan_requested === 'Pro') limit = 2147483647;
 
-      // 2. Update Clinic Table
+      // 1. Update Clinic Record
       const { error: clinicError } = await supabase
         .from('clinics')
         .update({
@@ -66,23 +65,17 @@ const AdminPayments = () => {
         })
         .eq('id', payment.clinic_id);
 
-      if (clinicError) {
-        console.error("Clinic update error:", clinicError);
-        throw new Error("Could not update clinic plan. Check RLS policies.");
-      }
+      if (clinicError) throw new Error("Clinic update failed: " + clinicError.message);
 
-      // 3. Update Payment Status
+      // 2. Mark Payment as Approved
       const { error: paymentError } = await supabase
         .from('payments')
         .update({ status: 'approved' })
         .eq('id', payment.id);
 
-      if (paymentError) {
-        console.error("Payment status error:", paymentError);
-        throw new Error("Clinic plan updated, but payment status failed to sync.");
-      }
+      if (paymentError) throw new Error("Payment status update failed: " + paymentError.message);
 
-      toast.success(`Plan upgraded to ${payment.plan_requested}!`);
+      toast.success(`Clinic ${payment.clinics.name} upgraded to ${payment.plan_requested}!`);
       await fetchPayments();
     } catch (err: any) {
       toast.error(err.message);
@@ -118,9 +111,12 @@ const AdminPayments = () => {
   return (
     <div className="min-h-screen bg-[#FDFDFF] p-6 md:p-12">
       <div className="max-w-6xl mx-auto space-y-10">
-        <div>
-          <h1 className="text-4xl font-black text-slate-900 tracking-tighter">Payment Manager</h1>
-          <p className="text-slate-500 font-medium mt-1">Directly control clinic plan activations</p>
+        <div className="flex justify-between items-end">
+          <div>
+            <h1 className="text-4xl font-black text-slate-900 tracking-tighter">Payment Manager</h1>
+            <p className="text-slate-500 font-medium mt-1">Directly control clinic plan activations</p>
+          </div>
+          <Button onClick={fetchPayments} variant="outline" className="rounded-xl h-12 px-6 font-bold">Refresh Requests</Button>
         </div>
 
         <Card className="rounded-[2.5rem] border-none shadow-2xl shadow-indigo-100/20 overflow-hidden bg-white">
@@ -137,7 +133,10 @@ const AdminPayments = () => {
             <TableBody>
               {payments.map((p) => (
                 <TableRow key={p.id} className="border-b border-slate-50">
-                  <TableCell className="px-8 py-6 font-bold">{p.clinics?.name}</TableCell>
+                  <TableCell className="px-8 py-6">
+                    <p className="font-bold">{p.clinics?.name}</p>
+                    <p className="text-[10px] text-slate-400 truncate max-w-[150px]">{p.clinic_id}</p>
+                  </TableCell>
                   <TableCell className="px-4 py-6">
                     <Badge className={p.plan_requested === 'Pro' ? 'bg-indigo-600' : 'bg-slate-900'}>
                       {p.plan_requested}
@@ -146,22 +145,34 @@ const AdminPayments = () => {
                   <TableCell className="px-4 py-6 font-mono text-xs">{p.transaction_id}</TableCell>
                   <TableCell className="px-4 py-6">
                     <Badge variant="outline" className={
-                      p.status === 'pending' ? 'text-amber-500 border-amber-200' : 
-                      p.status === 'approved' ? 'text-emerald-500 border-emerald-200' : 'text-rose-500 border-rose-200'
+                      p.status === 'pending' ? 'text-amber-500 border-amber-200 bg-amber-50' : 
+                      p.status === 'approved' ? 'text-emerald-500 border-emerald-200 bg-emerald-50' : 'text-rose-500 border-rose-200 bg-rose-50'
                     }>
                       {p.status}
                     </Badge>
                   </TableCell>
                   <TableCell className="px-8 py-6 text-right">
-                    {p.status === 'pending' && (
+                    {p.status === 'pending' ? (
                       <div className="flex justify-end gap-2">
-                        <Button variant="ghost" size="icon" onClick={() => setConfirmReject(p)} className="text-rose-500">
+                        <Button 
+                          variant="ghost" 
+                          size="icon" 
+                          onClick={() => setConfirmReject(p)} 
+                          className="text-rose-500 hover:bg-rose-50 rounded-xl"
+                          disabled={!!processingId}
+                        >
                           <XCircle className="w-5 h-5" />
                         </Button>
-                        <Button className="bg-emerald-600 hover:bg-emerald-700 font-bold" onClick={() => setConfirmApprove(p)}>
-                          Approve
+                        <Button 
+                          className="bg-emerald-600 hover:bg-emerald-700 font-bold rounded-xl h-10" 
+                          onClick={() => setConfirmApprove(p)}
+                          disabled={!!processingId}
+                        >
+                          {processingId === p.id ? <Loader2 className="animate-spin w-4 h-4" /> : "Approve"}
                         </Button>
                       </div>
+                    ) : (
+                      <span className="text-[10px] font-black uppercase text-slate-300 tracking-widest pr-4">Processed</span>
                     )}
                   </TableCell>
                 </TableRow>
@@ -172,31 +183,37 @@ const AdminPayments = () => {
       </div>
 
       <AlertDialog open={!!confirmApprove} onOpenChange={() => setConfirmApprove(null)}>
-        <AlertDialogContent className="rounded-[2rem]">
+        <AlertDialogContent className="rounded-[2.5rem] border-none shadow-2xl p-8">
           <AlertDialogHeader>
-            <AlertDialogTitle>Approve Plan Upgrade?</AlertDialogTitle>
-            <AlertDialogDescription>
-              This will upgrade <strong>{confirmApprove?.clinics?.name}</strong> to the <strong>{confirmApprove?.plan_requested}</strong> plan.
+            <div className="w-12 h-12 bg-emerald-50 rounded-2xl flex items-center justify-center mb-4">
+              <CheckCircle2 className="w-6 h-6 text-emerald-600" />
+            </div>
+            <AlertDialogTitle className="text-2xl font-black">Approve Plan Upgrade?</AlertDialogTitle>
+            <AlertDialogDescription className="font-medium">
+              This will activate the <span className="text-indigo-600 font-bold">{confirmApprove?.plan_requested}</span> plan for <strong>{confirmApprove?.clinics?.name}</strong>.
             </AlertDialogDescription>
           </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction onClick={handleApprove} className="bg-emerald-600">Approve Now</AlertDialogAction>
+          <AlertDialogFooter className="mt-8 gap-3">
+            <AlertDialogCancel className="rounded-xl h-12 border-slate-100 font-bold">Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={handleApprove} className="rounded-xl h-12 bg-emerald-600 hover:bg-emerald-700 text-white font-bold">Confirm Approve</AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
 
       <AlertDialog open={!!confirmReject} onOpenChange={() => setConfirmReject(null)}>
-        <AlertDialogContent className="rounded-[2rem]">
+        <AlertDialogContent className="rounded-[2.5rem] border-none shadow-2xl p-8">
           <AlertDialogHeader>
-            <AlertDialogTitle>Reject Payment?</AlertDialogTitle>
-            <AlertDialogDescription>
-              The user will see a rejection message and can resubmit.
+            <div className="w-12 h-12 bg-rose-50 rounded-2xl flex items-center justify-center mb-4">
+              <AlertTriangle className="w-6 h-6 text-rose-600" />
+            </div>
+            <AlertDialogTitle className="text-2xl font-black">Reject Payment?</AlertDialogTitle>
+            <AlertDialogDescription className="font-medium">
+              The user will see a rejection message and can resubmit with a correct TID.
             </AlertDialogDescription>
           </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction onClick={handleReject} className="bg-rose-600">Confirm Reject</AlertDialogAction>
+          <AlertDialogFooter className="mt-8 gap-3">
+            <AlertDialogCancel className="rounded-xl h-12 border-slate-100 font-bold">Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={handleReject} className="rounded-xl h-12 bg-rose-600 hover:bg-rose-700 text-white font-bold">Confirm Reject</AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
