@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/lib/supabase';
 import { Button } from '@/components/ui/button';
-import { Landmark, RefreshCw, Loader2, XCircle } from 'lucide-react';
+import { Landmark, RefreshCw, Loader2, XCircle, ShieldCheck } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import PaymentModal from '@/components/billing/PaymentModal';
 import PlanCard from '@/components/billing/PlanCard';
@@ -13,8 +13,9 @@ import {
   Carousel,
   CarouselContent,
   CarouselItem,
+  type CarouselApi
 } from "@/components/ui/carousel";
-import { ShieldCheck } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
 
 const PLANS = [
   { name: 'Free', price: '0', description: 'Perfect for small private practices', features: ['Maximum 50 patients', 'Dashboard access', 'Basic analytics'], limit: 50 },
@@ -30,6 +31,21 @@ const ClinicBilling = () => {
   const [selectedPlan, setSelectedPlan] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [isRefreshing, setIsRefreshing] = useState(false);
+  
+  // Carousel state
+  const [api, setApi] = useState<CarouselApi>();
+  const [current, setCurrent] = useState(0);
+
+  useEffect(() => {
+    if (!api) return;
+    
+    // Set initial state
+    setCurrent(api.selectedScrollSnap());
+    
+    api.on("select", () => {
+      setCurrent(api.selectedScrollSnap());
+    });
+  }, [api]);
 
   const fetchData = useCallback(async (showToast = false) => {
     if (showToast) setIsRefreshing(true);
@@ -133,21 +149,54 @@ const ClinicBilling = () => {
       )}
 
       {/* Responsive Layout */}
-      <div className="relative">
+      <div className="relative py-4">
         {isMobile ? (
-          <Carousel className="w-full" opts={{ align: "start", loop: false }}>
-            <CarouselContent className="-ml-4">
-              {PLANS.map((plan) => (
-                <CarouselItem key={plan.name} className="pl-4 basis-[88%] min-h-[500px]">
-                  <PlanCard 
-                    plan={plan} 
-                    currentPlan={clinic?.plan} 
-                    isPending={isPending} 
-                    onUpgrade={handleUpgrade} 
-                  />
-                </CarouselItem>
-              ))}
+          <Carousel 
+            setApi={setApi}
+            className="w-full" 
+            opts={{ align: "center", loop: false }}
+          >
+            <CarouselContent className="-ml-0 items-center">
+              {PLANS.map((plan, index) => {
+                const isSelected = current === index;
+                return (
+                  <CarouselItem key={plan.name} className="pl-0 basis-[85%] px-2">
+                    <motion.div
+                      initial={false}
+                      animate={{
+                        scale: isSelected ? 1 : 0.85,
+                        opacity: isSelected ? 1 : 0.6,
+                      }}
+                      transition={{
+                        type: "spring",
+                        stiffness: 300,
+                        damping: 30
+                      }}
+                      className="h-full"
+                    >
+                      <PlanCard 
+                        plan={plan} 
+                        currentPlan={clinic?.plan} 
+                        isPending={isPending} 
+                        onUpgrade={handleUpgrade} 
+                      />
+                    </motion.div>
+                  </CarouselItem>
+                );
+              })}
             </CarouselContent>
+            
+            {/* Dots Indicator */}
+            <div className="flex justify-center gap-2 mt-8">
+              {PLANS.map((_, i) => (
+                <div 
+                  key={i} 
+                  className={`h-1.5 rounded-full transition-all duration-300 ${
+                    current === i ? 'w-6 bg-indigo-600' : 'w-1.5 bg-slate-200 dark:bg-slate-800'
+                  }`}
+                />
+              ))}
+            </div>
           </Carousel>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
