@@ -4,7 +4,7 @@ import React from 'react';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Check } from 'lucide-react';
+import { Check, Lock } from 'lucide-react';
 
 interface PlanCardProps {
   plan: {
@@ -19,8 +19,18 @@ interface PlanCardProps {
   onUpgrade: (plan: any) => void;
 }
 
-const PlanCard = ({ plan, currentPlan, isPending, onUpgrade }: PlanCardProps) => {
+const PLAN_RANKS: Record<string, number> = {
+  'Free': 0,
+  'Basic': 1,
+  'Pro': 2
+};
+
+const PlanCard = ({ plan, currentPlan = 'Free', isPending, onUpgrade }: PlanCardProps) => {
   const isActive = currentPlan === plan.name;
+  
+  const currentRank = PLAN_RANKS[currentPlan] ?? 0;
+  const targetRank = PLAN_RANKS[plan.name] ?? 0;
+  const isLowerPlan = currentRank > targetRank;
   
   return (
     <Card 
@@ -60,15 +70,26 @@ const PlanCard = ({ plan, currentPlan, isPending, onUpgrade }: PlanCardProps) =>
       </div>
       
       <Button 
-        disabled={isActive || plan.name === 'Free' || isPending} 
+        disabled={isActive || plan.name === 'Free' || isPending || isLowerPlan} 
         onClick={() => onUpgrade(plan)}
         className={`w-full h-14 rounded-2xl font-black text-base shadow-lg transition-all active:scale-[0.98] ${
           plan.highlight 
             ? 'bg-white text-slate-900 hover:bg-slate-50' 
             : 'bg-slate-900 dark:bg-white text-white dark:text-slate-900 hover:bg-slate-800'
-        }`}
+        } ${isLowerPlan ? 'opacity-50 cursor-not-allowed grayscale' : ''}`}
       >
-        {isActive ? 'Plan Active' : isPending ? 'Verification Pending' : `Upgrade to ${plan.name}`}
+        {isActive ? (
+          'Plan Active'
+        ) : isPending ? (
+          'Verification Pending'
+        ) : isLowerPlan ? (
+          <span className="flex items-center gap-2">
+            <Lock className="w-4 h-4" />
+            Downgrade Restricted
+          </span>
+        ) : (
+          `Upgrade to ${plan.name}`
+        )}
       </Button>
     </Card>
   );
