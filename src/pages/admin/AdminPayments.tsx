@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { 
-  CheckCircle2, XCircle, Landmark, CreditCard, Smartphone, Loader2, AlertTriangle, Lock, ShieldCheck, UserX, Sun, Moon
+  CheckCircle2, XCircle, Landmark, CreditCard, Smartphone, Loader2, AlertTriangle, Lock, ShieldCheck, UserX, Sun, Moon, ArrowRight
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -20,11 +20,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import {
-  InputOTP,
-  InputOTPGroup,
-  InputOTPSlot,
-} from "@/components/ui/input-otp";
+import { Input } from "@/components/ui/input";
 import { useNavigate } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 
@@ -38,7 +34,6 @@ const AdminPayments = () => {
   const [loading, setLoading] = useState(true);
   const [processingId, setProcessingId] = useState<string | null>(null);
   
-  // Isolated Theme State
   const [terminalTheme, setTerminalTheme] = useState<'light' | 'dark'>('dark');
   
   const [confirmApprove, setConfirmApprove] = useState<any | null>(null);
@@ -70,21 +65,27 @@ const AdminPayments = () => {
     }
   }, [isAuthorized, isAuthenticated]);
 
-  const handlePinComplete = async (value: string) => {
+  const handleVerify = async (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
+    if (pinValue.length < 4) return;
+    
     setIsVerifying(true);
     try {
+      // Direct invocation of the Edge Function
       const { data, error } = await supabase.functions.invoke('verify-admin-pin', {
-        body: { pin: value }
+        body: { pin: pinValue }
       });
 
-      if (error || !data.authorized) {
+      if (error) throw error;
+
+      if (data && data.authorized) {
+        setIsAuthorized(true);
+        toast.success("Identity Verified", {
+          description: "Administrative access granted."
+        });
+      } else {
         throw new Error("Invalid protocol code");
       }
-
-      setIsAuthorized(true);
-      toast.success("Identity Verified", {
-        description: "Administrative access granted."
-      });
     } catch (err: any) {
       toast.error("Security Alert", {
         description: "Invalid protocol code. Attempt logged."
@@ -138,13 +139,11 @@ const AdminPayments = () => {
     setTerminalTheme(prev => prev === 'dark' ? 'light' : 'dark');
   };
 
-  // Scoped styling wrapper to prevent global theme leak
   const TerminalWrapper = ({ children }: { children: React.ReactNode }) => (
     <div className={cn(
       "min-h-screen transition-colors duration-500 overflow-x-hidden",
       terminalTheme === 'dark' ? "dark bg-slate-950 text-slate-100" : "bg-slate-50 text-slate-900"
     )}>
-      {/* Scope CSS Variables for isolation */}
       <style>{`
         .terminal-scoped {
           ${terminalTheme === 'light' ? `
@@ -235,15 +234,30 @@ const AdminPayments = () => {
               </div>
             </div>
             
-            <div className="bg-white dark:bg-slate-900 p-10 rounded-[2.5rem] border border-slate-200 dark:border-slate-800 shadow-xl flex flex-col items-center backdrop-blur-sm">
-              <InputOTP maxLength={6} value={pinValue} onChange={setPinValue} onComplete={handlePinComplete} disabled={isVerifying}>
-                <InputOTPGroup className="gap-2">
-                  {[0, 1, 2, 3, 4, 5].map((i) => (
-                    <InputOTPSlot key={i} index={i} className="w-12 h-14 rounded-xl border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-xl font-bold focus:ring-indigo-500" />
-                  ))}
-                </InputOTPGroup>
-              </InputOTP>
-            </div>
+            <form onSubmit={handleVerify} className="bg-white dark:bg-slate-900 p-8 rounded-[2.5rem] border border-slate-200 dark:border-slate-800 shadow-xl space-y-4">
+              <div className="relative">
+                <Input 
+                  type="password" 
+                  placeholder="Enter 6-digit code" 
+                  value={pinValue}
+                  onChange={(e) => setPinValue(e.target.value)}
+                  className="h-14 rounded-2xl text-center text-2xl font-black tracking-[0.5em] bg-slate-50 dark:bg-slate-800 border-none focus-visible:ring-indigo-500/20"
+                  autoFocus
+                  maxLength={6}
+                />
+              </div>
+              <Button 
+                type="submit" 
+                disabled={isVerifying || pinValue.length < 4}
+                className="w-full h-14 rounded-2xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-lg shadow-xl shadow-indigo-500/20"
+              >
+                {isVerifying ? <Loader2 className="animate-spin w-6 h-6" /> : (
+                  <span className="flex items-center gap-2">
+                    Unlock Portal <ArrowRight className="w-5 h-5" />
+                  </span>
+                )}
+              </Button>
+            </form>
             
             <div className="flex items-center justify-center gap-2 text-[10px] font-black text-slate-400 dark:text-slate-700 uppercase tracking-[0.2em]">
               <ShieldCheck className="w-3 h-3" />
