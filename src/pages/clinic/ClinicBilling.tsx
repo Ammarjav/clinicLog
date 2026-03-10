@@ -50,21 +50,25 @@ const ClinicBilling = () => {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return;
 
-      const { data: userData } = await supabase
+      // 1. Fetch Fresh Clinic Data
+      const { data: userData, error: userError } = await supabase
         .from('users')
         .select('clinic_id, clinics(*)')
         .eq('id', user.id)
         .single();
       
+      if (userError) throw userError;
+
       if (userData?.clinics) {
         setClinic(userData.clinics);
         
-        // Check for latest non-approved payment
+        // 2. Fetch Fresh Payment Data (Only non-approved ones)
+        // This ensures if it's 'approved', it won't show the pending banner.
         const { data: paymentData } = await supabase
           .from('payments')
           .select('*')
           .eq('clinic_id', userData.clinic_id)
-          .neq('status', 'approved')
+          .neq('status', 'approved') 
           .order('created_at', { ascending: false })
           .limit(1)
           .maybeSingle();
@@ -72,7 +76,7 @@ const ClinicBilling = () => {
         setPendingPayment(paymentData);
       }
     } catch (err: any) {
-      console.error(err);
+      console.error("Billing fetch error:", err);
     } finally {
       setLoading(false);
     }
@@ -86,7 +90,14 @@ const ClinicBilling = () => {
     setIsModalOpen(true);
   };
 
-  if (loading) return null;
+  if (loading) {
+    return (
+      <div className="flex flex-col items-center justify-center p-20 gap-4">
+        <Loader2 className="w-10 h-10 animate-spin text-indigo-600" />
+        <p className="text-slate-500 font-bold uppercase text-xs tracking-widest">Checking Account Status...</p>
+      </div>
+    );
+  }
 
   return (
     <div className="max-w-6xl mx-auto space-y-12 animate-in fade-in slide-in-from-bottom-4 duration-700 pb-20">
@@ -98,7 +109,7 @@ const ClinicBilling = () => {
       </div>
 
       {pendingPayment && pendingPayment.status === 'pending' && (
-        <div className="bg-amber-50 dark:bg-amber-900/20 p-6 rounded-[2rem] border border-amber-100 dark:border-amber-900/30 flex flex-col md:flex-row items-center justify-between gap-6 max-w-4xl mx-auto">
+        <div className="bg-amber-50 dark:bg-amber-900/20 p-6 rounded-[2rem] border border-amber-100 dark:border-amber-900/30 flex flex-col md:flex-row items-center justify-between gap-6 max-w-4xl mx-auto shadow-sm">
           <div className="flex items-center gap-4 text-center md:text-left">
             <div className="bg-amber-100 dark:bg-amber-800/40 p-3 rounded-2xl">
               <Landmark className="w-6 h-6 text-amber-600 dark:text-amber-400" />
@@ -110,12 +121,12 @@ const ClinicBilling = () => {
               </p>
             </div>
           </div>
-          <Badge className="bg-amber-500 text-white hover:bg-amber-600 rounded-xl px-4 py-1.5 font-bold uppercase tracking-widest text-[10px]">Pending Verification</Badge>
+          <Badge className="bg-amber-500 text-white hover:bg-amber-600 rounded-xl px-4 py-1.5 font-bold uppercase tracking-widest text-[10px]">Verification Pending</Badge>
         </div>
       )}
 
       {pendingPayment && pendingPayment.status === 'rejected' && (
-        <div className="bg-rose-50 dark:bg-rose-900/20 p-6 rounded-[2rem] border border-rose-100 dark:border-rose-900/30 flex flex-col md:flex-row items-center justify-between gap-6 max-w-4xl mx-auto">
+        <div className="bg-rose-50 dark:bg-rose-900/20 p-6 rounded-[2rem] border border-rose-100 dark:border-rose-900/30 flex flex-col md:flex-row items-center justify-between gap-6 max-w-4xl mx-auto shadow-sm">
           <div className="flex items-center gap-4 text-center md:text-left">
             <div className="bg-rose-100 dark:bg-rose-800/40 p-3 rounded-2xl">
               <AlertCircle className="w-6 h-6 text-rose-600 dark:text-rose-400" />
@@ -123,7 +134,7 @@ const ClinicBilling = () => {
             <div>
               <p className="text-sm font-black text-rose-800 dark:text-rose-300 uppercase tracking-widest">Payment Rejected</p>
               <p className="text-rose-700/80 dark:text-rose-400/80 font-medium text-sm">
-                We couldn't verify your last transaction ({pendingPayment.transaction_id}). Please try again or contact support.
+                We couldn't verify transaction ID <span className="font-mono bg-rose-100 dark:bg-rose-900 px-1 rounded">{pendingPayment.transaction_id}</span>.
               </p>
             </div>
           </div>
@@ -199,7 +210,7 @@ const ClinicBilling = () => {
         <div>
           <h4 className="text-xl font-bold text-slate-900 dark:text-white mb-2">Secure manual payments</h4>
           <p className="text-slate-500 dark:text-slate-400 font-medium text-sm leading-relaxed">
-            All payments are processed manually via JazzCash, Easypaisa, or Direct Bank Transfer. After submitting your transaction ID, our team will verify and activate your trial or full plan within 24 hours.
+            All payments are processed manually. After verification, your plan will activate within 24 hours. Your 7-day trial starts as soon as we approve the request.
           </p>
         </div>
       </div>
@@ -215,5 +226,24 @@ const ClinicBilling = () => {
     </div>
   );
 };
+
+// Helper loader component
+function Loader2({ className }: { className?: string }) {
+  return (
+    <svg 
+      className={className} 
+      xmlns="http://www.w3.org/2000/svg" 
+      width="24" height="24" 
+      viewBox="0 0 24 24" 
+      fill="none" 
+      stroke="currentColor" 
+      strokeWidth="2" 
+      strokeLinecap="round" 
+      strokeLinejoin="round"
+    >
+      <path d="M21 12a9 9 0 1 1-6.219-8.56" />
+    </svg>
+  );
+}
 
 export default ClinicBilling;
