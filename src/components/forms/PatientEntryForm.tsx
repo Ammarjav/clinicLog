@@ -10,8 +10,9 @@ import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { toast } from 'sonner';
-import { Loader2, UserPlus, Info, CheckCircle2, History } from 'lucide-react';
+import { Loader2, UserPlus, Info, CheckCircle2, History, AlertTriangle } from 'lucide-react';
 import AutocompleteInput from './AutocompleteInput';
+import { Link, useParams } from 'react-router-dom';
 
 const formSchema = z.object({
   name: z.string().min(1, "Patient name is required"),
@@ -27,7 +28,9 @@ const formSchema = z.object({
 });
 
 const PatientEntryForm = () => {
-  const [clinicId, setClinicId] = useState<string | null>(null);
+  const { slug } = useParams();
+  const [clinicData, setClinicData] = useState<any>(null);
+  const [currentPatients, setCurrentPatients] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
 
   const form = useForm<z.infer<typeof formSchema>>({
@@ -44,38 +47,43 @@ const PatientEntryForm = () => {
     },
   });
 
-  useEffect(() => {
-    const fetchUserClinic = async () => {
-      try {
-        const { data: { user } } = await supabase.auth.getUser();
-        if (user) {
-          const { data, error } = await supabase
-            .from('users')
-            .select('clinic_id')
-            .eq('id', user.id)
-            .single();
+  const fetchData = async () => {
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        const { data } = await supabase
+          .from('users')
+          .select('clinic_id, clinics(*)')
+          .eq('id', user.id)
+          .single();
+        
+        if (data?.clinics) {
+          setClinicData(data.clinics);
+          form.setValue('clinic_id', data.clinic_id);
           
-          if (data?.clinic_id) {
-            setClinicId(data.clinic_id);
-            form.setValue('clinic_id', data.clinic_id);
-          }
+          const { count } = await supabase
+            .from('patients')
+            .select('*', { count: 'exact', head: true });
+          setCurrentPatients(count || 0);
         }
-      } catch (err) {
-        console.error("Auth fetch error:", err);
-      } finally {
-        setIsLoading(false);
       }
-    };
-    fetchUserClinic();
-  }, [form]);
+    } catch (err) {
+      console.error("Fetch error:", err);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
-  // Handle autofill when a returning patient is selected
+  useEffect(() => { fetchData(); }, [form]);
+
+  const isLimitReached = clinicData && currentPatients >= clinicData.patient_limit;
+
   const handleRecordSelect = (record: any) => {
     if (record) {
       form.setValue('age', record.age);
       form.setValue('gender', record.gender);
       form.setValue('diagnosis', record.diagnosis);
-      form.setValue('visit_type', 'Follow-up'); // Default to follow-up for returning patients
+      form.setValue('visit_type', 'Follow-up');
       
       toast.success(`Imported data for returning patient: ${record.name}`, {
         icon: <History className="w-4 h-4 text-blue-500" />,
@@ -85,6 +93,11 @@ const PatientEntryForm = () => {
   };
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
+    if (isLimitReached) {
+      toast.error("You have reached your plan limit. Upgrade to continue.");
+      return;
+    }
+
     try {
       const { error } = await supabase.from('patients').insert([values]);
       if (error) throw error;
@@ -93,7 +106,9 @@ const PatientEntryForm = () => {
         icon: <CheckCircle2 className="w-4 h-4 text-green-500" />
       });
 
-      // Reset for next entry but keep clinic_id and date
+      // Update count locally
+      setCurrentPatients(prev => prev + 1);
+
       form.reset({
         name: '',
         // @ts-ignore
@@ -119,15 +134,15 @@ const PatientEntryForm = () => {
     );
   }
 
-  if (!clinicId) {
+  if (!clinicData) {
     return (
       <div className="max-w-2xl mx-auto p-10 bg-white dark:bg-slate-900 rounded-[2.5rem] shadow-xl dark:shadow-none border border-gray-100 dark:border-slate-800 flex flex-col items-center text-center">
         <div className="bg-amber-50 dark:bg-amber-900/20 p-5 rounded-3xl mb-6">
           <Info className="w-10 h-10 text-amber-600 dark:text-amber-400" />
         </div>
         <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Portal Access Required</h2>
-        <p className="text-gray-500 dark:text-slate-400 mt-3 max-w-sm">Please log in to your clinic's admin account to start recording patient data.</p>
-        <Button className="mt-8 px-8 h-12 rounded-2xl bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 shadow-lg dark:shadow-none transition-all" asChild>
+        <p className="text-gray-500 dark:text-slate-400 mt-3 max-w-sm">Please log in to your clinic's admin account.</p>
+        <Button className="mt-8 px-8 h-12 rounded-2xl bg-blue-600 hover:bg-blue-700" asChild>
           <a href="/admin/login">Log in to Clinic Portal</a>
         </Button>
       </div>
@@ -135,7 +150,24 @@ const PatientEntryForm = () => {
   }
 
   return (
-    <div className="max-w-2xl mx-auto p-6 sm:p-10 bg-white dark:bg-slate-900 rounded-[2.5rem] shadow-2xl shadow-blue-50/50 dark:shadow-none border border-gray-100 dark:border-slate-800">
+    <div className="max-w-2xl mx-auto p-6 sm:p-10 bg-white dark:bg-slate-900 rounded-[2.5rem] shadow-2xl shadow-blue-50/50 dark:shadow-none border border-gray-100 dark:border-slate-800 relative overflow-hidden">
+      {isLimitReached && (
+        <div className="absolute inset-0 z-10 bg-white/60 dark:bg-slate-900/60 backdrop-blur-[2px] flex items-center justify-center p-8">
+          <div className="bg-white dark:bg-slate-800 p-8 rounded-[2rem] shadow-2xl border border-slate-100 dark:border-slate-700 text-center max-w-sm animate-in zoom-in-95 duration-300">
+            <div className="bg-rose-50 dark:bg-rose-900/30 p-4 rounded-2xl inline-block mb-4">
+              <AlertTriangle className="w-8 h-8 text-rose-600" />
+            </div>
+            <h3 className="text-xl font-black text-slate-900 dark:text-white mb-2">Limit Reached</h3>
+            <p className="text-slate-500 dark:text-slate-400 font-medium text-sm mb-6">
+              You've hit your plan limit of {clinicData.patient_limit} patients. Upgrade to continue recording data.
+            </p>
+            <Button asChild className="w-full h-12 rounded-xl bg-indigo-600 hover:bg-indigo-700 font-bold">
+              <Link to={`/clinic/${slug}/billing`}>Upgrade Now</Link>
+            </Button>
+          </div>
+        </div>
+      )}
+
       <div className="flex items-center gap-4 mb-8 sm:mb-10">
         <div className="bg-blue-600 dark:bg-blue-500 p-3 rounded-2xl shadow-lg dark:shadow-none">
           <UserPlus className="w-7 h-7 text-white" />
@@ -162,7 +194,7 @@ const PatientEntryForm = () => {
                       onSelectRecord={handleRecordSelect}
                       placeholder="e.g. John Doe" 
                       fieldName="name"
-                      clinicId={clinicId}
+                      clinicId={clinicData.id}
                     />
                   </FormControl>
                   <FormMessage />
@@ -249,7 +281,7 @@ const PatientEntryForm = () => {
                     onChange={field.onChange} 
                     placeholder="e.g. Hypertension, Routine checkup..." 
                     fieldName="diagnosis"
-                    clinicId={clinicId}
+                    clinicId={clinicData.id}
                   />
                 </FormControl>
                 <FormMessage />
@@ -277,7 +309,7 @@ const PatientEntryForm = () => {
 
           <Button 
             type="submit" 
-            className="w-full h-14 sm:h-16 text-lg sm:text-xl font-bold rounded-[1.25rem] bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 shadow-xl shadow-blue-200 dark:shadow-none transition-all duration-300 active:scale-[0.98] mt-4"
+            className="w-full h-14 sm:h-16 text-lg sm:text-xl font-bold rounded-[1.25rem] bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 transition-all duration-300 active:scale-[0.98] mt-4"
             disabled={form.formState.isSubmitting}
           >
             {form.formState.isSubmitting ? (

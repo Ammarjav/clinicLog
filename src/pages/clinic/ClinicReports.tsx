@@ -1,10 +1,10 @@
 "use client";
 
 import React, { useState, useEffect } from 'react';
-import { useParams } from 'react-router-dom';
+import { Link, useParams } from 'react-router-dom';
 import { supabase } from '@/lib/supabase';
 import { Button } from '@/components/ui/button';
-import { FileText, Download, Loader2, Sparkles, TrendingUp, AlertCircle } from 'lucide-react';
+import { FileText, Download, Loader2, Sparkles, TrendingUp, AlertCircle, Lock } from 'lucide-react';
 import ReportFilters from '@/components/reports/ReportFilters';
 import StatCards from '@/components/dashboard/StatCards';
 import { computeReportAnalytics, ReportAnalytics } from '@/utils/reportDataUtils';
@@ -25,12 +25,12 @@ const ClinicReports = () => {
   const [loading, setLoading] = useState(false);
   const [patients, setPatients] = useState<any[]>([]);
   const [analytics, setAnalytics] = useState<ReportAnalytics | null>(null);
-  const [clinicName, setClinicName] = useState('Clinic Portal');
+  const [clinic, setClinic] = useState<any>(null);
 
   useEffect(() => {
     const fetchClinic = async () => {
-      const { data } = await supabase.from('clinics').select('name').eq('slug', slug).single();
-      if (data) setClinicName(data.name);
+      const { data } = await supabase.from('clinics').select('*').eq('slug', slug).single();
+      if (data) setClinic(data);
     };
     fetchClinic();
   }, [slug]);
@@ -77,15 +77,30 @@ const ClinicReports = () => {
     return `${filters.startDate} to ${filters.endDate}`;
   };
 
+  const isFeatureLocked = (feature: 'pdf' | 'excel') => {
+    if (!clinic) return true;
+    if (feature === 'pdf' && clinic.plan === 'Free') return true;
+    if (feature === 'excel' && clinic.plan !== 'Pro') return true;
+    return false;
+  };
+
   const handleExportExcel = () => {
+    if (isFeatureLocked('excel')) {
+      toast.error("Excel export is only available in the Pro plan.");
+      return;
+    }
     if (patients.length === 0) return toast.error("No data to export");
     exportToExcel(patients, `ClinicReport_${getDateRangeString().replace(/\s/g, '_')}`);
     toast.success("Excel report exported");
   };
 
   const handleExportPdf = () => {
+    if (isFeatureLocked('pdf')) {
+      toast.error("PDF reports are available in Basic and Pro plans.");
+      return;
+    }
     if (!analytics || patients.length === 0) return toast.error("No data to generate report");
-    generatePdfReport(patients, analytics, clinicName, getDateRangeString());
+    generatePdfReport(patients, analytics, clinic?.name || 'Clinic', getDateRangeString());
     toast.success("PDF report generated");
   };
 
@@ -98,22 +113,39 @@ const ClinicReports = () => {
         </div>
         
         <div className="flex flex-col sm:flex-row items-center gap-3 w-full lg:w-auto">
-          <Button 
-            onClick={handleExportExcel}
-            className="w-full sm:w-auto rounded-2xl h-14 px-8 bg-slate-900 dark:bg-white text-white dark:text-slate-900 hover:bg-black dark:hover:bg-indigo-50 font-bold shadow-xl shadow-slate-200 dark:shadow-none"
-            disabled={loading || patients.length === 0}
-          >
-            <Download className="w-5 h-5 mr-2" />
-            Excel Export
-          </Button>
-          <Button 
-            onClick={handleExportPdf}
-            className="w-full sm:w-auto rounded-2xl h-14 px-8 bg-indigo-600 hover:bg-indigo-700 dark:bg-indigo-500 dark:hover:bg-indigo-600 font-bold shadow-xl shadow-indigo-100 dark:shadow-none"
-            disabled={loading || patients.length === 0}
-          >
-            <FileText className="w-5 h-5 mr-2" />
-            PDF Report
-          </Button>
+          <div className="relative group w-full sm:w-auto">
+            <Button 
+              onClick={handleExportExcel}
+              className="w-full sm:w-auto rounded-2xl h-14 px-8 bg-slate-900 dark:bg-white text-white dark:text-slate-900 hover:bg-black dark:hover:bg-indigo-50 font-bold shadow-xl shadow-slate-200 dark:shadow-none"
+              disabled={loading || patients.length === 0}
+            >
+              {isFeatureLocked('excel') && <Lock className="w-4 h-4 mr-2 text-amber-400" />}
+              <Download className="w-5 h-5 mr-2" />
+              Excel Export
+            </Button>
+            {isFeatureLocked('excel') && (
+              <div className="absolute -top-10 left-1/2 -translate-x-1/2 bg-slate-900 text-white text-[10px] px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none">
+                Pro Feature
+              </div>
+            )}
+          </div>
+          
+          <div className="relative group w-full sm:w-auto">
+            <Button 
+              onClick={handleExportPdf}
+              className="w-full sm:w-auto rounded-2xl h-14 px-8 bg-indigo-600 hover:bg-indigo-700 dark:bg-indigo-500 dark:hover:bg-indigo-600 font-bold shadow-xl shadow-indigo-100 dark:shadow-none"
+              disabled={loading || patients.length === 0}
+            >
+              {isFeatureLocked('pdf') && <Lock className="w-4 h-4 mr-2 text-indigo-200" />}
+              <FileText className="w-5 h-5 mr-2" />
+              PDF Report
+            </Button>
+            {isFeatureLocked('pdf') && (
+              <div className="absolute -top-10 left-1/2 -translate-x-1/2 bg-slate-900 text-white text-[10px] px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none">
+                Basic/Pro Feature
+              </div>
+            )}
+          </div>
         </div>
       </div>
 
@@ -123,6 +155,20 @@ const ClinicReports = () => {
         filters={filters}
         onChange={(k, v) => setFilters(prev => ({ ...prev, [k]: v }))}
       />
+
+      {(isFeatureLocked('pdf') && isFeatureLocked('excel')) && (
+        <div className="bg-indigo-50 dark:bg-indigo-900/20 p-6 rounded-[2.5rem] border border-indigo-100 dark:border-indigo-900/30 flex items-center justify-between gap-6">
+          <div className="flex items-center gap-4">
+            <div className="bg-white dark:bg-slate-900 p-3 rounded-2xl">
+              <Star className="w-6 h-6 text-indigo-600" />
+            </div>
+            <p className="text-indigo-900 dark:text-indigo-200 font-bold">Upgrade your plan to unlock professional PDF and Excel reports.</p>
+          </div>
+          <Button asChild className="rounded-xl bg-indigo-600 hover:bg-indigo-700 h-10 px-6 font-bold">
+            <Link to={`/clinic/${slug}/billing`}>Upgrade</Link>
+          </Button>
+        </div>
+      )}
 
       {loading ? (
         <div className="flex flex-col items-center justify-center p-12 md:p-20 gap-4 text-center">
@@ -139,7 +185,6 @@ const ClinicReports = () => {
           <StatCards data={patients} />
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            {/* AI Insights Card */}
             <div className="bg-slate-900 dark:bg-slate-900 p-6 md:p-8 rounded-[2.5rem] shadow-2xl dark:shadow-none text-white relative overflow-hidden group border border-transparent dark:border-slate-800">
               <div className="absolute top-0 right-0 w-32 h-32 bg-indigo-500/20 rounded-full translate-x-1/2 -translate-y-1/2 blur-2xl group-hover:bg-indigo-400/30 transition-all duration-700" />
               <div className="relative z-10">
@@ -160,7 +205,6 @@ const ClinicReports = () => {
               </div>
             </div>
 
-            {/* Condition Trend Card */}
             <div className="bg-white dark:bg-slate-900 p-6 md:p-8 rounded-[2.5rem] border border-slate-100 dark:border-slate-800 shadow-sm dark:shadow-none">
               <h3 className="text-lg font-black text-slate-900 dark:text-white mb-6 tracking-tight">Dominant Conditions</h3>
               <div className="space-y-5">

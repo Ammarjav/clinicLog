@@ -11,12 +11,14 @@ import {
   LogOut, 
   Menu, 
   X,
-  FileText
+  FileText,
+  CreditCard
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { ModeToggle } from '@/components/ModeToggle';
 import Logo from '@/components/Logo';
 import { cn } from '@/lib/utils';
+import UsageStats from '@/components/billing/UsageStats';
 
 interface ClinicLayoutProps {
   children: React.ReactNode;
@@ -26,19 +28,27 @@ export const ClinicLayout = ({ children }: ClinicLayoutProps) => {
   const { slug } = useParams();
   const location = useLocation();
   const navigate = useNavigate();
-  const [clinicName, setClinicName] = useState('Clinic Portal');
+  const [clinic, setClinic] = useState<any>(null);
+  const [patientCount, setPatientCount] = useState(0);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   useEffect(() => {
-    const fetchClinic = async () => {
-      const { data } = await supabase
+    const fetchData = async () => {
+      // Fetch clinic
+      const { data: clinicData } = await supabase
         .from('clinics')
-        .select('name')
+        .select('*')
         .eq('slug', slug)
         .single();
-      if (data) setClinicName(data.name);
+      if (clinicData) setClinic(clinicData);
+
+      // Fetch patient count
+      const { count } = await supabase
+        .from('patients')
+        .select('*', { count: 'exact', head: true });
+      setPatientCount(count || 0);
     };
-    fetchClinic();
+    fetchData();
   }, [slug]);
 
   const navItems = [
@@ -47,6 +57,7 @@ export const ClinicLayout = ({ children }: ClinicLayoutProps) => {
     { name: 'Analytics', path: `/clinic/${slug}/analytics`, icon: BarChart3 },
     { name: 'Reports', path: `/clinic/${slug}/reports`, icon: FileText },
     { name: 'New Entry', path: `/clinic/${slug}/entry`, icon: UserPlus },
+    { name: 'Billing', path: `/clinic/${slug}/billing`, icon: CreditCard },
   ];
 
   const handleLogout = async () => {
@@ -57,11 +68,11 @@ export const ClinicLayout = ({ children }: ClinicLayoutProps) => {
   return (
     <div className="min-h-screen bg-[#fcfcfd] dark:bg-slate-950 flex flex-col md:flex-row">
       {/* Sidebar - Desktop */}
-      <aside className="hidden md:flex w-64 flex-col bg-white dark:bg-slate-900 border-r border-gray-100 dark:border-slate-800 sticky top-0 h-screen transition-colors">
+      <aside className="hidden md:flex w-72 flex-col bg-white dark:bg-slate-900 border-r border-gray-100 dark:border-slate-800 sticky top-0 h-screen transition-colors">
         <div className="p-6 border-b border-gray-50 dark:border-slate-800 flex items-center justify-between gap-3">
           <div className="flex items-center gap-3 overflow-hidden">
             <Logo className="w-8 h-8 shrink-0" />
-            <span className="font-bold text-gray-900 dark:text-white truncate">{clinicName}</span>
+            <span className="font-bold text-gray-900 dark:text-white truncate">{clinic?.name || 'Portal'}</span>
           </div>
           <ModeToggle />
         </div>
@@ -84,7 +95,14 @@ export const ClinicLayout = ({ children }: ClinicLayoutProps) => {
           ))}
         </nav>
 
-        <div className="p-4 border-t border-gray-50 dark:border-slate-800">
+        <div className="p-4 space-y-4 border-t border-gray-50 dark:border-slate-800">
+          {clinic && (
+            <UsageStats 
+              current={patientCount} 
+              limit={clinic.patient_limit} 
+              plan={clinic.plan} 
+            />
+          )}
           <Button 
             variant="ghost" 
             onClick={handleLogout} 
@@ -100,7 +118,7 @@ export const ClinicLayout = ({ children }: ClinicLayoutProps) => {
       <header className="md:hidden bg-white dark:bg-slate-900 border-b border-gray-100 dark:border-slate-800 px-6 h-16 flex items-center justify-between sticky top-0 z-30 transition-colors">
         <div className="flex items-center gap-2">
           <Logo className="w-8 h-8" />
-          <span className="font-bold text-gray-900 dark:text-white">{clinicName}</span>
+          <span className="font-bold text-gray-900 dark:text-white truncate max-w-[150px]">{clinic?.name}</span>
         </div>
         <div className="flex items-center gap-2">
           <ModeToggle />
@@ -130,6 +148,15 @@ export const ClinicLayout = ({ children }: ClinicLayoutProps) => {
                 {item.name}
               </Link>
             ))}
+            <div className="pt-4 pb-2">
+              {clinic && (
+                <UsageStats 
+                  current={patientCount} 
+                  limit={clinic.patient_limit} 
+                  plan={clinic.plan} 
+                />
+              )}
+            </div>
             <Button 
               variant="ghost" 
               onClick={handleLogout} 
