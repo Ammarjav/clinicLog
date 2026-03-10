@@ -69,7 +69,6 @@ const AdminPayments = () => {
   const handlePinComplete = async (value: string) => {
     setIsVerifying(true);
     try {
-      // Calling the server-side function to check the PIN
       const { data, error } = await supabase.functions.invoke('verify-admin-pin', {
         body: { pin: value }
       });
@@ -131,14 +130,15 @@ const AdminPayments = () => {
     }
   };
 
+  // Content for when user is not logged in
   if (isAuthenticated === false) {
     return (
-      <div className="min-h-screen bg-slate-50 dark:bg-slate-950 flex flex-col items-center justify-center p-6 text-center">
-        <div className="bg-white dark:bg-slate-900 p-10 rounded-[2.5rem] shadow-xl max-w-sm">
+      <div className="dark min-h-screen bg-slate-950 flex flex-col items-center justify-center p-6 text-center">
+        <div className="bg-slate-900 border border-slate-800 p-10 rounded-[2.5rem] shadow-2xl max-w-sm">
           <UserX className="w-12 h-12 text-rose-500 mx-auto mb-4" />
-          <h2 className="text-xl font-black text-slate-900 dark:text-white mb-2">Auth Required</h2>
-          <p className="text-slate-500 text-sm mb-6">You must be logged in as an administrator to access this terminal.</p>
-          <Button onClick={() => navigate('/admin/login')} className="w-full rounded-xl bg-indigo-600">Go to Login</Button>
+          <h2 className="text-xl font-black text-white mb-2 tracking-tight">Auth Required</h2>
+          <p className="text-slate-400 text-sm mb-6 leading-relaxed">You must be logged in as an administrator to access this terminal.</p>
+          <Button onClick={() => navigate('/admin/login')} className="w-full h-12 rounded-xl bg-indigo-600 hover:bg-indigo-700 font-bold">Go to Login</Button>
         </div>
       </div>
     );
@@ -146,81 +146,97 @@ const AdminPayments = () => {
 
   if (isAuthenticated === null) return null;
 
+  // Content for PIN entry screen
   if (!isAuthorized) {
     return (
-      <div className="min-h-screen bg-slate-50 dark:bg-slate-950 flex flex-col items-center justify-center p-6 text-center">
+      <div className="dark min-h-screen bg-slate-950 flex flex-col items-center justify-center p-6 text-center">
         <div className="w-full max-w-sm space-y-8 animate-in fade-in slide-in-from-bottom-8 duration-700">
           <div className="flex flex-col items-center gap-6">
             <div className="w-20 h-20 bg-indigo-600 rounded-[2rem] shadow-2xl flex items-center justify-center relative group overflow-hidden">
+              <div className="absolute inset-0 bg-white/10 opacity-0 group-hover:opacity-100 transition-opacity" />
               {isVerifying ? <Loader2 className="w-10 h-10 text-white animate-spin" /> : <Lock className="w-10 h-10 text-white" />}
             </div>
             <div className="space-y-2">
-              <h1 className="text-3xl font-black text-slate-900 dark:text-white tracking-tighter">Terminal Lock</h1>
-              <p className="text-slate-500 dark:text-slate-400 font-medium text-sm">Enter the protocol code to unlock management.</p>
+              <h1 className="text-3xl font-black text-white tracking-tighter">Terminal Lock</h1>
+              <p className="text-slate-400 font-medium text-sm">Enter the protocol code to unlock management.</p>
             </div>
           </div>
-          <div className="bg-white dark:bg-slate-900 p-10 rounded-[2.5rem] border border-slate-100 dark:border-slate-800 shadow-xl flex flex-col items-center">
+          
+          <div className="bg-slate-900/50 p-10 rounded-[2.5rem] border border-slate-800 shadow-xl flex flex-col items-center backdrop-blur-sm">
             <InputOTP maxLength={6} value={pinValue} onChange={setPinValue} onComplete={handlePinComplete} disabled={isVerifying}>
               <InputOTPGroup className="gap-2">
-                <InputOTPSlot index={0} className="w-12 h-14 rounded-xl border-slate-200 dark:border-slate-800 text-xl font-bold" />
-                <InputOTPSlot index={1} className="w-12 h-14 rounded-xl border-slate-200 dark:border-slate-800 text-xl font-bold" />
-                <InputOTPSlot index={2} className="w-12 h-14 rounded-xl border-slate-200 dark:border-slate-800 text-xl font-bold" />
-                <InputOTPSlot index={3} className="w-12 h-14 rounded-xl border-slate-200 dark:border-slate-800 text-xl font-bold" />
-                <InputOTPSlot index={4} className="w-12 h-14 rounded-xl border-slate-200 dark:border-slate-800 text-xl font-bold" />
-                <InputOTPSlot index={5} className="w-12 h-14 rounded-xl border-slate-200 dark:border-slate-800 text-xl font-bold" />
+                <InputOTPSlot index={0} className="w-12 h-14 rounded-xl border-slate-700 bg-slate-800/50 text-white text-xl font-bold focus:ring-indigo-500" />
+                <InputOTPSlot index={1} className="w-12 h-14 rounded-xl border-slate-700 bg-slate-800/50 text-white text-xl font-bold focus:ring-indigo-500" />
+                <InputOTPSlot index={2} className="w-12 h-14 rounded-xl border-slate-700 bg-slate-800/50 text-white text-xl font-bold focus:ring-indigo-500" />
+                <InputOTPSlot index={3} className="w-12 h-14 rounded-xl border-slate-700 bg-slate-800/50 text-white text-xl font-bold focus:ring-indigo-500" />
+                <InputOTPSlot index={4} className="w-12 h-14 rounded-xl border-slate-700 bg-slate-800/50 text-white text-xl font-bold focus:ring-indigo-500" />
+                <InputOTPSlot index={5} className="w-12 h-14 rounded-xl border-slate-700 bg-slate-800/50 text-white text-xl font-bold focus:ring-indigo-500" />
               </InputOTPGroup>
             </InputOTP>
           </div>
-          <div className="flex items-center justify-center gap-2 text-[10px] font-black text-slate-300 dark:text-slate-700 uppercase tracking-[0.2em]">
+          
+          <div className="flex items-center justify-center gap-2 text-[10px] font-black text-slate-700 uppercase tracking-[0.2em]">
             <ShieldCheck className="w-3 h-3" />
-            Encrypted Administrative Session
+            Secure Protocol Active
           </div>
         </div>
       </div>
     );
   }
 
+  // Main authorized payment manager content (Forced Dark)
   return (
-    <div className="min-h-screen bg-[#FDFDFF] dark:bg-slate-950 p-6 md:p-12 transition-colors duration-500">
+    <div className="dark min-h-screen bg-slate-950 text-slate-100 p-6 md:p-12 selection:bg-indigo-500/30">
       <div className="max-w-6xl mx-auto space-y-10">
         <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6">
           <div>
-            <h1 className="text-4xl font-black text-slate-900 dark:text-white tracking-tighter">Payment Manager</h1>
-            <p className="text-slate-500 dark:text-slate-400 font-medium mt-1">Directly control clinic plan activations</p>
+            <div className="inline-flex items-center gap-2 px-3 py-1 bg-indigo-500/10 border border-indigo-500/20 rounded-full mb-3">
+              <span className="w-1.5 h-1.5 rounded-full bg-indigo-500 animate-pulse" />
+              <span className="text-[10px] font-black uppercase tracking-widest text-indigo-400">Admin Terminal</span>
+            </div>
+            <h1 className="text-4xl font-black text-white tracking-tighter">Payment Manager</h1>
+            <p className="text-slate-400 font-medium mt-1">Directly control clinic plan activations</p>
           </div>
-          <Button onClick={fetchPayments} variant="outline" className="rounded-xl h-12 px-6 font-bold w-full md:w-auto">Refresh Requests</Button>
+          <Button onClick={fetchPayments} variant="outline" className="rounded-xl h-12 px-6 font-bold w-full md:w-auto border-slate-800 bg-slate-900/50 hover:bg-slate-800 text-slate-300">
+            <Loader2 className={loading ? "animate-spin w-4 h-4 mr-2" : "hidden"} />
+            Refresh Requests
+          </Button>
         </div>
-        <Card className="rounded-[2.5rem] border-none shadow-2xl shadow-indigo-100/20 dark:shadow-none overflow-hidden bg-white dark:bg-slate-900">
+
+        <Card className="rounded-[2.5rem] border-slate-800 shadow-2xl overflow-hidden bg-slate-900/40 backdrop-blur-sm">
           <div className="overflow-x-auto">
             <Table>
               <TableHeader>
-                <TableRow className="bg-slate-50/50 dark:bg-slate-800/50 border-none">
-                  <TableHead className="py-6 px-8 font-black text-[10px] uppercase tracking-widest text-slate-400 dark:text-slate-500">Clinic</TableHead>
-                  <TableHead className="py-6 px-4 font-black text-[10px] uppercase tracking-widest text-slate-400 dark:text-slate-500">Requested Plan</TableHead>
-                  <TableHead className="py-6 px-4 font-black text-[10px] uppercase tracking-widest text-slate-400 dark:text-slate-500">Transaction ID</TableHead>
-                  <TableHead className="py-6 px-4 font-black text-[10px] uppercase tracking-widest text-slate-400 dark:text-slate-500">Status</TableHead>
-                  <TableHead className="py-6 px-8 text-right font-black text-[10px] uppercase tracking-widest text-slate-400 dark:text-slate-500">Action</TableHead>
+                <TableRow className="bg-slate-900/80 border-slate-800">
+                  <TableHead className="py-6 px-8 font-black text-[10px] uppercase tracking-widest text-slate-500">Clinic</TableHead>
+                  <TableHead className="py-6 px-4 font-black text-[10px] uppercase tracking-widest text-slate-500">Requested Plan</TableHead>
+                  <TableHead className="py-6 px-4 font-black text-[10px] uppercase tracking-widest text-slate-500">Transaction ID</TableHead>
+                  <TableHead className="py-6 px-4 font-black text-[10px] uppercase tracking-widest text-slate-500">Status</TableHead>
+                  <TableHead className="py-6 px-8 text-right font-black text-[10px] uppercase tracking-widest text-slate-500">Action</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {payments.length > 0 ? (
                   payments.map((p) => (
-                    <TableRow key={p.id} className="border-b border-slate-50 dark:border-slate-800">
+                    <TableRow key={p.id} className="border-slate-800 hover:bg-slate-800/30 transition-colors">
                       <TableCell className="px-8 py-6">
-                        <p className="font-bold text-slate-900 dark:text-white">{p.clinics?.name}</p>
-                        <p className="text-[10px] text-slate-400 truncate max-w-[150px]">{p.clinic_id}</p>
+                        <p className="font-bold text-white">{p.clinics?.name}</p>
+                        <p className="text-[10px] text-slate-600 truncate max-w-[150px] font-mono uppercase">{p.clinic_id}</p>
                       </TableCell>
                       <TableCell className="px-4 py-6">
-                        <Badge className={p.plan_requested === 'Pro' ? 'bg-indigo-600' : 'bg-slate-900 dark:bg-slate-800'}>
+                        <Badge className={`rounded-lg px-3 py-1 font-black text-[10px] uppercase tracking-wider ${
+                          p.plan_requested === 'Pro' ? 'bg-indigo-600 text-white' : 
+                          p.plan_requested === 'Basic' ? 'bg-slate-700 text-white' : 'bg-slate-800 text-slate-400'
+                        }`}>
                           {p.plan_requested}
                         </Badge>
                       </TableCell>
-                      <TableCell className="px-4 py-6 font-mono text-xs dark:text-slate-300">{p.transaction_id}</TableCell>
+                      <TableCell className="px-4 py-6 font-mono text-xs text-slate-300">{p.transaction_id}</TableCell>
                       <TableCell className="px-4 py-6">
-                        <Badge variant="outline" className={
-                          p.status === 'pending' ? 'text-amber-500 border-amber-200 bg-amber-50 dark:bg-amber-900/10' : 
-                          p.status === 'approved' ? 'text-emerald-500 border-emerald-200 bg-emerald-50 dark:bg-emerald-900/10' : 'text-rose-500 border-rose-200 bg-rose-50 dark:bg-rose-900/10'
-                        }>
+                        <Badge variant="outline" className={`rounded-lg px-3 py-1 font-black text-[10px] uppercase tracking-wider ${
+                          p.status === 'pending' ? 'text-amber-500 border-amber-500/20 bg-amber-500/5' : 
+                          p.status === 'approved' ? 'text-emerald-500 border-emerald-500/20 bg-emerald-500/5' : 'text-rose-500 border-rose-500/20 bg-rose-500/5'
+                        }`}>
                           {p.status}
                         </Badge>
                       </TableCell>
@@ -231,13 +247,13 @@ const AdminPayments = () => {
                               variant="ghost" 
                               size="icon" 
                               onClick={() => setConfirmReject(p)} 
-                              className="text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-900/20 rounded-xl"
+                              className="text-rose-500 hover:bg-rose-500/10 hover:text-rose-400 rounded-xl transition-all"
                               disabled={!!processingId}
                             >
                               <XCircle className="w-5 h-5" />
                             </Button>
                             <Button 
-                              className="bg-emerald-600 hover:bg-emerald-700 font-bold rounded-xl h-10" 
+                              className="bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl h-10 px-6 shadow-lg shadow-indigo-500/20" 
                               onClick={() => setConfirmApprove(p)}
                               disabled={!!processingId}
                             >
@@ -245,15 +261,20 @@ const AdminPayments = () => {
                             </Button>
                           </div>
                         ) : (
-                          <span className="text-[10px] font-black uppercase text-slate-300 dark:text-slate-700 tracking-widest pr-4">Processed</span>
+                          <span className="text-[10px] font-black uppercase text-slate-700 tracking-widest pr-4">Processed</span>
                         )}
                       </TableCell>
                     </TableRow>
                   ))
                 ) : (
                   <TableRow>
-                    <TableCell colSpan={5} className="py-12 text-center text-slate-400 font-bold uppercase text-xs tracking-widest">
-                      No pending requests
+                    <TableCell colSpan={5} className="py-20 text-center text-slate-600 font-bold uppercase text-xs tracking-widest">
+                      <div className="flex flex-col items-center gap-4">
+                        <div className="p-4 bg-slate-900 rounded-full">
+                          <CheckCircle2 className="w-8 h-8 text-slate-800" />
+                        </div>
+                        No pending requests
+                      </div>
                     </TableCell>
                   </TableRow>
                 )}
@@ -262,37 +283,41 @@ const AdminPayments = () => {
           </div>
         </Card>
       </div>
+
+      {/* Approve Dialog */}
       <AlertDialog open={!!confirmApprove} onOpenChange={() => setConfirmApprove(null)}>
-        <AlertDialogContent className="rounded-[2.5rem] border-none shadow-2xl p-8 dark:bg-slate-900">
+        <AlertDialogContent className="dark bg-slate-900 border-slate-800 rounded-[2.5rem] p-8 shadow-2xl">
           <AlertDialogHeader>
-            <div className="w-12 h-12 bg-emerald-50 dark:bg-emerald-900/20 rounded-2xl flex items-center justify-center mb-4">
-              <CheckCircle2 className="w-6 h-6 text-emerald-600" />
+            <div className="w-12 h-12 bg-emerald-500/10 rounded-2xl flex items-center justify-center mb-4">
+              <CheckCircle2 className="w-6 h-6 text-emerald-500" />
             </div>
-            <AlertDialogTitle className="text-2xl font-black text-slate-900 dark:text-white tracking-tight">Approve Plan Upgrade?</AlertDialogTitle>
-            <AlertDialogDescription className="font-medium text-slate-500 dark:text-slate-400">
-              This will activate the <span className="text-indigo-600 font-bold">{confirmApprove?.plan_requested}</span> plan for <strong>{confirmApprove?.clinics?.name}</strong>.
+            <AlertDialogTitle className="text-2xl font-black text-white tracking-tight">Approve Plan Upgrade?</AlertDialogTitle>
+            <AlertDialogDescription className="font-medium text-slate-400">
+              This will activate the <span className="text-indigo-400 font-bold">{confirmApprove?.plan_requested}</span> plan for <strong>{confirmApprove?.clinics?.name}</strong>.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter className="mt-8 gap-3 sm:gap-0">
-            <AlertDialogCancel className="rounded-xl h-12 border-slate-100 dark:border-slate-800 font-bold">Cancel</AlertDialogCancel>
-            <AlertDialogAction onClick={handleApprove} className="rounded-xl h-12 bg-emerald-600 hover:bg-emerald-700 text-white font-bold">Confirm Approve</AlertDialogAction>
+            <AlertDialogCancel className="rounded-xl h-12 border-slate-800 bg-transparent text-slate-400 font-bold hover:bg-slate-800">Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={handleApprove} className="rounded-xl h-12 bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-8">Confirm Approve</AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      {/* Reject Dialog */}
       <AlertDialog open={!!confirmReject} onOpenChange={() => setConfirmReject(null)}>
-        <AlertDialogContent className="rounded-[2.5rem] border-none shadow-2xl p-8 dark:bg-slate-900">
+        <AlertDialogContent className="dark bg-slate-900 border-slate-800 rounded-[2.5rem] p-8 shadow-2xl">
           <AlertDialogHeader>
-            <div className="w-12 h-12 bg-rose-50 dark:bg-rose-900/20 rounded-2xl flex items-center justify-center mb-4">
-              <AlertTriangle className="w-6 h-6 text-rose-600" />
+            <div className="w-12 h-12 bg-rose-500/10 rounded-2xl flex items-center justify-center mb-4">
+              <AlertTriangle className="w-6 h-6 text-rose-500" />
             </div>
-            <AlertDialogTitle className="text-2xl font-black text-slate-900 dark:text-white tracking-tight">Reject Payment?</AlertDialogTitle>
-            <AlertDialogDescription className="font-medium text-slate-500 dark:text-slate-400">
+            <AlertDialogTitle className="text-2xl font-black text-white tracking-tight">Reject Payment?</AlertDialogTitle>
+            <AlertDialogDescription className="font-medium text-slate-400">
               The user will see a rejection message and can resubmit with a correct TID.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter className="mt-8 gap-3 sm:gap-0">
-            <AlertDialogCancel className="rounded-xl h-12 border-slate-100 dark:border-slate-800 font-bold">Cancel</AlertDialogCancel>
-            <AlertDialogAction onClick={handleReject} className="rounded-xl h-12 bg-rose-600 hover:bg-rose-700 text-white font-bold">Confirm Reject</AlertDialogAction>
+            <AlertDialogCancel className="rounded-xl h-12 border-slate-800 bg-transparent text-slate-400 font-bold hover:bg-slate-800">Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={handleReject} className="rounded-xl h-12 bg-rose-600 hover:bg-rose-700 text-white font-bold px-8">Confirm Reject</AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
