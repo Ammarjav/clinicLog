@@ -2,18 +2,19 @@
 
 import React, { useEffect, useState } from 'react';
 import { supabase } from '@/lib/supabase';
-import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { 
   MessageCircle, 
   CalendarClock, 
-  ChevronRight, 
   UserRoundCheck,
   Stethoscope,
   Loader2,
-  Clock
+  Clock,
+  ChevronDown,
+  ChevronUp
 } from 'lucide-react';
 import { toast } from 'sonner';
+import { cn } from '@/lib/utils';
 
 interface FollowupRemindersProps {
   clinicName: string;
@@ -22,12 +23,12 @@ interface FollowupRemindersProps {
 const FollowupReminders = ({ clinicName }: FollowupRemindersProps) => {
   const [reminders, setReminders] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [isOpen, setIsOpen] = useState(false);
 
   useEffect(() => {
     const fetchReminders = async () => {
       setLoading(true);
       try {
-        // Fetch all patients to analyze history
         const { data, error } = await supabase
           .from('patients')
           .select('*')
@@ -36,10 +37,9 @@ const FollowupReminders = ({ clinicName }: FollowupRemindersProps) => {
         if (error) throw error;
 
         if (data) {
-          // Group by phone to find patients who only had a 'New' visit
           const patientHistory: Record<string, any[]> = {};
           data.forEach(p => {
-            const key = p.phone || p.name; // Use phone as primary key if available
+            const key = p.phone || p.name;
             if (!patientHistory[key]) patientHistory[key] = [];
             patientHistory[key].push(p);
           });
@@ -49,12 +49,10 @@ const FollowupReminders = ({ clinicName }: FollowupRemindersProps) => {
           const missedFollowups = Object.values(patientHistory)
             .filter(history => {
               const latest = history[0];
-              // Condition: Latest visit was 'New', it wasn't today, and they have no follow-up sessions
               const hasFollowup = history.some(h => h.visit_type === 'Follow-up');
               return latest.visit_type === 'New' && latest.visit_date < today && !hasFollowup;
             })
-            .map(h => h[0]) // Get the latest (and only) visit record
-            .slice(0, 5); // Show top 5 reminders
+            .map(h => h[0]);
 
           setReminders(missedFollowups);
         }
@@ -81,67 +79,75 @@ const FollowupReminders = ({ clinicName }: FollowupRemindersProps) => {
 
     const message = `Hello ${patient.name}, this is ${clinicName}. %0A%0AWe are checking in following your initial consultation on ${date} regarding your ${patient.diagnosis}. We noticed you haven't visited for a follow-up session yet. %0A%0AHow is your recovery progressing? Please let us know if you'd like to schedule a follow-up appointment to monitor your condition. %0A%0AWishing you a speedy recovery!`;
 
-    // Clean phone number (ensure no + for the link construction but keeping it for the API)
     const phone = patient.phone.replace('+', '');
     window.open(`https://wa.me/${phone}?text=${message}`, '_blank');
   };
 
-  if (loading) return (
-    <div className="flex items-center gap-3 p-8 bg-white dark:bg-slate-900 rounded-[2.5rem] border border-slate-50 dark:border-slate-800 shadow-sm mb-8">
-      <Loader2 className="w-5 h-5 animate-spin text-indigo-600" />
-      <span className="text-xs font-black uppercase tracking-widest text-slate-400">Scanning for missed follow-ups...</span>
-    </div>
-  );
-
+  if (loading) return null;
   if (reminders.length === 0) return null;
 
   return (
-    <div className="mb-10 animate-in fade-in slide-in-from-top-4 duration-700">
-      <div className="flex items-center justify-between mb-4 px-2">
-        <div className="flex items-center gap-2">
-          <CalendarClock className="w-5 h-5 text-indigo-600 dark:text-indigo-400" />
-          <h2 className="text-sm font-black text-slate-900 dark:text-white uppercase tracking-widest">Follow-up Queue</h2>
+    <div className="mb-8 animate-in fade-in slide-in-from-top-4 duration-700">
+      <Button 
+        onClick={() => setIsOpen(!isOpen)}
+        variant="outline"
+        className={cn(
+          "w-full sm:w-auto h-12 rounded-2xl border-indigo-100 dark:border-indigo-900/30 bg-indigo-50/30 dark:bg-indigo-900/10 text-indigo-600 dark:text-indigo-400 font-bold px-6 shadow-sm flex items-center gap-3 transition-all",
+          isOpen && "bg-indigo-600 text-white dark:bg-indigo-600 dark:text-white border-transparent"
+        )}
+      >
+        <CalendarClock className="w-5 h-5" />
+        <span>Follow-up Reminders</span>
+        <div className={cn(
+          "px-2 py-0.5 rounded-full text-[10px] font-black uppercase tracking-widest",
+          isOpen ? "bg-white text-indigo-600" : "bg-indigo-600 text-white"
+        )}>
+          {reminders.length}
         </div>
-        <span className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest">
-          {reminders.length} Pending Actions
-        </span>
-      </div>
+        {isOpen ? <ChevronUp className="w-4 h-4 ml-2" /> : <ChevronDown className="w-4 h-4 ml-2" />}
+      </Button>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {reminders.map((patient) => (
-          <Card key={patient.id} className="p-6 rounded-[2rem] border-none shadow-xl shadow-indigo-100/20 dark:shadow-none bg-white dark:bg-slate-900 group hover:ring-2 hover:ring-indigo-500/20 transition-all">
-            <div className="flex flex-col h-full justify-between">
-              <div>
-                <div className="flex justify-between items-start mb-4">
-                  <div className="bg-indigo-50 dark:bg-indigo-900/30 p-2.5 rounded-xl">
-                    <UserRoundCheck className="w-5 h-5 text-indigo-600 dark:text-indigo-400" />
-                  </div>
-                  <div className="flex items-center gap-1.5 px-2.5 py-1 bg-amber-50 dark:bg-amber-900/20 rounded-full border border-amber-100 dark:border-amber-900/30">
-                    <Clock className="w-3 h-3 text-amber-600" />
-                    <span className="text-[9px] font-black text-amber-600 uppercase tracking-tighter">Missed Follow-up</span>
-                  </div>
-                </div>
-                
-                <h3 className="text-lg font-black text-slate-900 dark:text-white truncate mb-1">{patient.name}</h3>
-                <div className="flex items-center gap-2 text-slate-500 dark:text-slate-400 mb-4">
-                  <Stethoscope className="w-3.5 h-3.5" />
-                  <span className="text-xs font-bold truncate">{patient.diagnosis}</span>
-                </div>
-              </div>
-
-              <div className="pt-4 border-t border-slate-50 dark:border-slate-800 mt-auto">
-                <Button 
-                  onClick={() => handleWhatsApp(patient)}
-                  className="w-full rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold h-11 shadow-lg shadow-emerald-100 dark:shadow-none"
+      {isOpen && (
+        <div className="mt-4 space-y-3 animate-in slide-in-from-top-2 duration-300">
+          <div className="bg-white dark:bg-slate-900 rounded-[2rem] border border-slate-100 dark:border-slate-800 shadow-2xl shadow-indigo-100/10 overflow-hidden">
+            <div className="max-h-[350px] overflow-y-auto">
+              {reminders.map((patient, idx) => (
+                <div 
+                  key={patient.id} 
+                  className={cn(
+                    "p-5 flex flex-col sm:flex-row items-center justify-between gap-4 group transition-colors",
+                    idx !== reminders.length - 1 && "border-b border-slate-50 dark:border-slate-800"
+                  )}
                 >
-                  <MessageCircle className="w-4 h-4 mr-2" />
-                  Check condition
-                </Button>
-              </div>
+                  <div className="flex items-center gap-4 w-full sm:w-auto">
+                    <div className="bg-slate-50 dark:bg-slate-800 p-2.5 rounded-xl shrink-0">
+                      <UserRoundCheck className="w-5 h-5 text-slate-400" />
+                    </div>
+                    <div className="overflow-hidden">
+                      <h4 className="font-bold text-slate-900 dark:text-white truncate">{patient.name}</h4>
+                      <div className="flex items-center gap-2 text-slate-400 text-xs font-medium">
+                        <Stethoscope className="w-3 h-3" />
+                        <span className="truncate">{patient.diagnosis}</span>
+                        <span className="text-slate-200 dark:text-slate-700">•</span>
+                        <Clock className="w-3 h-3" />
+                        <span>Last: {new Date(patient.visit_date).toLocaleDateString()}</span>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <Button 
+                    onClick={() => handleWhatsApp(patient)}
+                    className="w-full sm:w-auto rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold h-10 px-6 shrink-0 shadow-lg shadow-emerald-100 dark:shadow-none"
+                  >
+                    <MessageCircle className="w-4 h-4 mr-2" />
+                    Send Reminder
+                  </Button>
+                </div>
+              ))}
             </div>
-          </Card>
-        ))}
-      </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
