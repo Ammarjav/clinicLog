@@ -34,7 +34,7 @@ const EditPatientForm = ({ patient, onSuccess, onCancel }: EditPatientFormProps)
     resolver: zodResolver(formSchema),
     defaultValues: {
       name: patient.name || '',
-      phone: patient.phone || '',
+      phone: patient.phone?.replace('+92', '') || '',
       age: patient.age,
       gender: patient.gender,
       diagnosis: patient.diagnosis,
@@ -44,10 +44,22 @@ const EditPatientForm = ({ patient, onSuccess, onCancel }: EditPatientFormProps)
   });
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
+    // Format phone number logic
+    let formattedPhone = values.phone?.trim() || '';
+    if (formattedPhone) {
+      let cleaned = formattedPhone.replace(/\D/g, '');
+      if (cleaned.startsWith('0')) cleaned = cleaned.substring(1);
+      if (cleaned.startsWith('92')) cleaned = cleaned.substring(2);
+      formattedPhone = '+92' + cleaned;
+    }
+
     try {
       const { error } = await supabase
         .from('patients')
-        .update(values)
+        .update({
+          ...values,
+          phone: formattedPhone || null
+        })
         .eq('id', patient.id);
         
       if (error) throw error;
@@ -89,10 +101,13 @@ const EditPatientForm = ({ patient, onSuccess, onCancel }: EditPatientFormProps)
               <FormLabel>Phone Number</FormLabel>
               <FormControl>
                 <div className="relative">
-                  <Phone className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                  <div className="absolute left-4 top-1/2 -translate-y-1/2 flex items-center gap-2 pointer-events-none">
+                    <Phone className="w-4 h-4 text-slate-400" />
+                    <span className="text-slate-400 font-bold text-sm border-r border-slate-200 dark:border-slate-700 pr-2">+92</span>
+                  </div>
                   <Input 
-                    placeholder="0300 1234567" 
-                    className="rounded-xl h-12 pl-12 bg-gray-50/50 dark:bg-slate-800" 
+                    placeholder="310 1234567" 
+                    className="rounded-xl h-12 pl-20 bg-gray-50/50 dark:bg-slate-800" 
                     {...field} 
                   />
                 </div>
@@ -207,7 +222,7 @@ const EditPatientForm = ({ patient, onSuccess, onCancel }: EditPatientFormProps)
           </Button>
           <Button 
             type="submit" 
-            className="flex-1 h-12 rounded-xl bg-blue-600 hover:bg-blue-700"
+            className="flex-1 h-12 rounded-xl bg-blue-600 hover:bg-blue-700 text-white"
             disabled={form.formState.isSubmitting}
           >
             {form.formState.isSubmitting ? (

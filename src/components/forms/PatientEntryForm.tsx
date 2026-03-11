@@ -82,7 +82,7 @@ const PatientEntryForm = () => {
 
   const handleRecordSelect = (record: any) => {
     if (record) {
-      form.setValue('phone', record.phone || '');
+      form.setValue('phone', record.phone?.replace('+92', '') || '');
       form.setValue('age', record.age);
       form.setValue('gender', record.gender);
       form.setValue('diagnosis', record.diagnosis);
@@ -101,8 +101,28 @@ const PatientEntryForm = () => {
       return;
     }
 
+    // Format phone number logic
+    let formattedPhone = values.phone?.trim() || '';
+    if (formattedPhone) {
+      // Remove any non-numeric characters
+      cleanedPhone = formattedPhone.replace(/\D/g, '');
+      // If starts with 0, remove it
+      if (cleanedPhone.startsWith('0')) {
+        cleanedPhone = cleanedPhone.substring(1);
+      }
+      // If starts with 92, remove it to normalize
+      if (cleanedPhone.startsWith('92')) {
+        cleanedPhone = cleanedPhone.substring(2);
+      }
+      formattedPhone = '+92' + cleanedPhone;
+    }
+
     try {
-      const { error } = await supabase.from('patients').insert([values]);
+      const { error } = await supabase.from('patients').insert([{
+        ...values,
+        phone: formattedPhone || null
+      }]);
+      
       if (error) throw error;
       
       toast.success("Patient recorded successfully", {
@@ -127,6 +147,8 @@ const PatientEntryForm = () => {
       toast.error("Failed to save: " + error.message);
     }
   };
+
+  let cleanedPhone = ""; // Helper for scope
 
   if (isLoading) {
     return (
@@ -207,11 +229,14 @@ const PatientEntryForm = () => {
                 <FormItem>
                   <FormLabel className="text-sm font-bold text-gray-700 dark:text-slate-300">Phone Number</FormLabel>
                   <FormControl>
-                    <div className="relative">
-                      <Phone className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                    <div className="relative group">
+                      <div className="absolute left-4 top-1/2 -translate-y-1/2 flex items-center gap-2 pointer-events-none">
+                        <Phone className="w-4 h-4 text-slate-400" />
+                        <span className="text-slate-400 font-bold text-sm border-r border-slate-200 dark:border-slate-700 pr-2">+92</span>
+                      </div>
                       <Input 
-                        placeholder="0300 1234567" 
-                        className="rounded-2xl h-12 sm:h-14 pl-12 bg-gray-50/50 dark:bg-slate-800 border-gray-100 dark:border-slate-800 focus:bg-white dark:focus:bg-slate-800 dark:text-white transition-all text-base" 
+                        placeholder="310 1234567" 
+                        className="rounded-2xl h-12 sm:h-14 pl-20 bg-gray-50/50 dark:bg-slate-800 border-gray-100 dark:border-slate-800 focus:bg-white dark:focus:bg-slate-800 dark:text-white transition-all text-base" 
                         {...field} 
                       />
                     </div>
