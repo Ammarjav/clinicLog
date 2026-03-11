@@ -6,7 +6,7 @@ import {
   ResponsiveContainer, CartesianGrid, AreaChart, Area, Legend
 } from 'recharts';
 import { Card } from '@/components/ui/card';
-import { Banknote, TrendingUp, DollarSign, Wallet } from 'lucide-react';
+import { TrendingUp, Wallet, Banknote } from 'lucide-react';
 
 interface RevenueChartsProps {
   data: any[];
@@ -22,7 +22,6 @@ const RevenueCharts = ({ data, fees }: RevenueChartsProps) => {
 
   // Calculate totals
   const totalRevenue = revenueData.reduce((acc, curr) => acc + curr.revenue, 0);
-  const avgRevenuePerVisit = data.length > 0 ? totalRevenue / data.length : 0;
 
   // 1. Revenue Over Time
   const trendGroups: Record<string, number> = {};
@@ -31,8 +30,7 @@ const RevenueCharts = ({ data, fees }: RevenueChartsProps) => {
   });
   const trendData = Object.entries(trendGroups)
     .map(([date, revenue]) => ({ date, revenue }))
-    .sort((a, b) => a.date.localeCompare(b.date))
-    .slice(-14);
+    .sort((a, b) => a.date.localeCompare(b.date));
 
   // 2. Revenue by Visit Type
   const typeRevenue = { 'New Patients': 0, 'Follow-up': 0 };
@@ -65,39 +63,35 @@ const RevenueCharts = ({ data, fees }: RevenueChartsProps) => {
 
   return (
     <div className="space-y-8">
-      {/* Revenue Highlights */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-        <Card className="p-8 border-none shadow-2xl shadow-emerald-100/20 dark:shadow-none rounded-[2.5rem] bg-white dark:bg-slate-900 flex items-center gap-6 group hover:scale-[1.02] transition-transform duration-300">
-          <div className="p-4 bg-emerald-50 dark:bg-emerald-900/30 rounded-2xl group-hover:scale-110 transition-transform">
-            <Wallet className="w-8 h-8 text-emerald-600" />
+      {/* Revenue Highlight */}
+      <Card className="p-8 border-none shadow-2xl shadow-emerald-100/20 dark:shadow-none rounded-[2.5rem] bg-white dark:bg-slate-900 flex flex-col md:flex-row items-center justify-between gap-6 group transition-all duration-300">
+        <div className="flex items-center gap-6">
+          <div className="p-5 bg-emerald-50 dark:bg-emerald-900/30 rounded-3xl group-hover:scale-110 transition-transform">
+            <Wallet className="w-10 h-10 text-emerald-600" />
           </div>
           <div>
-            <p className="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-1">Total Revenue</p>
-            <h3 className="text-3xl sm:text-4xl font-black text-slate-900 dark:text-white tracking-tighter">
+            <p className="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-1">Period Revenue</p>
+            <h3 className="text-4xl sm:text-5xl font-black text-slate-900 dark:text-white tracking-tighter">
               Rs. {totalRevenue.toLocaleString()}
             </h3>
           </div>
-        </Card>
-
-        <Card className="p-8 border-none shadow-2xl shadow-indigo-100/20 dark:shadow-none rounded-[2.5rem] bg-white dark:bg-slate-900 flex items-center gap-6 group hover:scale-[1.02] transition-transform duration-300">
-          <div className="p-4 bg-indigo-50 dark:bg-indigo-900/30 rounded-2xl group-hover:scale-110 transition-transform">
-            <TrendingUp className="w-8 h-8 text-indigo-600" />
+        </div>
+        <div className="hidden md:block text-right">
+          <p className="text-xs font-bold text-slate-400 dark:text-slate-500">Based on {data.length} recorded visits</p>
+          <div className="mt-2 flex gap-4 text-[10px] font-black uppercase tracking-widest">
+            <span className="text-indigo-600">New: Rs. {fees.new}</span>
+            <span className="text-slate-400">•</span>
+            <span className="text-slate-500 dark:text-slate-400">Follow-up: Rs. {fees.followUp}</span>
           </div>
-          <div>
-            <p className="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-1">Avg. Revenue / Visit</p>
-            <h3 className="text-3xl sm:text-4xl font-black text-slate-900 dark:text-white tracking-tighter">
-              Rs. {Math.round(avgRevenuePerVisit).toLocaleString()}
-            </h3>
-          </div>
-        </Card>
-      </div>
+        </div>
+      </Card>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         <Card className="p-8 border-none shadow-sm dark:shadow-none rounded-[2.5rem] bg-white dark:bg-slate-900 overflow-hidden relative">
           <div className="flex justify-between items-start mb-8 relative z-10">
             <div>
               <h3 className="text-xl font-black text-slate-900 dark:text-white tracking-tight">Revenue Stream</h3>
-              <p className="text-xs text-slate-400 font-medium">Daily income trajectory (Last 14 days)</p>
+              <p className="text-xs text-slate-400 font-medium">Trajectory for the selected period</p>
             </div>
             <div className="bg-emerald-50 dark:bg-emerald-900/30 p-3 rounded-2xl">
               <TrendingUp className="w-5 h-5 text-emerald-600" />
