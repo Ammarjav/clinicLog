@@ -1,10 +1,12 @@
 "use client";
 
 import React, { useEffect, useState, useMemo } from 'react';
+import { useParams } from 'react-router-dom';
 import { supabase } from '@/lib/supabase';
 import PatientTable from '@/components/dashboard/PatientTable';
 import DashboardFilters from '@/components/dashboard/DashboardFilters';
 import EditPatientForm from '@/components/forms/EditPatientForm';
+import FollowupReminders from '@/components/patients/FollowupReminders';
 import { toast } from 'sonner';
 import { Users, FileText } from 'lucide-react';
 import {
@@ -26,6 +28,8 @@ import {
 } from "@/components/ui/sheet";
 
 const ClinicPatients = () => {
+  const { slug } = useParams();
+  const [clinicName, setClinicName] = useState('Clinic');
   const [patients, setPatients] = useState<any[]>([]);
   const [deleteId, setDeleteId] = useState<string | null>(null);
   const [editPatient, setEditPatient] = useState<any | null>(null);
@@ -38,6 +42,11 @@ const ClinicPatients = () => {
     date: '',
   });
 
+  const fetchClinicData = async () => {
+    const { data } = await supabase.from('clinics').select('name').eq('slug', slug).single();
+    if (data) setClinicName(data.name);
+  };
+
   const fetchPatients = async () => {
     const { data, error } = await supabase
       .from('patients')
@@ -47,7 +56,10 @@ const ClinicPatients = () => {
     else setPatients(data || []);
   };
 
-  useEffect(() => { fetchPatients(); }, []);
+  useEffect(() => { 
+    fetchClinicData();
+    fetchPatients(); 
+  }, [slug]);
 
   const handleFilterChange = (key: string, value: string) => {
     setFilters(prev => ({ ...prev, [key]: value }));
@@ -100,6 +112,8 @@ const ClinicPatients = () => {
           </div>
         </div>
       </div>
+
+      <FollowupReminders clinicName={clinicName} />
 
       <DashboardFilters 
         filters={filters} 
