@@ -119,10 +119,10 @@ const Index = () => {
 
           <div className="flex items-center gap-1 md:gap-3">
             <ModeToggle />
-            <Button variant="ghost" asChild className="rounded-xl font-bold text-slate-600 dark:text-slate-400 hover:bg-indigo-50 dark:hover:bg-indigo-900/20 hover:text-indigo-600 dark:hover:text-indigo-400 text-[10px] md:text-sm px-2 md:px-3 h-8 md:h-10">
+            <Button variant="ghost" asChild className="rounded-2xl font-bold text-slate-600 dark:text-slate-400 hover:bg-indigo-50 dark:hover:bg-indigo-900/20 hover:text-indigo-600 dark:hover:text-indigo-400 text-[10px] md:text-sm px-2 md:px-3 h-8 md:h-10">
               <Link to="/admin/login">Sign In</Link>
             </Button>
-            <Button asChild className="rounded-xl bg-slate-900 dark:bg-white dark:text-slate-900 hover:bg-indigo-600 dark:hover:bg-indigo-400 text-white shadow-lg dark:shadow-none transition-all px-3 md:px-6 text-[10px] md:text-sm h-8 md:h-10">
+            <Button asChild className="rounded-2xl bg-slate-900 dark:bg-white dark:text-slate-900 hover:bg-indigo-600 dark:hover:bg-indigo-400 text-white shadow-lg dark:shadow-none transition-all px-3 md:px-6 text-[10px] md:text-sm h-8 md:h-10">
               <Link to="/admin/signup">Join Now</Link>
             </Button>
           </div>
@@ -147,12 +147,12 @@ const Index = () => {
           </p>
           
           <div className="flex flex-col sm:flex-row gap-3 md:gap-4 justify-center mb-12 md:mb-16 animate-in fade-in slide-in-from-bottom-16 duration-1000 px-4">
-            <Button asChild size="lg" className="w-full sm:w-auto rounded-2xl bg-indigo-600 hover:bg-indigo-700 h-14 md:h-16 px-8 md:px-10 text-base md:text-lg font-bold shadow-2xl shadow-indigo-200 dark:shadow-none group">
+            <Button asChild size="lg" className="w-full sm:w-auto rounded-[2rem] bg-indigo-600 hover:bg-indigo-700 h-14 md:h-16 px-8 md:px-10 text-base md:text-lg font-bold shadow-2xl shadow-indigo-200 dark:shadow-none group">
               <Link to="/admin/signup" className="flex items-center justify-center">
                 Get Started <ChevronRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
               </Link>
             </Button>
-            <Button asChild variant="outline" size="lg" className="w-full sm:w-auto rounded-2xl h-14 md:h-16 px-8 md:px-10 text-base md:text-lg font-bold border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-900">
+            <Button asChild variant="outline" size="lg" className="w-full sm:w-auto rounded-[2rem] h-14 md:h-16 px-8 md:px-10 text-base md:text-lg font-bold border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-900">
               <Link to="/admin/login">Explore Demo</Link>
             </Button>
           </div>
@@ -336,7 +336,7 @@ const Index = () => {
             <Button 
               variant="ghost" 
               onClick={() => setIsContactOpen(true)} 
-              className="h-14 md:h-16 px-8 text-base md:text-lg font-bold text-slate-500 dark:text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-900/20 hover:rounded-2xl transition-all duration-300"
+              className="h-14 md:h-16 px-8 rounded-2xl text-base md:text-lg font-bold text-slate-500 dark:text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-900/20 transition-all duration-300"
             >
               Get in Touch
             </Button>

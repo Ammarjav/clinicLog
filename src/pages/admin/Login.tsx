@@ -60,7 +60,7 @@ const Login = () => {
         to="/" 
         className="absolute top-6 left-6 md:top-8 md:left-8 flex items-center gap-2 text-slate-400 dark:text-slate-500 hover:text-indigo-600 dark:hover:text-indigo-400 transition-all font-bold text-sm group focus:outline-none z-50"
       >
-        <div className="w-10 h-10 md:w-8 md:h-8 rounded-full bg-white dark:bg-slate-900 shadow-md md:shadow-sm border border-slate-100 dark:border-slate-800 flex items-center justify-center group-hover:border-indigo-100 dark:group-hover:border-indigo-900 group-hover:bg-indigo-50 dark:group-hover:bg-indigo-900/20">
+        <div className="w-10 h-10 md:w-8 md:h-8 rounded-2xl bg-white dark:bg-slate-900 shadow-md md:shadow-sm border border-slate-100 dark:border-slate-800 flex items-center justify-center group-hover:border-indigo-100 dark:group-hover:border-indigo-900 group-hover:bg-indigo-50 dark:group-hover:bg-indigo-900/20">
           <ArrowLeft size={20} className="md:w-4 md:h-4" />
         </div>
         <span className="hidden md:block">Back to Home</span>
