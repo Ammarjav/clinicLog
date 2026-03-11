@@ -30,41 +30,46 @@ const ClinicDashboard = () => {
   useEffect(() => { fetchData(); }, [slug]);
 
   return (
-    <div className="max-w-6xl mx-auto space-y-8 md:space-y-10 animate-in fade-in slide-in-from-bottom-4 duration-700 pb-20">
-      <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6">
-        <div className="w-full lg:w-auto">
-          <h1 className="text-3xl sm:text-4xl font-black text-slate-900 dark:text-white tracking-tighter">Clinic Overview</h1>
-          <p className="text-slate-500 dark:text-slate-400 font-medium mt-1 text-sm sm:text-base">Real-time clinical metrics and patient trends</p>
+    <div className="max-w-6xl mx-auto space-y-8 md:space-y-10 animate-in fade-in slide-in-from-bottom-4 duration-700 pb-20 px-2 sm:px-0">
+      <div className="flex flex-col gap-6">
+        {/* Top Header Row with Refresh */}
+        <div className="flex justify-between items-start w-full">
+          <div className="flex-1">
+            <div className="flex items-center gap-3">
+              <h1 className="text-3xl sm:text-4xl font-black text-slate-900 dark:text-white tracking-tighter">Clinic Overview</h1>
+              <Button 
+                variant="ghost" 
+                size="icon" 
+                onClick={fetchData} 
+                className="rounded-xl h-10 w-10 md:h-11 md:w-11 bg-white dark:bg-slate-900 shadow-sm border border-slate-100 dark:border-slate-800 shrink-0"
+              >
+                <RefreshCcw className={cn("w-4 h-4 text-slate-400", loading && "animate-spin")} />
+              </Button>
+            </div>
+            <p className="text-slate-500 dark:text-slate-400 font-medium mt-1 text-sm sm:text-base">Real-time clinical metrics and patient trends</p>
+          </div>
         </div>
         
-        <div className="grid grid-cols-2 sm:flex items-center gap-3 w-full lg:w-auto">
+        {/* Action Buttons Row */}
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full">
           <Button 
-            variant="outline" 
-            size="icon" 
-            onClick={fetchData} 
-            className="rounded-xl border-slate-200 dark:border-slate-800 h-11 w-11 bg-white dark:bg-slate-900 shadow-sm shrink-0"
-          >
-            <RefreshCcw className={cn("w-4 h-4 text-slate-400", loading && "animate-spin")} />
-          </Button>
-          
-          <Button 
-            variant="outline"
-            className="rounded-xl border-emerald-100 bg-emerald-50/30 hover:bg-emerald-50 text-emerald-700 h-11 px-4 sm:px-5 font-bold shadow-sm text-xs sm:text-sm"
+            className="flex-1 rounded-2xl bg-indigo-600 hover:bg-indigo-700 h-14 sm:h-12 font-bold shadow-lg shadow-indigo-100 dark:shadow-none transition-all active:scale-[0.98]" 
             asChild
           >
-            <Link to={`/clinic/${slug}/settings/fees`}>
-              <Settings className="w-4 h-4 mr-2" />
-              <span className="truncate">Fee Settings</span>
+            <Link to={`/clinic/${slug}/entry`}>
+              <UserPlus className="w-5 h-5 mr-2" />
+              New Patient
             </Link>
           </Button>
 
           <Button 
-            className="col-span-2 sm:col-auto rounded-xl bg-indigo-600 hover:bg-indigo-700 h-11 px-5 font-bold shadow-lg shadow-indigo-100 dark:shadow-none text-xs sm:text-sm" 
+            variant="outline"
+            className="flex-1 rounded-2xl border-emerald-100 dark:border-emerald-900/30 bg-emerald-50/30 dark:bg-emerald-900/10 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 text-emerald-700 dark:text-emerald-400 h-14 sm:h-12 font-bold shadow-sm transition-all active:scale-[0.98]"
             asChild
           >
-            <Link to={`/clinic/${slug}/entry`}>
-              <UserPlus className="w-4 h-4 mr-2" />
-              New Patient
+            <Link to={`/clinic/${slug}/settings/fees`}>
+              <Settings className="w-5 h-5 mr-2" />
+              Fee Settings
             </Link>
           </Button>
         </div>
