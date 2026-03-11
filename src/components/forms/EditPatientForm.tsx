@@ -13,8 +13,19 @@ import { toast } from 'sonner';
 import { Loader2, Save, Phone } from 'lucide-react';
 import AutocompleteInput from './AutocompleteInput';
 
+const COUNTRIES = [
+  { code: '+92', name: 'Pakistan', flag: '🇵🇰' },
+  { code: '+1', name: 'USA/Canada', flag: '🇺🇸' },
+  { code: '+44', name: 'UK', flag: '🇬🇧' },
+  { code: '+91', name: 'India', flag: '🇮🇳' },
+  { code: '+971', name: 'UAE', flag: '🇦🇪' },
+  { code: '+966', name: 'Saudi Arabia', flag: '🇸🇦' },
+  { code: '+61', name: 'Australia', flag: '🇦🇺' },
+];
+
 const formSchema = z.object({
   name: z.string().min(1, "Name is required"),
+  countryCode: z.string().default('+92'),
   phone: z.string().optional(),
   age: z.coerce.number().min(0, "Age cannot be negative").max(120),
   gender: z.enum(['Male', 'Female', 'Other']),
@@ -30,11 +41,22 @@ interface EditPatientFormProps {
 }
 
 const EditPatientForm = ({ patient, onSuccess, onCancel }: EditPatientFormProps) => {
+  // Parse existing phone number
+  const getInitialPhone = () => {
+    if (!patient.phone) return { code: '+92', number: '' };
+    const matched = COUNTRIES.find(c => patient.phone.startsWith(c.code));
+    if (matched) return { code: matched.code, number: patient.phone.replace(matched.code, '') };
+    return { code: '+92', number: patient.phone };
+  };
+
+  const initialPhone = getInitialPhone();
+
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       name: patient.name || '',
-      phone: patient.phone?.replace('+92', '') || '',
+      countryCode: initialPhone.code,
+      phone: initialPhone.number,
       age: patient.age,
       gender: patient.gender,
       diagnosis: patient.diagnosis,
@@ -44,21 +66,25 @@ const EditPatientForm = ({ patient, onSuccess, onCancel }: EditPatientFormProps)
   });
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
-    // Format phone number logic
-    let formattedPhone = values.phone?.trim() || '';
-    if (formattedPhone) {
-      let cleaned = formattedPhone.replace(/\D/g, '');
-      if (cleaned.startsWith('0')) cleaned = cleaned.substring(1);
-      if (cleaned.startsWith('92')) cleaned = cleaned.substring(2);
-      formattedPhone = '+92' + cleaned;
+    let rawNumber = values.phone?.trim() || '';
+    let formattedPhone = null;
+
+    if (rawNumber) {
+      let cleaned = rawNumber.replace(/\D/g, '');
+      if (values.countryCode === '+92') {
+        if (cleaned.startsWith('0')) cleaned = cleaned.substring(1);
+        if (cleaned.startsWith('92')) cleaned = cleaned.substring(2);
+      }
+      formattedPhone = values.countryCode + cleaned;
     }
 
     try {
+      const { countryCode, ...dbValues } = values;
       const { error } = await supabase
         .from('patients')
         .update({
-          ...values,
-          phone: formattedPhone || null
+          ...dbValues,
+          phone: formattedPhone
         })
         .eq('id', patient.id);
         
@@ -93,29 +119,47 @@ const EditPatientForm = ({ patient, onSuccess, onCancel }: EditPatientFormProps)
           )}
         />
 
-        <FormField
-          control={form.control}
-          name="phone"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Phone Number</FormLabel>
-              <FormControl>
-                <div className="relative">
-                  <div className="absolute left-4 top-1/2 -translate-y-1/2 flex items-center gap-2 pointer-events-none">
-                    <Phone className="w-4 h-4 text-slate-400" />
-                    <span className="text-slate-400 font-bold text-sm border-r border-slate-200 dark:border-slate-700 pr-2">+92</span>
-                  </div>
-                  <Input 
-                    placeholder="310 1234567" 
-                    className="rounded-xl h-12 pl-20 bg-gray-50/50 dark:bg-slate-800" 
-                    {...field} 
-                  />
-                </div>
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
+        <div className="flex flex-col gap-2">
+          <FormLabel className="text-sm font-medium">Phone Number</FormLabel>
+          <div className="flex gap-2">
+            <FormField
+              control={form.control}
+              name="countryCode"
+              render={({ field }) => (
+                <Select onValueChange={field.onChange} value={field.value}>
+                  <FormControl>
+                    <SelectTrigger className="w-[90px] h-12 rounded-xl bg-gray-50/50 dark:bg-slate-800 border-gray-100 dark:border-slate-800 font-bold">
+                      <SelectValue placeholder="+92" />
+                    </SelectTrigger>
+                  </FormControl>
+                  <SelectContent className="rounded-xl dark:bg-slate-900">
+                    {COUNTRIES.map(c => (
+                      <SelectItem key={c.code} value={c.code}>
+                        <span className="mr-1">{c.flag}</span> {c.code}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="phone"
+              render={({ field }) => (
+                <FormItem className="flex-1">
+                  <FormControl>
+                    <Input 
+                      placeholder="310 1234567" 
+                      className="rounded-xl h-12 bg-gray-50/50 dark:bg-slate-800 border-gray-100 dark:border-slate-800" 
+                      {...field} 
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </div>
+        </div>
         
         <div className="grid grid-cols-2 gap-4">
           <FormField

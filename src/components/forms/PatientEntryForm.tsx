@@ -10,12 +10,23 @@ import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { toast } from 'sonner';
-import { Loader2, UserPlus, CheckCircle2, History, AlertTriangle, Phone } from 'lucide-react';
+import { Loader2, UserPlus, CheckCircle2, History, AlertTriangle, Phone, Globe } from 'lucide-react';
 import AutocompleteInput from './AutocompleteInput';
 import { Link, useParams } from 'react-router-dom';
 
+const COUNTRIES = [
+  { code: '+92', name: 'Pakistan', flag: '🇵🇰' },
+  { code: '+1', name: 'USA/Canada', flag: '🇺🇸' },
+  { code: '+44', name: 'UK', flag: '🇬🇧' },
+  { code: '+91', name: 'India', flag: '🇮🇳' },
+  { code: '+971', name: 'UAE', flag: '🇦🇪' },
+  { code: '+966', name: 'Saudi Arabia', flag: '🇸🇦' },
+  { code: '+61', name: 'Australia', flag: '🇦🇺' },
+];
+
 const formSchema = z.object({
   name: z.string().min(1, "Patient name is required"),
+  countryCode: z.string().default('+92'),
   phone: z.string().optional(),
   age: z.coerce.number({ 
     required_error: "Age is required",
@@ -38,6 +49,7 @@ const PatientEntryForm = () => {
     resolver: zodResolver(formSchema),
     defaultValues: {
       name: '',
+      countryCode: '+92',
       phone: '',
       // @ts-ignore
       age: '',
@@ -81,8 +93,16 @@ const PatientEntryForm = () => {
   const isLimitReached = clinicData && currentPatients >= clinicData.patient_limit;
 
   const handleRecordSelect = (record: any) => {
-    if (record) {
-      form.setValue('phone', record.phone?.replace('+92', '') || '');
+    if (record && record.phone) {
+      const fullPhone = record.phone;
+      const matchedCountry = COUNTRIES.find(c => fullPhone.startsWith(c.code));
+      if (matchedCountry) {
+        form.setValue('countryCode', matchedCountry.code);
+        form.setValue('phone', fullPhone.replace(matchedCountry.code, ''));
+      } else {
+        form.setValue('phone', fullPhone);
+      }
+      
       form.setValue('age', record.age);
       form.setValue('gender', record.gender);
       form.setValue('diagnosis', record.diagnosis);
@@ -102,25 +122,28 @@ const PatientEntryForm = () => {
     }
 
     // Format phone number logic
-    let formattedPhone = values.phone?.trim() || '';
-    if (formattedPhone) {
-      // Remove any non-numeric characters
-      cleanedPhone = formattedPhone.replace(/\D/g, '');
-      // If starts with 0, remove it
-      if (cleanedPhone.startsWith('0')) {
-        cleanedPhone = cleanedPhone.substring(1);
+    let rawNumber = values.phone?.trim() || '';
+    let formattedPhone = null;
+
+    if (rawNumber) {
+      // Basic cleaning
+      let cleaned = rawNumber.replace(/\D/g, '');
+      
+      // Specialized logic for Pakistan
+      if (values.countryCode === '+92') {
+        if (cleaned.startsWith('0')) cleaned = cleaned.substring(1);
+        if (cleaned.startsWith('92')) cleaned = cleaned.substring(2);
       }
-      // If starts with 92, remove it to normalize
-      if (cleanedPhone.startsWith('92')) {
-        cleanedPhone = cleanedPhone.substring(2);
-      }
-      formattedPhone = '+92' + cleanedPhone;
+      
+      formattedPhone = values.countryCode + cleaned;
     }
 
     try {
+      // Create copy of values without countryCode for DB
+      const { countryCode, ...dbValues } = values;
       const { error } = await supabase.from('patients').insert([{
-        ...values,
-        phone: formattedPhone || null
+        ...dbValues,
+        phone: formattedPhone
       }]);
       
       if (error) throw error;
@@ -133,6 +156,7 @@ const PatientEntryForm = () => {
 
       form.reset({
         name: '',
+        countryCode: values.countryCode,
         phone: '',
         // @ts-ignore
         age: '',
@@ -147,8 +171,6 @@ const PatientEntryForm = () => {
       toast.error("Failed to save: " + error.message);
     }
   };
-
-  let cleanedPhone = ""; // Helper for scope
 
   if (isLoading) {
     return (
@@ -222,29 +244,47 @@ const PatientEntryForm = () => {
                 </FormItem>
               )}
             />
-            <FormField
-              control={form.control}
-              name="phone"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel className="text-sm font-bold text-gray-700 dark:text-slate-300">Phone Number</FormLabel>
-                  <FormControl>
-                    <div className="relative group">
-                      <div className="absolute left-4 top-1/2 -translate-y-1/2 flex items-center gap-2 pointer-events-none">
-                        <Phone className="w-4 h-4 text-slate-400" />
-                        <span className="text-slate-400 font-bold text-sm border-r border-slate-200 dark:border-slate-700 pr-2">+92</span>
-                      </div>
-                      <Input 
-                        placeholder="310 1234567" 
-                        className="rounded-2xl h-12 sm:h-14 pl-20 bg-gray-50/50 dark:bg-slate-800 border-gray-100 dark:border-slate-800 focus:bg-white dark:focus:bg-slate-800 dark:text-white transition-all text-base" 
-                        {...field} 
-                      />
-                    </div>
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+            <div className="flex flex-col gap-2">
+              <FormLabel className="text-sm font-bold text-gray-700 dark:text-slate-300">Phone Number</FormLabel>
+              <div className="flex gap-2">
+                <FormField
+                  control={form.control}
+                  name="countryCode"
+                  render={({ field }) => (
+                    <Select onValueChange={field.onChange} value={field.value}>
+                      <FormControl>
+                        <SelectTrigger className="w-[100px] h-12 sm:h-14 rounded-2xl bg-gray-50/50 dark:bg-slate-800 border-gray-100 dark:border-slate-800 text-xs sm:text-sm font-bold">
+                          <SelectValue placeholder="+92" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent className="rounded-2xl dark:bg-slate-900">
+                        {COUNTRIES.map(c => (
+                          <SelectItem key={c.code} value={c.code} className="text-xs sm:text-sm">
+                            <span className="mr-2">{c.flag}</span> {c.code}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="phone"
+                  render={({ field }) => (
+                    <FormItem className="flex-1">
+                      <FormControl>
+                        <Input 
+                          placeholder="310 1234567" 
+                          className="rounded-2xl h-12 sm:h-14 bg-gray-50/50 dark:bg-slate-800 border-gray-100 dark:border-slate-800 focus:bg-white dark:focus:bg-slate-800 dark:text-white transition-all text-base" 
+                          {...field} 
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+            </div>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-5 sm:gap-6">
