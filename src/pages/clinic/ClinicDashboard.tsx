@@ -5,38 +5,25 @@ import { supabase } from '@/lib/supabase';
 import StatCards from '@/components/dashboard/StatCards';
 import Charts from '@/components/dashboard/Charts';
 import { Button } from '@/components/ui/button';
-import { RefreshCcw, UserPlus, TrendingUp, Banknote } from 'lucide-react';
+import { RefreshCcw, UserPlus, TrendingUp, Banknote, Settings } from 'lucide-react';
 import { Link, useParams } from 'react-router-dom';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
-import ClinicFeesDialog from '@/components/dashboard/ClinicFeesDialog';
 
 const ClinicDashboard = () => {
   const { slug } = useParams();
   const [patients, setPatients] = useState<any[]>([]);
-  const [clinic, setClinic] = useState<any>(null);
   const [loading, setLoading] = useState(true);
-  const [isFeesOpen, setIsFeesOpen] = useState(false);
 
   const fetchData = async () => {
     setLoading(true);
-    // Fetch patients
-    const { data: patientData, error: patientError } = await supabase
+    const { data, error } = await supabase
       .from('patients')
       .select('*')
       .order('visit_date', { ascending: false });
     
-    if (patientError) toast.error(patientError.message);
-    else setPatients(patientData || []);
-
-    // Fetch clinic for fees
-    const { data: clinicData } = await supabase
-      .from('clinics')
-      .select('*')
-      .eq('slug', slug)
-      .single();
-    if (clinicData) setClinic(clinicData);
-
+    if (error) toast.error(error.message);
+    else setPatients(data || []);
     setLoading(false);
   };
 
@@ -57,10 +44,12 @@ const ClinicDashboard = () => {
           <Button 
             variant="outline"
             className="rounded-xl border-emerald-100 bg-emerald-50/30 hover:bg-emerald-50 text-emerald-700 h-11 px-5 font-bold shadow-sm"
-            onClick={() => setIsFeesOpen(true)}
+            asChild
           >
-            <Banknote className="w-4 h-4 mr-2" />
-            Set Fees
+            <Link to={`/clinic/${slug}/settings/fees`}>
+              <Settings className="w-4 h-4 mr-2" />
+              Fee Settings
+            </Link>
           </Button>
 
           <Button className="rounded-xl bg-indigo-600 hover:bg-indigo-700 h-11 px-5 font-bold shadow-lg shadow-indigo-100" asChild>
@@ -81,16 +70,6 @@ const ClinicDashboard = () => {
         </div>
         <Charts data={patients} />
       </div>
-
-      {clinic && (
-        <ClinicFeesDialog 
-          open={isFeesOpen}
-          onOpenChange={setIsFeesOpen}
-          clinicId={clinic.id}
-          initialFees={{ new: clinic.new_visit_fee || 0, followUp: clinic.followup_visit_fee || 0 }}
-          onSuccess={fetchData}
-        />
-      )}
     </div>
   );
 };

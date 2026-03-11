@@ -16,6 +16,8 @@ import ClinicAnalytics from "./pages/clinic/ClinicAnalytics";
 import ClinicReports from "./pages/clinic/ClinicReports";
 import ClinicEntry from "./pages/clinic/ClinicEntry";
 import ClinicBilling from "./pages/clinic/ClinicBilling";
+import ClinicFollowups from "./pages/clinic/ClinicFollowups";
+import ClinicFeeSettings from "./pages/clinic/ClinicFeeSettings";
 import AdminPayments from "./pages/admin/AdminPayments";
 
 const queryClient = new QueryClient();
@@ -59,6 +61,14 @@ const App = () => {
                   </ClinicLayout>
                 </ClinicGuard>
               } />
+
+              <Route path="/clinic/:slug/patients/followups" element={
+                <ClinicGuard>
+                  <ClinicLayout>
+                    <ClinicFollowups />
+                  </ClinicLayout>
+                </ClinicGuard>
+              } />
               
               <Route path="/clinic/:slug/analytics" element={
                 <ClinicGuard>
@@ -88,6 +98,14 @@ const App = () => {
                 <ClinicGuard>
                   <ClinicLayout>
                     <ClinicBilling />
+                  </ClinicLayout>
+                </ClinicGuard>
+              } />
+
+              <Route path="/clinic/:slug/settings/fees" element={
+                <ClinicGuard>
+                  <ClinicLayout>
+                    <ClinicFeeSettings />
                   </ClinicLayout>
                 </ClinicGuard>
               } />
