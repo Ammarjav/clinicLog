@@ -6,7 +6,6 @@ import { useParams, Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { 
   MessageCircle, 
-  CalendarClock, 
   UserRoundCheck,
   Stethoscope,
   Loader2,
@@ -107,50 +106,52 @@ const ClinicFollowups = () => {
   };
 
   return (
-    <div className="max-w-4xl mx-auto space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700 pb-20">
-      <div className="flex items-center gap-4">
-        <Button variant="ghost" size="icon" asChild className="rounded-xl">
+    <div className="max-w-4xl mx-auto space-y-6 md:space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700 pb-20">
+      <div className="flex items-center gap-3 sm:gap-4">
+        <Button variant="ghost" size="icon" asChild className="rounded-xl shrink-0">
           <Link to={`/clinic/${slug}/patients`}><ArrowLeft className="w-5 h-5" /></Link>
         </Button>
-        <div>
-          <h1 className="text-3xl font-black text-slate-900 dark:text-white tracking-tighter">Follow-up Protocol</h1>
-          <p className="text-slate-500 dark:text-slate-400 font-medium">Identifying patients who completed their first session but haven't returned.</p>
+        <div className="overflow-hidden">
+          <h1 className="text-2xl sm:text-3xl font-black text-slate-900 dark:text-white tracking-tighter truncate">Follow-up Protocol</h1>
+          <p className="text-slate-500 dark:text-slate-400 font-medium text-xs sm:text-sm mt-0.5">Automated screening for returning patients</p>
         </div>
       </div>
 
-      <div className="p-6 bg-blue-50 dark:bg-blue-900/20 rounded-[2rem] border border-blue-100 dark:border-blue-900/30 flex gap-4">
-        <Info className="w-6 h-6 text-blue-600 shrink-0" />
-        <p className="text-sm font-medium text-blue-700 dark:text-blue-300 leading-relaxed">
-          Patients listed below had their first visit in the past but no follow-up sessions. Marking them as sent hides them for 48 hours.
+      <div className="p-4 sm:p-6 bg-blue-50 dark:bg-blue-900/20 rounded-2xl sm:rounded-[2rem] border border-blue-100 dark:border-blue-900/30 flex gap-4">
+        <Info className="w-5 h-5 sm:w-6 sm:h-6 text-blue-600 shrink-0 mt-0.5" />
+        <p className="text-xs sm:text-sm font-medium text-blue-700 dark:text-blue-300 leading-relaxed">
+          The protocol identifies patients with an initial visit who haven't returned. Mark Sent hides them for 48 hours.
         </p>
       </div>
 
       {loading ? (
-        <div className="flex flex-col items-center justify-center p-20 gap-4">
+        <div className="flex flex-col items-center justify-center p-12 sm:p-20 gap-4 text-center">
           <Loader2 className="w-10 h-10 animate-spin text-indigo-600" />
-          <p className="text-xs font-black uppercase tracking-widest text-slate-400">Analyzing Database...</p>
+          <p className="text-[10px] font-black uppercase tracking-widest text-slate-400">Analyzing Database...</p>
         </div>
       ) : reminders.length > 0 ? (
         <div className="grid grid-cols-1 gap-4">
           {reminders.map((patient) => (
-            <div key={patient.id} className="p-6 bg-white dark:bg-slate-900 rounded-[2rem] border border-slate-100 dark:border-slate-800 shadow-sm flex flex-col md:flex-row items-center justify-between gap-6 hover:shadow-xl transition-all group">
-              <div className="flex items-center gap-4 w-full">
-                <div className="bg-slate-50 dark:bg-slate-800 p-4 rounded-2xl group-hover:scale-110 transition-transform">
-                  <UserRoundCheck className="w-6 h-6 text-slate-400" />
+            <div key={patient.id} className="p-5 sm:p-6 bg-white dark:bg-slate-900 rounded-2xl sm:rounded-[2rem] border border-slate-100 dark:border-slate-800 shadow-sm flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-6 hover:shadow-xl transition-all group">
+              <div className="flex items-start sm:items-center gap-4 w-full">
+                <div className="bg-slate-50 dark:bg-slate-800 p-3.5 sm:p-4 rounded-xl sm:rounded-2xl group-hover:scale-105 transition-transform shrink-0">
+                  <UserRoundCheck className="w-5 h-5 sm:w-6 sm:h-6 text-slate-400" />
                 </div>
-                <div>
-                  <h4 className="font-black text-slate-900 dark:text-white text-lg">{patient.name}</h4>
-                  <div className="flex items-center gap-3 text-slate-400 text-xs font-bold mt-1">
-                    <div className="flex items-center gap-1"><Stethoscope className="w-3.5 h-3.5" /> {patient.diagnosis}</div>
-                    <div className="flex items-center gap-1"><History className="w-3.5 h-3.5" /> First: {new Date(patient.visit_date).toLocaleDateString()}</div>
+                <div className="overflow-hidden">
+                  <h4 className="font-black text-slate-900 dark:text-white text-base sm:text-lg truncate">{patient.name}</h4>
+                  <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 text-slate-400 text-[10px] sm:text-xs font-bold mt-1">
+                    <div className="flex items-center gap-1.5 shrink-0"><Stethoscope className="w-3.5 h-3.5" /> {patient.diagnosis}</div>
+                    <div className="hidden sm:block text-slate-200 dark:text-slate-800">•</div>
+                    <div className="flex items-center gap-1.5 shrink-0"><History className="w-3.5 h-3.5" /> First: {new Date(patient.visit_date).toLocaleDateString()}</div>
                   </div>
                 </div>
               </div>
-              <div className="flex items-center gap-3 w-full md:w-auto">
-                <Button onClick={() => handleWhatsApp(patient)} className="flex-1 md:flex-none rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold h-12 px-8">
+              
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:flex lg:items-center gap-3 w-full lg:w-auto pt-2 lg:pt-0">
+                <Button onClick={() => handleWhatsApp(patient)} className="rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold h-11 sm:h-12 px-6 sm:px-8 shadow-lg shadow-emerald-100 dark:shadow-none text-xs sm:text-sm">
                   <MessageCircle className="w-4 h-4 mr-2" /> Send Reminder
                 </Button>
-                <Button onClick={() => markAsSent(patient.id)} disabled={isProcessing === patient.id} variant="outline" className="rounded-xl h-12 px-6 border-slate-100 dark:border-slate-800 font-bold">
+                <Button onClick={() => markAsSent(patient.id)} disabled={isProcessing === patient.id} variant="outline" className="rounded-xl h-11 sm:h-12 px-6 border-slate-100 dark:border-slate-800 font-bold text-xs sm:text-sm text-slate-500">
                   {isProcessing === patient.id ? <Loader2 className="w-4 h-4 animate-spin" /> : <><CheckCheck className="w-4 h-4 mr-2" /> Mark Sent</>}
                 </Button>
               </div>
@@ -158,10 +159,10 @@ const ClinicFollowups = () => {
           ))}
         </div>
       ) : (
-        <div className="bg-slate-50 dark:bg-slate-900 rounded-[2.5rem] p-20 text-center border-2 border-dashed border-slate-200 dark:border-slate-800">
-          <AlertCircle className="w-12 h-12 text-slate-300 mx-auto mb-4" />
-          <h3 className="text-xl font-black text-slate-900 dark:text-white">Zero Pending Actions</h3>
-          <p className="text-slate-500 font-medium mt-2">All patients are either up-to-date or have been recently reminded.</p>
+        <div className="bg-slate-50 dark:bg-slate-900 rounded-2xl sm:rounded-[2.5rem] p-12 sm:p-20 text-center border-2 border-dashed border-slate-200 dark:border-slate-800">
+          <AlertCircle className="w-10 h-10 sm:w-12 sm:h-12 text-slate-300 mx-auto mb-4" />
+          <h3 className="text-lg sm:text-xl font-black text-slate-900 dark:text-white">Zero Pending Actions</h3>
+          <p className="text-slate-500 font-medium mt-2 text-xs sm:text-sm">All patients are either up-to-date or have been recently reminded.</p>
         </div>
       )}
     </div>
