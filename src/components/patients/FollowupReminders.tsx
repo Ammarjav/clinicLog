@@ -11,10 +11,12 @@ import {
   Loader2,
   Clock,
   ChevronDown,
-  ChevronUp
+  ChevronUp,
+  CheckCheck
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
+import { differenceInDays, parseISO } from 'date-fns';
 
 interface FollowupRemindersProps {
   clinicName: string;
@@ -24,51 +26,68 @@ const FollowupReminders = ({ clinicName }: FollowupRemindersProps) => {
   const [reminders, setReminders] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [isOpen, setIsOpen] = useState(false);
+  const [isProcessing, setIsProcessing] = useState<string | null>(null);
+
+  const fetchReminders = async () => {
+    setLoading(true);
+    try {
+      const { data, error } = await supabase
+        .from('patients')
+        .select('*')
+        .order('visit_date', { ascending: false });
+
+      if (error) throw error;
+
+      if (data) {
+        // Group by phone/name to find history
+        const patientHistory: Record<string, any[]> = {};
+        data.forEach(p => {
+          const key = p.phone || p.name;
+          if (!patientHistory[key]) patientHistory[key] = [];
+          patientHistory[key].push(p);
+        });
+
+        const today = new Date();
+        const todayStr = today.toISOString().split('T')[0];
+        
+        const missedFollowups = Object.values(patientHistory)
+          .filter(history => {
+            const latest = history[0];
+            const hasFollowup = history.some(h => h.visit_type === 'Follow-up');
+            
+            // Basic criteria: New patient, visit in the past, no follow-up yet
+            const isEligible = latest.visit_type === 'New' && latest.visit_date < todayStr && !hasFollowup;
+            
+            if (!isEligible) return false;
+
+            // Logic for reappearance:
+            // If never sent, show it.
+            // If sent, check if it was more than 2 days ago.
+            if (!latest.last_reminder_sent_at) return true;
+
+            const lastSent = new Date(latest.last_reminder_sent_at);
+            const daysSinceReminder = differenceInDays(today, lastSent);
+            
+            return daysSinceReminder >= 2;
+          })
+          .map(h => h[0]);
+
+        setReminders(missedFollowups);
+      }
+    } catch (err: any) {
+      console.error("Reminder fetch error:", err);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    const fetchReminders = async () => {
-      setLoading(true);
-      try {
-        const { data, error } = await supabase
-          .from('patients')
-          .select('*')
-          .order('visit_date', { ascending: false });
-
-        if (error) throw error;
-
-        if (data) {
-          const patientHistory: Record<string, any[]> = {};
-          data.forEach(p => {
-            const key = p.phone || p.name;
-            if (!patientHistory[key]) patientHistory[key] = [];
-            patientHistory[key].push(p);
-          });
-
-          const today = new Date().toISOString().split('T')[0];
-          
-          const missedFollowups = Object.values(patientHistory)
-            .filter(history => {
-              const latest = history[0];
-              const hasFollowup = history.some(h => h.visit_type === 'Follow-up');
-              return latest.visit_type === 'New' && latest.visit_date < today && !hasFollowup;
-            })
-            .map(h => h[0]);
-
-          setReminders(missedFollowups);
-        }
-      } catch (err: any) {
-        console.error("Reminder fetch error:", err);
-      } finally {
-        setLoading(false);
-      }
-    };
-
     fetchReminders();
   }, []);
 
   const handleWhatsApp = (patient: any) => {
     if (!patient.phone) {
-      toast.error("No phone number recorded for this patient");
+      toast.error("No phone number recorded");
       return;
     }
 
@@ -81,6 +100,26 @@ const FollowupReminders = ({ clinicName }: FollowupRemindersProps) => {
 
     const phone = patient.phone.replace('+', '');
     window.open(`https://wa.me/${phone}?text=${message}`, '_blank');
+  };
+
+  const markAsSent = async (patientId: string) => {
+    setIsProcessing(patientId);
+    try {
+      const { error } = await supabase
+        .from('patients')
+        .update({ last_reminder_sent_at: new Date().toISOString() })
+        .eq('id', patientId);
+
+      if (error) throw error;
+      
+      toast.success("Reminder logged. Reappearing in 48h if no visit occurs.");
+      // Remove from local state immediately
+      setReminders(prev => prev.filter(p => p.id !== patientId));
+    } catch (err: any) {
+      toast.error("Failed to update status");
+    } finally {
+      setIsProcessing(null);
+    }
   };
 
   if (loading) return null;
@@ -135,13 +174,24 @@ const FollowupReminders = ({ clinicName }: FollowupRemindersProps) => {
                     </div>
                   </div>
                   
-                  <Button 
-                    onClick={() => handleWhatsApp(patient)}
-                    className="w-full sm:w-auto rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold h-10 px-6 shrink-0 shadow-lg shadow-emerald-100 dark:shadow-none"
-                  >
-                    <MessageCircle className="w-4 h-4 mr-2" />
-                    Send Reminder
-                  </Button>
+                  <div className="flex items-center gap-2 w-full sm:w-auto">
+                    <Button 
+                      onClick={() => handleWhatsApp(patient)}
+                      className="flex-1 sm:flex-none rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold h-10 px-6 shrink-0 shadow-lg shadow-emerald-100 dark:shadow-none"
+                    >
+                      <MessageCircle className="w-4 h-4 mr-2" />
+                      Send Reminder
+                    </Button>
+                    <Button 
+                      onClick={() => markAsSent(patient.id)}
+                      disabled={isProcessing === patient.id}
+                      variant="outline"
+                      className="rounded-xl h-10 px-4 border-slate-200 dark:border-slate-800 text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 dark:hover:bg-indigo-900/20"
+                      title="Mark as sent (hide for 48h)"
+                    >
+                      {isProcessing === patient.id ? <Loader2 className="w-4 h-4 animate-spin" /> : <CheckCheck className="w-4 h-4" />}
+                    </Button>
+                  </div>
                 </div>
               ))}
             </div>
