@@ -5,6 +5,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Button } from "@/components/ui/button";
 import { Edit, Trash2, Phone, FileText, AlertCircle } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import { cn } from '@/lib/utils';
 
 interface PatientTableProps {
   patients: any[];
@@ -14,11 +15,12 @@ interface PatientTableProps {
 
 const PatientTable = ({ patients, onEdit, onDelete }: PatientTableProps) => {
   return (
-    <div className="bg-white dark:bg-slate-900 rounded-[2.5rem] shadow-2xl shadow-indigo-100/20 dark:shadow-none overflow-hidden border-none animate-in fade-in duration-700">
-      <div className="overflow-x-auto">
+    <div className="bg-white dark:bg-slate-900 rounded-[2.5rem] shadow-2xl shadow-indigo-100/20 dark:shadow-none border border-slate-50 dark:border-slate-800 animate-in fade-in duration-700 overflow-hidden">
+      {/* Scrollable Container with Fixed Max Height */}
+      <div className="max-h-[650px] overflow-y-auto overflow-x-auto custom-scrollbar">
         <Table>
-          <TableHeader>
-            <TableRow className="bg-slate-50/50 dark:bg-slate-800/50 border-none">
+          <TableHeader className="sticky top-0 z-10 bg-slate-50/95 dark:bg-slate-800/95 backdrop-blur-md">
+            <TableRow className="border-none">
               <TableHead className="py-6 px-8 font-black text-[10px] uppercase tracking-widest text-slate-400 dark:text-slate-500">Patient Name</TableHead>
               <TableHead className="py-6 px-4 font-black text-[10px] uppercase tracking-widest text-slate-400 dark:text-slate-500">Contact</TableHead>
               <TableHead className="py-6 px-4 font-black text-[10px] uppercase tracking-widest text-slate-400 dark:text-slate-500">Age / Gender</TableHead>
@@ -79,11 +81,12 @@ const PatientTable = ({ patients, onEdit, onDelete }: PatientTableProps) => {
                           variant="ghost" 
                           size="icon" 
                           onClick={() => onEdit(patient)} 
-                          className={`rounded-xl h-9 w-9 transition-all ${
+                          className={cn(
+                            "rounded-xl h-9 w-9 transition-all",
                             isPending 
                             ? "bg-rose-50 text-rose-600 hover:bg-rose-100 ring-2 ring-rose-200" 
                             : "text-indigo-600 dark:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-900/20"
-                          }`}
+                          )}
                           title={isPending ? "Complete Prescription" : "Edit Record"}
                         >
                           {isPending ? <FileText className="w-4 h-4" /> : <Edit className="w-4 h-4" />}
