@@ -20,6 +20,7 @@ import ClinicEntry from "./pages/clinic/ClinicEntry";
 import ClinicBilling from "./pages/clinic/ClinicBilling";
 import ClinicFollowups from "./pages/clinic/ClinicFollowups";
 import ClinicFeeSettings from "./pages/clinic/ClinicFeeSettings";
+import ClinicPatientEdit from "./pages/clinic/ClinicPatientEdit";
 import AdminPayments from "./pages/admin/AdminPayments";
 
 const queryClient = new QueryClient();
@@ -62,6 +63,14 @@ const App = () => {
                 <ClinicGuard>
                   <ClinicLayout>
                     <ClinicPatients />
+                  </ClinicLayout>
+                </ClinicGuard>
+              } />
+
+              <Route path="/clinic/:slug/patients/:id/edit" element={
+                <ClinicGuard>
+                  <ClinicLayout>
+                    <ClinicPatientEdit />
                   </ClinicLayout>
                 </ClinicGuard>
               } />

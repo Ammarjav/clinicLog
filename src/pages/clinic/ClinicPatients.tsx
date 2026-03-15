@@ -1,11 +1,10 @@
 "use client";
 
 import React, { useEffect, useState, useMemo } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { useParams, Link, useNavigate } from 'react-router-dom';
 import { supabase } from '@/lib/supabase';
 import PatientTable from '@/components/dashboard/PatientTable';
 import DashboardFilters from '@/components/dashboard/DashboardFilters';
-import EditPatientForm from '@/components/forms/EditPatientForm';
 import { toast } from 'sonner';
 import { Users, FileText, CalendarClock } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -19,19 +18,12 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import {
-  Sheet,
-  SheetContent,
-  SheetDescription,
-  SheetHeader,
-  SheetTitle,
-} from "@/components/ui/sheet";
 
 const ClinicPatients = () => {
   const { slug } = useParams();
+  const navigate = useNavigate();
   const [patients, setPatients] = useState<any[]>([]);
   const [deleteId, setDeleteId] = useState<string | null>(null);
-  const [editPatient, setEditPatient] = useState<any | null>(null);
   const [filters, setFilters] = useState({
     search: '',
     gender: 'all',
@@ -128,31 +120,11 @@ const ClinicPatients = () => {
         <div className="px-1">
           <PatientTable 
             patients={filteredPatients} 
-            onEdit={(p) => setEditPatient(p)} 
+            onEdit={(p) => navigate(`/clinic/${slug}/patients/${p.id}/edit`)} 
             onDelete={(id) => setDeleteId(id)} 
           />
         </div>
       </div>
-
-      <Sheet open={!!editPatient} onOpenChange={(open) => !open && setEditPatient(null)}>
-        <SheetContent className="w-full sm:max-w-md rounded-l-none sm:rounded-l-[3rem] border-none shadow-2xl dark:bg-slate-950">
-          <SheetHeader className="pb-6 border-b border-slate-50 dark:border-slate-800">
-            <SheetTitle className="text-xl sm:text-2xl font-black tracking-tight text-slate-900 dark:text-white">Edit Patient</SheetTitle>
-            <SheetDescription className="font-medium text-sm">
-              Updating medical record for <span className="text-indigo-600 dark:text-indigo-400 font-bold">{editPatient?.name}</span>
-            </SheetDescription>
-          </SheetHeader>
-          <div className="mt-6 sm:mt-8">
-            {editPatient && (
-              <EditPatientForm 
-                patient={editPatient} 
-                onCancel={() => setEditPatient(null)}
-                onSuccess={() => { setEditPatient(null); fetchPatients(); }}
-              />
-            )}
-          </div>
-        </SheetContent>
-      </Sheet>
 
       <AlertDialog open={!!deleteId} onOpenChange={(open) => !open && setDeleteId(null)}>
         <AlertDialogContent className="w-[90%] max-w-sm sm:max-w-md rounded-[2rem] sm:rounded-[2.5rem] border-none shadow-2xl p-6 sm:p-8 dark:bg-slate-900">

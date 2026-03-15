@@ -10,9 +10,9 @@ import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { toast } from 'sonner';
-import { Loader2, UserPlus, CheckCircle2, Phone, Sparkles } from 'lucide-react';
+import { Loader2, UserPlus, Save, Phone } from 'lucide-react';
 import AutocompleteInput from './AutocompleteInput';
-import { Link, useParams, useNavigate } from 'react-router-dom';
+import { Link, useParams } from 'react-router-dom';
 
 const COUNTRIES = [
   { code: '+92', name: 'Pakistan', flag: '🇵🇰' },
@@ -40,7 +40,6 @@ const formSchema = z.object({
 
 const PatientEntryForm = () => {
   const { slug } = useParams();
-  const navigate = useNavigate();
   const [clinicData, setClinicData] = useState<any>(null);
   const [currentPatients, setCurrentPatients] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
@@ -87,7 +86,7 @@ const PatientEntryForm = () => {
     }
   };
 
-  useEffect(() => { fetchData(); }, [form]);
+  useEffect(() => { fetchData(); }, []);
 
   const isLimitReached = clinicData && currentPatients >= clinicData.patient_limit;
 
@@ -130,19 +129,33 @@ const PatientEntryForm = () => {
 
     try {
       const { countryCode, ...dbValues } = values;
-      const { data, error } = await supabase.from('patients').insert([{
+      const { error } = await supabase.from('patients').insert([{
         ...dbValues,
         phone: formattedPhone,
-        diagnosis: 'Pending Documentation' // Placeholder until prescription is written
-      }]).select().single();
+        diagnosis: 'Pending Documentation'
+      }]);
       
       if (error) throw error;
       
-      toast.success("Patient intake successful", {
-        description: "Redirecting to management console to add clinical notes."
+      toast.success("Patient data saved successfully", {
+        description: "You can now record another entry or check the console."
       });
 
-      navigate(`/clinic/${slug}/patients`);
+      // Reset form but keep clinic_id and date
+      form.reset({
+        name: '',
+        countryCode: values.countryCode,
+        phone: '',
+        // @ts-ignore
+        age: '',
+        gender: 'Male',
+        visit_type: 'New',
+        visit_date: values.visit_date,
+        clinic_id: values.clinic_id,
+      });
+      
+      // Update local count
+      setCurrentPatients(prev => prev + 1);
       
     } catch (error: any) {
       toast.error("Failed to save: " + error.message);
@@ -200,7 +213,7 @@ const PatientEntryForm = () => {
                       onSelectRecord={handleRecordSelect}
                       placeholder="e.g. John Doe" 
                       fieldName="name"
-                      clinicId={clinicData.id}
+                      clinicId={clinicData?.id}
                     />
                   </FormControl>
                   <FormMessage />
@@ -343,7 +356,7 @@ const PatientEntryForm = () => {
               <Loader2 className="mr-3 h-6 w-6 animate-spin" />
             ) : (
               <span className="flex items-center gap-2">
-                Continue to Clinical Notes <Sparkles className="w-5 h-5" />
+                <Save className="w-5 h-5" /> Save Patient Data
               </span>
             )}
           </Button>
