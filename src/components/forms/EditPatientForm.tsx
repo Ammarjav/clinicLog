@@ -40,7 +40,6 @@ const formSchema = z.object({
   diagnosis: z.string().min(1, "Diagnosis is required for documentation"),
   treatment_plan: z.string().optional(),
   home_plan: z.string().optional(),
-  advice: z.string().optional(),
 });
 
 interface EditPatientFormProps {
@@ -75,7 +74,6 @@ const EditPatientForm = ({ patient, onSuccess, onCancel }: EditPatientFormProps)
       diagnosis: patient.diagnosis === 'Pending Documentation' ? '' : patient.diagnosis,
       treatment_plan: patient.treatment_plan || '',
       home_plan: patient.home_plan || '',
-      advice: patient.advice || '',
     },
   });
 
@@ -316,17 +314,6 @@ const EditPatientForm = ({ patient, onSuccess, onCancel }: EditPatientFormProps)
                   )}
                 />
               </div>
-
-              <FormField
-                control={form.control}
-                name="advice"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className="text-xs font-black uppercase tracking-widest text-indigo-600 dark:text-indigo-400">Advice & Next Steps</FormLabel>
-                    <FormControl><Textarea className="rounded-2xl bg-white dark:bg-slate-900 border-none resize-none" placeholder="General precautions, follow-up timeline..." {...field} /></FormControl>
-                  </FormItem>
-                )}
-              />
             </div>
           </TabsContent>
         </Tabs>
