@@ -93,20 +93,20 @@ const Index = () => {
             exit={{ opacity: 0, y: -20 }}
             className="fixed inset-0 z-40 lg:hidden"
           >
-            <div className="absolute inset-0 bg-white/95 dark:bg-slate-950/95 backdrop-blur-2xl flex flex-col p-8 pt-24">
-              <div className="space-y-4">
-                {navLinks.map((link) => (
+            <div className="absolute inset-0 bg-white dark:bg-slate-950 backdrop-blur-2xl flex flex-col p-8 pt-24">
+              <div className="space-y-6">
+                {navLinks.map((link, idx) => (
                   <motion.div
                     key={link.name}
-                    initial={{ opacity: 0, x: -20 }}
+                    initial={{ opacity: 0, x: -10 }}
                     animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: 0.1 }}
+                    transition={{ delay: idx * 0.05 }}
                   >
                     {link.href.startsWith('#') ? (
                       <a 
                         href={link.href} 
                         onClick={() => setIsMobileMenuOpen(false)}
-                        className="text-3xl font-black text-slate-900 dark:text-white block hover:text-indigo-600 transition-colors"
+                        className="text-2xl font-semibold text-slate-900 dark:text-white block hover:text-indigo-600 transition-colors"
                       >
                         {link.name}
                       </a>
@@ -114,7 +114,7 @@ const Index = () => {
                       <Link 
                         to={link.href}
                         onClick={() => setIsMobileMenuOpen(false)}
-                        className="text-3xl font-black text-slate-900 dark:text-white block hover:text-indigo-600 transition-colors"
+                        className="text-2xl font-semibold text-slate-900 dark:text-white block hover:text-indigo-600 transition-colors"
                       >
                         {link.name}
                       </Link>
@@ -123,17 +123,17 @@ const Index = () => {
                 ))}
               </div>
 
-              <div className="mt-auto space-y-4 pb-12">
-                <div className="flex items-center justify-between p-4 bg-slate-50 dark:bg-slate-900 rounded-2xl">
-                  <span className="font-bold text-slate-500">Appearance</span>
+              <div className="mt-auto space-y-4 pb-8">
+                <div className="flex items-center justify-between p-4 bg-slate-50 dark:bg-slate-900 rounded-2xl border border-slate-100 dark:border-slate-800">
+                  <span className="text-sm font-bold text-slate-500">Appearance</span>
                   <ModeToggle />
                 </div>
-                <div className="grid grid-cols-2 gap-4">
-                  <Button variant="outline" asChild className="rounded-2xl h-14 font-bold border-slate-200" onClick={() => setIsMobileMenuOpen(false)}>
+                <div className="grid grid-cols-2 gap-3">
+                  <Button variant="outline" asChild className="rounded-2xl h-12 font-bold border-slate-200 text-sm" onClick={() => setIsMobileMenuOpen(false)}>
                     <Link to="/admin/login">Login</Link>
                   </Button>
-                  <Button asChild className="rounded-2xl h-14 font-bold bg-indigo-600 text-white" onClick={() => setIsMobileMenuOpen(false)}>
-                    <Link to="/admin/signup">Get Started</Link>
+                  <Button asChild className="rounded-2xl h-12 font-bold bg-indigo-600 text-white text-sm" onClick={() => setIsMobileMenuOpen(false)}>
+                    <Link to="/admin/signup">Join Now</Link>
                   </Button>
                 </div>
               </div>
