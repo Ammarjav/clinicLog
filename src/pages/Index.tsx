@@ -4,9 +4,8 @@ import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import Logo from '@/components/Logo';
 import { Button } from '@/components/ui/button';
-import { ModeToggle } from '@/components/     ModeToggle';
+import { ModeToggle } from '@/components/ModeToggle';
 import { 
-  Zap, 
   ShieldCheck, 
   BarChart4, 
   Sparkles,
@@ -93,8 +92,8 @@ const Index = () => {
             exit={{ opacity: 0, y: -20 }}
             className="fixed inset-0 z-40 lg:hidden"
           >
-            <div className="absolute inset-0 bg-white dark:bg-slate-950 backdrop-blur-2xl flex flex-col p-8 pt-24">
-              <div className="space-y-6">
+            <div className="absolute inset-0 bg-white dark:bg-slate-950 backdrop-blur-2xl flex flex-col p-6 pt-24">
+              <div className="space-y-2">
                 {navLinks.map((link, idx) => (
                   <motion.div
                     key={link.name}
@@ -106,7 +105,7 @@ const Index = () => {
                       <a 
                         href={link.href} 
                         onClick={() => setIsMobileMenuOpen(false)}
-                        className="text-2xl font-semibold text-slate-900 dark:text-white block hover:text-indigo-600 transition-colors"
+                        className="text-xl font-semibold text-slate-600 dark:text-slate-300 block px-4 py-3 rounded-2xl hover:bg-indigo-50 dark:hover:bg-indigo-900/20 hover:text-indigo-600 dark:hover:text-indigo-400 transition-all"
                       >
                         {link.name}
                       </a>
@@ -114,7 +113,7 @@ const Index = () => {
                       <Link 
                         to={link.href}
                         onClick={() => setIsMobileMenuOpen(false)}
-                        className="text-2xl font-semibold text-slate-900 dark:text-white block hover:text-indigo-600 transition-colors"
+                        className="text-xl font-semibold text-slate-600 dark:text-slate-300 block px-4 py-3 rounded-2xl hover:bg-indigo-50 dark:hover:bg-indigo-900/20 hover:text-indigo-600 dark:hover:text-indigo-400 transition-all"
                       >
                         {link.name}
                       </Link>
