@@ -44,6 +44,10 @@ const PatientEntryForm = () => {
   const [currentPatients, setCurrentPatients] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
   
+  // Cache of all existing name|phone identities for this clinic
+  const [existingIdentities, setExistingIdentities] = useState<Set<string>>(new Set());
+  
+  // Specific record data for note inheritance
   const [inheritedData, setInheritedData] = useState<{
     phone: string | null;
     name: string;
@@ -69,12 +73,14 @@ const PatientEntryForm = () => {
   const watchPhone = form.watch('phone');
   const watchCountryCode = form.watch('countryCode');
 
-  // Determine if this is an existing patient based on current inputs
+  // Unified Identity Matcher: Checks current inputs against the global registry
   const isExistingPatient = useMemo(() => {
-    if (!inheritedData) return false;
-    
+    const nameKey = watchName.toLowerCase().trim();
+    if (!nameKey) return false;
+
+    // Format current input phone for comparison
     let rawNumber = watchPhone?.trim() || '';
-    let currentFormattedPhone = null;
+    let currentFormattedPhone = '';
     if (rawNumber) {
       let cleaned = rawNumber.replace(/\D/g, '');
       if (watchCountryCode === '+92') {
@@ -84,11 +90,10 @@ const PatientEntryForm = () => {
       currentFormattedPhone = watchCountryCode + cleaned;
     }
 
-    return inheritedData.name.toLowerCase() === watchName.toLowerCase() && 
-           inheritedData.phone === currentFormattedPhone;
-  }, [watchName, watchPhone, watchCountryCode, inheritedData]);
+    return existingIdentities.has(`${nameKey}|${currentFormattedPhone}`);
+  }, [watchName, watchPhone, watchCountryCode, existingIdentities]);
 
-  // Force Follow-up status if existing patient detected
+  // Force Follow-up status if any existing identity is detected
   useEffect(() => {
     if (isExistingPatient) {
       form.setValue('visit_type', 'Follow-up');
@@ -109,9 +114,18 @@ const PatientEntryForm = () => {
           setClinicData(data.clinics);
           form.setValue('clinic_id', data.clinic_id);
           
-          const { count } = await supabase
+          // Fetch unique patient identities for this clinic
+          const { data: identities, count } = await supabase
             .from('patients')
-            .select('*', { count: 'exact', head: true });
+            .select('name, phone', { count: 'exact' })
+            .eq('clinic_id', data.clinic_id);
+            
+          if (identities) {
+            const set = new Set(identities.map(i => 
+              `${i.name.toLowerCase().trim()}|${i.phone || ''}`
+            ));
+            setExistingIdentities(set);
+          }
           setCurrentPatients(count || 0);
         }
       }
@@ -157,7 +171,7 @@ const PatientEntryForm = () => {
         }
       });
       
-      toast.info(`Returning patient detected. Status locked to Follow-up.`);
+      toast.info(`Returning patient detected. Information loaded.`);
     }
   };
 
@@ -181,7 +195,12 @@ const PatientEntryForm = () => {
     try {
       const { countryCode, ...dbValues } = values;
       
-      const finalNotes = isExistingPatient ? inheritedData?.notes : {
+      // Determine clinical notes: inherit if identity matches the specific selected record
+      const isNotesSourceMatch = inheritedData && 
+        inheritedData.name.toLowerCase().trim() === values.name.toLowerCase().trim() && 
+        inheritedData.phone === formattedPhone;
+
+      const finalNotes = isNotesSourceMatch ? inheritedData.notes : {
         diagnosis: 'Pending Documentation',
         chief_complaint: '',
         past_history: '',
@@ -206,6 +225,13 @@ const PatientEntryForm = () => {
           : "New patient profile established."
       });
 
+      // Update local identities registry if it was a new patient
+      if (!isExistingPatient) {
+        const newIdentity = `${values.name.toLowerCase().trim()}|${formattedPhone || ''}`;
+        setExistingIdentities(prev => new Set(prev).add(newIdentity));
+        setCurrentPatients(prev => prev + 1);
+      }
+
       form.reset({
         name: '',
         countryCode: values.countryCode,
@@ -218,7 +244,6 @@ const PatientEntryForm = () => {
         clinic_id: values.clinic_id,
       });
       setInheritedData(null);
-      setCurrentPatients(prev => prev + 1);
       
     } catch (error: any) {
       toast.error("Failed to save: " + error.message);
@@ -400,7 +425,7 @@ const PatientEntryForm = () => {
                   </Select>
                   {isExistingPatient && (
                     <p className="text-[10px] font-bold text-indigo-600 dark:text-indigo-400 mt-1 uppercase tracking-tight">
-                      Existing patient identity detected.
+                      Existing identity detected. Status locked.
                     </p>
                   )}
                   <FormMessage />
