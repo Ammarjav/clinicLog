@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
@@ -10,7 +10,7 @@ import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { toast } from 'sonner';
-import { Loader2, UserPlus, Save, Phone } from 'lucide-react';
+import { Loader2, UserPlus, Save, Lock } from 'lucide-react';
 import AutocompleteInput from './AutocompleteInput';
 import { Link, useParams } from 'react-router-dom';
 
@@ -44,7 +44,6 @@ const PatientEntryForm = () => {
   const [currentPatients, setCurrentPatients] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
   
-  // Track the source identity of inherited notes
   const [inheritedData, setInheritedData] = useState<{
     phone: string | null;
     name: string;
@@ -65,6 +64,36 @@ const PatientEntryForm = () => {
       clinic_id: '',
     },
   });
+
+  const watchName = form.watch('name');
+  const watchPhone = form.watch('phone');
+  const watchCountryCode = form.watch('countryCode');
+
+  // Determine if this is an existing patient based on current inputs
+  const isExistingPatient = useMemo(() => {
+    if (!inheritedData) return false;
+    
+    let rawNumber = watchPhone?.trim() || '';
+    let currentFormattedPhone = null;
+    if (rawNumber) {
+      let cleaned = rawNumber.replace(/\D/g, '');
+      if (watchCountryCode === '+92') {
+        if (cleaned.startsWith('0')) cleaned = cleaned.substring(1);
+        if (cleaned.startsWith('92')) cleaned = cleaned.substring(2);
+      }
+      currentFormattedPhone = watchCountryCode + cleaned;
+    }
+
+    return inheritedData.name.toLowerCase() === watchName.toLowerCase() && 
+           inheritedData.phone === currentFormattedPhone;
+  }, [watchName, watchPhone, watchCountryCode, inheritedData]);
+
+  // Force Follow-up status if existing patient detected
+  useEffect(() => {
+    if (isExistingPatient) {
+      form.setValue('visit_type', 'Follow-up');
+    }
+  }, [isExistingPatient, form]);
 
   const fetchData = async () => {
     try {
@@ -110,11 +139,11 @@ const PatientEntryForm = () => {
         }
       }
       
+      form.setValue('name', record.name);
       form.setValue('age', record.age);
       form.setValue('gender', record.gender);
       form.setValue('visit_type', 'Follow-up');
       
-      // Store the clinical notes AND the identity (Name + Phone) they belong to
       setInheritedData({
         name: record.name,
         phone: record.phone || null,
@@ -128,7 +157,7 @@ const PatientEntryForm = () => {
         }
       });
       
-      toast.info(`Patient history loaded. Identity verification active.`);
+      toast.info(`Returning patient detected. Status locked to Follow-up.`);
     }
   };
 
@@ -138,7 +167,6 @@ const PatientEntryForm = () => {
       return;
     }
 
-    // Format current input phone
     let rawNumber = values.phone?.trim() || '';
     let formattedPhone = null;
     if (rawNumber) {
@@ -153,12 +181,7 @@ const PatientEntryForm = () => {
     try {
       const { countryCode, ...dbValues } = values;
       
-      // IDENTITY CHECK: Do current inputs (Name + Phone) match the source of inherited notes?
-      const isSameIdentity = inheritedData && 
-        inheritedData.name === values.name && 
-        inheritedData.phone === formattedPhone;
-
-      const finalNotes = isSameIdentity ? inheritedData.notes : {
+      const finalNotes = isExistingPatient ? inheritedData?.notes : {
         diagnosis: 'Pending Documentation',
         chief_complaint: '',
         past_history: '',
@@ -178,12 +201,11 @@ const PatientEntryForm = () => {
       if (error) throw error;
       
       toast.success("Patient entry saved", {
-        description: isSameIdentity 
-          ? "Follow-up notes inherited successfully." 
-          : "Created as a new patient profile (different identity detected)."
+        description: isExistingPatient 
+          ? "Follow-up record created successfully." 
+          : "New patient profile established."
       });
 
-      // Reset form but keep clinic_id and date
       form.reset({
         name: '',
         countryCode: values.countryCode,
@@ -353,18 +375,34 @@ const PatientEntryForm = () => {
               name="visit_type"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="text-sm font-bold text-gray-700 dark:text-slate-300">Visit Status</FormLabel>
-                  <Select onValueChange={field.onChange} value={field.value}>
+                  <FormLabel className="text-sm font-bold text-gray-700 dark:text-slate-300 flex items-center gap-2">
+                    Visit Status
+                    {isExistingPatient && <Lock className="w-3 h-3 text-indigo-500" />}
+                  </FormLabel>
+                  <Select 
+                    onValueChange={field.onChange} 
+                    value={field.value}
+                    disabled={isExistingPatient}
+                  >
                     <FormControl>
-                      <SelectTrigger className="rounded-2xl h-12 sm:h-14 bg-gray-50/50 dark:bg-slate-800 border-gray-100 dark:border-slate-800 focus:bg-white dark:focus:bg-slate-800 text-base dark:text-white">
+                      <SelectTrigger className={`rounded-2xl h-12 sm:h-14 border-gray-100 dark:border-slate-800 text-base dark:text-white transition-all ${
+                        isExistingPatient 
+                        ? 'bg-indigo-50/50 dark:bg-indigo-900/20 text-indigo-700 dark:text-indigo-400 font-bold border-indigo-100' 
+                        : 'bg-gray-50/50 dark:bg-slate-800'
+                      }`}>
                         <SelectValue placeholder="Select" />
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent className="rounded-2xl dark:bg-slate-900">
-                      <SelectItem value="New">New Patient</SelectItem>
+                      {!isExistingPatient && <SelectItem value="New">New Patient</SelectItem>}
                       <SelectItem value="Follow-up">Follow-up Visit</SelectItem>
                     </SelectContent>
                   </Select>
+                  {isExistingPatient && (
+                    <p className="text-[10px] font-bold text-indigo-600 dark:text-indigo-400 mt-1 uppercase tracking-tight">
+                      Existing patient identity detected.
+                    </p>
+                  )}
                   <FormMessage />
                 </FormItem>
               )}
