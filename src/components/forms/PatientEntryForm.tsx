@@ -43,7 +43,13 @@ const PatientEntryForm = () => {
   const [clinicData, setClinicData] = useState<any>(null);
   const [currentPatients, setCurrentPatients] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
-  const [selectedPatientNotes, setSelectedPatientNotes] = useState<any>(null);
+  
+  // Track the source identity of inherited notes
+  const [inheritedData, setInheritedData] = useState<{
+    phone: string | null;
+    name: string;
+    notes: any;
+  } | null>(null);
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -108,17 +114,21 @@ const PatientEntryForm = () => {
       form.setValue('gender', record.gender);
       form.setValue('visit_type', 'Follow-up');
       
-      // Store clinical notes to be copied to the new record
-      setSelectedPatientNotes({
-        diagnosis: record.diagnosis,
-        chief_complaint: record.chief_complaint,
-        past_history: record.past_history,
-        physical_exam: record.physical_exam,
-        treatment_plan: record.treatment_plan,
-        home_plan: record.home_plan
+      // Store the clinical notes AND the identity (Name + Phone) they belong to
+      setInheritedData({
+        name: record.name,
+        phone: record.phone || null,
+        notes: {
+          diagnosis: record.diagnosis,
+          chief_complaint: record.chief_complaint,
+          past_history: record.past_history,
+          physical_exam: record.physical_exam,
+          treatment_plan: record.treatment_plan,
+          home_plan: record.home_plan
+        }
       });
       
-      toast.success(`Patient selected. Clinical notes will be synced.`);
+      toast.info(`Patient history loaded. Identity verification active.`);
     }
   };
 
@@ -128,9 +138,9 @@ const PatientEntryForm = () => {
       return;
     }
 
+    // Format current input phone
     let rawNumber = values.phone?.trim() || '';
     let formattedPhone = null;
-
     if (rawNumber) {
       let cleaned = rawNumber.replace(/\D/g, '');
       if (values.countryCode === '+92') {
@@ -143,16 +153,24 @@ const PatientEntryForm = () => {
     try {
       const { countryCode, ...dbValues } = values;
       
-      // If it's a returning patient, we use the stored notes. Otherwise, it's pending.
+      // IDENTITY CHECK: Do current inputs (Name + Phone) match the source of inherited notes?
+      const isSameIdentity = inheritedData && 
+        inheritedData.name === values.name && 
+        inheritedData.phone === formattedPhone;
+
+      const finalNotes = isSameIdentity ? inheritedData.notes : {
+        diagnosis: 'Pending Documentation',
+        chief_complaint: '',
+        past_history: '',
+        physical_exam: '',
+        treatment_plan: '',
+        home_plan: ''
+      };
+
       const entryData = {
         ...dbValues,
         phone: formattedPhone,
-        diagnosis: selectedPatientNotes?.diagnosis || 'Pending Documentation',
-        chief_complaint: selectedPatientNotes?.chief_complaint || '',
-        past_history: selectedPatientNotes?.past_history || '',
-        physical_exam: selectedPatientNotes?.physical_exam || '',
-        treatment_plan: selectedPatientNotes?.treatment_plan || '',
-        home_plan: selectedPatientNotes?.home_plan || ''
+        ...finalNotes
       };
 
       const { error } = await supabase.from('patients').insert([entryData]);
@@ -160,7 +178,9 @@ const PatientEntryForm = () => {
       if (error) throw error;
       
       toast.success("Patient entry saved", {
-        description: selectedPatientNotes ? "Follow-up notes inherited from previous visit." : "New patient log created."
+        description: isSameIdentity 
+          ? "Follow-up notes inherited successfully." 
+          : "Created as a new patient profile (different identity detected)."
       });
 
       // Reset form but keep clinic_id and date
@@ -175,7 +195,7 @@ const PatientEntryForm = () => {
         visit_date: values.visit_date,
         clinic_id: values.clinic_id,
       });
-      setSelectedPatientNotes(null);
+      setInheritedData(null);
       setCurrentPatients(prev => prev + 1);
       
     } catch (error: any) {
