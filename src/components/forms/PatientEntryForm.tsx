@@ -166,6 +166,9 @@ const PatientEntryForm = () => {
     }
 
     try {
+      // Destructure countryCode out so we don't send it to the database
+      const { countryCode, ...baseValues } = values;
+
       let clinicalData = {
         diagnosis: 'Pending Documentation',
         chief_complaint: '',
@@ -199,7 +202,7 @@ const PatientEntryForm = () => {
       }
 
       const { error } = await supabase.from('patients').insert([{
-        ...values,
+        ...baseValues,
         phone: formattedPhone,
         ...clinicalData
       }]);
