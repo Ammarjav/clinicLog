@@ -193,10 +193,10 @@ const PatientEntryForm = () => {
   }
 
   return (
-    <div className="max-w-2xl mx-auto p-6 sm:p-10 bg-white dark:bg-slate-900 rounded-[2.5rem] shadow-2xl shadow-blue-50/50 dark:shadow-none border border-gray-100 dark:border-slate-800 relative overflow-hidden">
+    <div className="max-w-2xl mx-auto p-6 sm:p-10 bg-white dark:bg-slate-900 rounded-3xl shadow-2xl shadow-blue-50/50 dark:shadow-none border border-gray-100 dark:border-slate-800 relative overflow-hidden">
       {isLimitReached && (
         <div className="absolute inset-0 z-10 bg-white/60 dark:bg-slate-900/60 backdrop-blur-[2px] flex items-center justify-center p-8">
-          <div className="bg-white dark:bg-slate-800 p-8 rounded-[2rem] shadow-2xl border border-slate-100 dark:border-slate-700 text-center max-w-sm animate-in zoom-in-95 duration-300">
+          <div className="bg-white dark:bg-slate-800 p-8 rounded-3xl shadow-2xl border border-slate-100 dark:border-slate-700 text-center max-w-sm animate-in zoom-in-95 duration-300">
             <h3 className="text-xl font-black text-slate-900 dark:text-white mb-2">Limit Reached</h3>
             <p className="text-slate-500 dark:text-slate-400 font-medium text-sm mb-6">
               You've hit your plan limit of {clinicData.patient_limit} patients.

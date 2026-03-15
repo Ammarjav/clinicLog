@@ -49,7 +49,7 @@ const StatCards = ({ data }: StatCardsProps) => {
   return (
     <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 mb-8">
       {stats.map((stat) => (
-        <Card key={stat.title} className="p-8 border-none shadow-2xl shadow-indigo-100/20 dark:shadow-none rounded-[2.5rem] bg-white dark:bg-slate-900 flex flex-col justify-between hover:shadow-indigo-200/30 dark:hover:bg-slate-800/50 transition-all duration-300 group">
+        <Card key={stat.title} className="p-8 border-none shadow-2xl shadow-indigo-100/20 dark:shadow-none rounded-3xl bg-white dark:bg-slate-900 flex flex-col justify-between hover:shadow-indigo-200/30 dark:hover:bg-slate-800/50 transition-all duration-300 group">
           <div className="flex justify-between items-start mb-6">
             <div className={`p-4 rounded-2xl ${stat.bg} group-hover:scale-110 transition-transform duration-300`}>
               <stat.icon className={`w-6 h-6 ${stat.color}`} />

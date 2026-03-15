@@ -24,7 +24,7 @@ interface DashboardFiltersProps {
 
 const DashboardFilters = ({ filters, onFilterChange, onReset }: DashboardFiltersProps) => {
   return (
-    <Card className="bg-white dark:bg-slate-900 p-5 md:p-8 rounded-[2.5rem] shadow-sm dark:shadow-none border-none mb-8 animate-in fade-in slide-in-from-top-4 duration-500">
+    <Card className="bg-white dark:bg-slate-900 p-5 md:p-8 rounded-3xl shadow-sm dark:shadow-none border-none mb-8 animate-in fade-in slide-in-from-top-4 duration-500">
       <div className="space-y-6">
         <div className="flex items-center justify-between">
           <h3 className="text-[10px] md:text-sm font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest">Active Filters</h3>
