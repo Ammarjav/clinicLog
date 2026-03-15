@@ -15,7 +15,7 @@ interface PatientTableProps {
 
 const PatientTable = ({ patients, onEdit, onDelete }: PatientTableProps) => {
   return (
-    <div className="bg-white dark:bg-slate-900 rounded-[2.5rem] shadow-2xl shadow-indigo-100/20 dark:shadow-none border border-slate-50 dark:border-slate-800 animate-in fade-in duration-700 overflow-hidden">
+    <div className="bg-white dark:bg-slate-900 rounded-3xl shadow-2xl shadow-indigo-100/20 dark:shadow-none border border-slate-50 dark:border-slate-800 animate-in fade-in duration-700 overflow-hidden">
       {/* Scrollable Container with Fixed Max Height */}
       <div className="max-h-[650px] overflow-y-auto overflow-x-auto custom-scrollbar">
         <Table>
