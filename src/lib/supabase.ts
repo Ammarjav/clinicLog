@@ -34,5 +34,4 @@ export type Patient = {
   physical_exam?: string;
   treatment_plan?: string;
   home_plan?: string;
-  advice?: string;
 };

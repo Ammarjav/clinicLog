@@ -102,10 +102,10 @@ const EditPatientForm = ({ patient, onSuccess, onCancel }: EditPatientFormProps)
         
       if (error) throw error;
       
-      toast.success("Clinical record updated successfully");
+      toast.success("Clinical record saved successfully");
       onSuccess();
     } catch (error: any) {
-      toast.error("Update failed: " + error.message);
+      toast.error("Save failed: " + error.message);
     }
   };
 
@@ -321,7 +321,7 @@ const EditPatientForm = ({ patient, onSuccess, onCancel }: EditPatientFormProps)
         <div className="flex gap-3 pt-2">
           <Button type="button" variant="outline" className="flex-1 h-14 rounded-2xl font-bold" onClick={onCancel}>Cancel</Button>
           <Button type="submit" className="flex-1 h-14 rounded-2xl bg-blue-600 hover:bg-blue-700 text-white font-bold shadow-xl shadow-blue-100 dark:shadow-none" disabled={form.formState.isSubmitting}>
-            {form.formState.isSubmitting ? <Loader2 className="w-5 h-5 animate-spin" /> : <><Save className="w-5 h-5 mr-2" /> Commit Record</>}
+            {form.formState.isSubmitting ? <Loader2 className="w-5 h-5 animate-spin" /> : <><Save className="w-5 h-5 mr-2" /> Save Record</>}
           </Button>
         </div>
       </form>
