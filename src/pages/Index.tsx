@@ -4,7 +4,7 @@ import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import Logo from '@/components/Logo';
 import { Button } from '@/components/ui/button';
-import { ModeToggle } from '@/components/ModeToggle';
+import { ModeToggle } from '@/components/     ModeToggle';
 import { 
   Zap, 
   ShieldCheck, 
@@ -129,10 +129,10 @@ const Index = () => {
                   <ModeToggle />
                 </div>
                 <div className="grid grid-cols-2 gap-3">
-                  <Button variant="outline" asChild className="rounded-2xl h-12 font-bold border-slate-200 text-sm" onClick={() => setIsMobileMenuOpen(false)}>
-                    <Link to="/admin/login">Login</Link>
+                  <Button variant="ghost" asChild className="rounded-xl h-12 font-bold text-slate-600 dark:text-slate-400 hover:bg-indigo-50 dark:hover:bg-indigo-900/20 hover:text-indigo-600 text-sm" onClick={() => setIsMobileMenuOpen(false)}>
+                    <Link to="/admin/login">Sign In</Link>
                   </Button>
-                  <Button asChild className="rounded-2xl h-12 font-bold bg-indigo-600 text-white text-sm" onClick={() => setIsMobileMenuOpen(false)}>
+                  <Button asChild className="rounded-xl h-12 font-bold bg-slate-900 dark:bg-white dark:text-slate-900 text-white text-sm" onClick={() => setIsMobileMenuOpen(false)}>
                     <Link to="/admin/signup">Join Now</Link>
                   </Button>
                 </div>
