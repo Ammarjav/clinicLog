@@ -103,7 +103,7 @@ const EditPatientForm = ({ patient, onSuccess, onCancel }: EditPatientFormProps)
         home_plan: dbValues.home_plan
       };
 
-      // 1. Update the current record specifically (includes isolated demographics)
+      // 1. Update the current record specifically (includes demographics)
       const { error: singleError } = await supabase
         .from('patients')
         .update({
@@ -114,24 +114,25 @@ const EditPatientForm = ({ patient, onSuccess, onCancel }: EditPatientFormProps)
         
       if (singleError) throw singleError;
 
-      // 2. Synchronize clinical notes for ALL records belonging to this patient
-      // A patient is identified by (clinic_id + phone) or (clinic_id + name if no phone)
+      // 2. Synchronize clinical notes for ALL records belonging to this specific identity
+      // Identity = Clinic ID + Exact Name + Exact Phone
       let syncQuery = supabase
         .from('patients')
         .update(clinicalNotes)
-        .eq('clinic_id', patient.clinic_id);
+        .eq('clinic_id', patient.clinic_id)
+        .eq('name', values.name); // Stricter matching: Name must match exactly
 
       if (formattedPhone) {
-        syncQuery = syncQuery.eq('phone', formattedPhone);
+        syncQuery = syncQuery.eq('phone', formattedPhone); // Must also match phone if provided
       } else {
-        syncQuery = syncQuery.eq('name', values.name);
+        syncQuery = syncQuery.is('phone', null); // Or both must have no phone number
       }
 
       const { error: syncError } = await syncQuery;
       if (syncError) console.error("Note sync error:", syncError);
       
       toast.success("Clinical record saved", {
-        description: "Doctor notes synchronized across all visit logs for this patient."
+        description: "Doctor notes synchronized for this specific patient profile."
       });
       onSuccess();
     } catch (error: any) {
