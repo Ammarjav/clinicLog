@@ -28,4 +28,11 @@ export type Patient = {
   visit_type: 'New' | 'Follow-up';
   visit_date: string;
   created_at: string;
+  // Clinical Fields
+  chief_complaint?: string;
+  past_history?: string;
+  physical_exam?: string;
+  treatment_plan?: string;
+  home_plan?: string;
+  advice?: string;
 };

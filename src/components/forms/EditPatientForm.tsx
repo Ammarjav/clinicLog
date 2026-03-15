@@ -9,9 +9,11 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
+import { Textarea } from '@/components/ui/textarea';
 import { toast } from 'sonner';
-import { Loader2, Save, Phone } from 'lucide-react';
+import { Loader2, Save, FileText, Activity, Stethoscope } from 'lucide-react';
 import AutocompleteInput from './AutocompleteInput';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 const COUNTRIES = [
   { code: '+92', name: 'Pakistan', flag: '🇵🇰' },
@@ -27,11 +29,18 @@ const formSchema = z.object({
   name: z.string().min(1, "Name is required"),
   countryCode: z.string().default('+92'),
   phone: z.string().optional(),
-  age: z.coerce.number().min(0, "Age cannot be negative").max(120),
+  age: z.coerce.number().min(0).max(120),
   gender: z.enum(['Male', 'Female', 'Other']),
-  diagnosis: z.string().min(1, "Diagnosis is required"),
   visit_type: z.enum(['New', 'Follow-up']),
-  visit_date: z.string().min(1, "Date is required"),
+  visit_date: z.string().min(1),
+  // Clinical Fields
+  chief_complaint: z.string().optional(),
+  past_history: z.string().optional(),
+  physical_exam: z.string().optional(),
+  diagnosis: z.string().min(1, "Diagnosis is required for documentation"),
+  treatment_plan: z.string().optional(),
+  home_plan: z.string().optional(),
+  advice: z.string().optional(),
 });
 
 interface EditPatientFormProps {
@@ -41,7 +50,6 @@ interface EditPatientFormProps {
 }
 
 const EditPatientForm = ({ patient, onSuccess, onCancel }: EditPatientFormProps) => {
-  // Parse existing phone number
   const getInitialPhone = () => {
     if (!patient.phone) return { code: '+92', number: '' };
     const matched = COUNTRIES.find(c => patient.phone.startsWith(c.code));
@@ -59,9 +67,15 @@ const EditPatientForm = ({ patient, onSuccess, onCancel }: EditPatientFormProps)
       phone: initialPhone.number,
       age: patient.age,
       gender: patient.gender,
-      diagnosis: patient.diagnosis,
       visit_type: patient.visit_type,
       visit_date: patient.visit_date,
+      chief_complaint: patient.chief_complaint || '',
+      past_history: patient.past_history || '',
+      physical_exam: patient.physical_exam || '',
+      diagnosis: patient.diagnosis === 'Pending Documentation' ? '' : patient.diagnosis,
+      treatment_plan: patient.treatment_plan || '',
+      home_plan: patient.home_plan || '',
+      advice: patient.advice || '',
     },
   });
 
@@ -90,7 +104,7 @@ const EditPatientForm = ({ patient, onSuccess, onCancel }: EditPatientFormProps)
         
       if (error) throw error;
       
-      toast.success("Record updated successfully");
+      toast.success("Clinical record updated successfully");
       onSuccess();
     } catch (error: any) {
       toast.error("Update failed: " + error.message);
@@ -99,184 +113,228 @@ const EditPatientForm = ({ patient, onSuccess, onCancel }: EditPatientFormProps)
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5 pt-4">
-        <FormField
-          control={form.control}
-          name="name"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Patient Name</FormLabel>
-              <FormControl>
-                <AutocompleteInput 
-                  value={field.value} 
-                  onChange={field.onChange} 
-                  fieldName="name" 
-                  clinicId={patient.clinic_id} 
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+        <Tabs defaultValue="demographics" className="w-full">
+          <TabsList className="grid grid-cols-2 bg-slate-100 dark:bg-slate-900 h-12 rounded-2xl mb-6">
+            <TabsTrigger value="demographics" className="rounded-xl font-bold">Demographics</TabsTrigger>
+            <TabsTrigger value="clinical" className="rounded-xl font-bold">Doctor Notes</TabsTrigger>
+          </TabsList>
 
-        <div className="flex flex-col gap-2">
-          <FormLabel className="text-sm font-medium">Phone Number</FormLabel>
-          <div className="flex gap-2">
+          <TabsContent value="demographics" className="space-y-5 animate-in fade-in duration-300">
             <FormField
               control={form.control}
-              name="countryCode"
+              name="name"
               render={({ field }) => (
-                <Select onValueChange={field.onChange} value={field.value}>
+                <FormItem>
+                  <FormLabel className="text-xs font-black uppercase tracking-widest text-slate-400">Patient Name</FormLabel>
                   <FormControl>
-                    <SelectTrigger className="w-[90px] h-12 rounded-xl bg-gray-50/50 dark:bg-slate-800 border-gray-100 dark:border-slate-800 font-bold">
-                      <SelectValue placeholder="+92" />
-                    </SelectTrigger>
-                  </FormControl>
-                  <SelectContent className="rounded-xl dark:bg-slate-900">
-                    {COUNTRIES.map(c => (
-                      <SelectItem key={c.code} value={c.code}>
-                        <span className="mr-1">{c.flag}</span> {c.code}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="phone"
-              render={({ field }) => (
-                <FormItem className="flex-1">
-                  <FormControl>
-                    <Input 
-                      placeholder="310 1234567" 
-                      className="rounded-xl h-12 bg-gray-50/50 dark:bg-slate-800 border-gray-100 dark:border-slate-800" 
-                      {...field} 
+                    <AutocompleteInput 
+                      value={field.value} 
+                      onChange={field.onChange} 
+                      fieldName="name" 
+                      clinicId={patient.clinic_id} 
                     />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
             />
-          </div>
-        </div>
-        
-        <div className="grid grid-cols-2 gap-4">
-          <FormField
-            control={form.control}
-            name="age"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Age</FormLabel>
-                <FormControl>
-                  <Input type="number" className="rounded-xl h-12" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={form.control}
-            name="gender"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Gender</FormLabel>
-                <Select onValueChange={field.onChange} defaultValue={field.value}>
-                  <FormControl>
-                    <SelectTrigger className="rounded-xl h-12">
-                      <SelectValue placeholder="Select" />
-                    </SelectTrigger>
-                  </FormControl>
-                  <SelectContent className="rounded-xl">
-                    <SelectItem value="Male">Male</SelectItem>
-                    <SelectItem value="Female">Female</SelectItem>
-                    <SelectItem value="Other">Other</SelectItem>
-                  </SelectContent>
-                </Select>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-        </div>
 
-        <div className="grid grid-cols-2 gap-4">
-          <FormField
-            control={form.control}
-            name="visit_type"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Visit Type</FormLabel>
-                <Select onValueChange={field.onChange} defaultValue={field.value}>
-                  <FormControl>
-                    <SelectTrigger className="rounded-xl h-12">
-                      <SelectValue placeholder="Select" />
-                    </SelectTrigger>
-                  </FormControl>
-                  <SelectContent className="rounded-xl">
-                    <SelectItem value="New">New</SelectItem>
-                    <SelectItem value="Follow-up">Follow-up</SelectItem>
-                  </SelectContent>
-                </Select>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={form.control}
-            name="visit_date"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Visit Date</FormLabel>
-                <FormControl>
-                  <Input type="date" className="rounded-xl h-12" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-        </div>
-
-        <FormField
-          control={form.control}
-          name="diagnosis"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Diagnosis</FormLabel>
-              <FormControl>
-                <AutocompleteInput 
-                  value={field.value} 
-                  onChange={field.onChange} 
-                  fieldName="diagnosis" 
-                  clinicId={patient.clinic_id} 
+            <div className="flex flex-col gap-2">
+              <FormLabel className="text-xs font-black uppercase tracking-widest text-slate-400">Contact Number</FormLabel>
+              <div className="flex gap-2">
+                <FormField
+                  control={form.control}
+                  name="countryCode"
+                  render={({ field }) => (
+                    <Select onValueChange={field.onChange} value={field.value}>
+                      <FormControl>
+                        <SelectTrigger className="w-[90px] h-12 rounded-xl bg-slate-50 dark:bg-slate-800 border-none">
+                          <SelectValue />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent className="rounded-xl">
+                        {COUNTRIES.map(c => <SelectItem key={c.code} value={c.code}>{c.flag} {c.code}</SelectItem>)}
+                      </SelectContent>
+                    </Select>
+                  )}
                 />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
+                <FormField
+                  control={form.control}
+                  name="phone"
+                  render={({ field }) => (
+                    <FormItem className="flex-1">
+                      <FormControl>
+                        <Input className="rounded-xl h-12 bg-slate-50 dark:bg-slate-800 border-none" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+            </div>
 
-        <div className="flex gap-3 pt-4">
-          <Button 
-            type="button" 
-            variant="outline" 
-            className="flex-1 h-12 rounded-xl"
-            onClick={onCancel}
-          >
-            Cancel
-          </Button>
-          <Button 
-            type="submit" 
-            className="flex-1 h-12 rounded-xl bg-blue-600 hover:bg-blue-700 text-white"
-            disabled={form.formState.isSubmitting}
-          >
-            {form.formState.isSubmitting ? (
-              <Loader2 className="w-4 h-4 animate-spin" />
-            ) : (
-              <>
-                <Save className="w-4 h-4 mr-2" />
-                Save Changes
-              </>
-            )}
+            <div className="grid grid-cols-2 gap-4">
+              <FormField
+                control={form.control}
+                name="age"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="text-xs font-black uppercase tracking-widest text-slate-400">Age</FormLabel>
+                    <FormControl><Input type="number" className="rounded-xl h-12" {...field} /></FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="gender"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="text-xs font-black uppercase tracking-widest text-slate-400">Gender</FormLabel>
+                    <Select onValueChange={field.onChange} value={field.value}>
+                      <FormControl><SelectTrigger className="rounded-xl h-12"><SelectValue /></SelectTrigger></FormControl>
+                      <SelectContent className="rounded-xl">
+                        <SelectItem value="Male">Male</SelectItem>
+                        <SelectItem value="Female">Female</SelectItem>
+                        <SelectItem value="Other">Other</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
+
+            <div className="grid grid-cols-2 gap-4">
+              <FormField
+                control={form.control}
+                name="visit_type"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="text-xs font-black uppercase tracking-widest text-slate-400">Status</FormLabel>
+                    <Select onValueChange={field.onChange} value={field.value}>
+                      <FormControl><SelectTrigger className="rounded-xl h-12"><SelectValue /></SelectTrigger></FormControl>
+                      <SelectContent className="rounded-xl">
+                        <SelectItem value="New">New</SelectItem>
+                        <SelectItem value="Follow-up">Follow-up</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="visit_date"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="text-xs font-black uppercase tracking-widest text-slate-400">Date</FormLabel>
+                    <FormControl><Input type="date" className="rounded-xl h-12" {...field} /></FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
+          </TabsContent>
+
+          <TabsContent value="clinical" className="space-y-5 animate-in fade-in duration-300">
+            <div className="bg-indigo-50/50 dark:bg-indigo-950/20 p-5 rounded-3xl border border-indigo-100 dark:border-indigo-900/30 space-y-5">
+              <FormField
+                control={form.control}
+                name="chief_complaint"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="text-xs font-black uppercase tracking-widest text-indigo-600 dark:text-indigo-400">Chief Complaints</FormLabel>
+                    <FormControl><Textarea className="rounded-2xl bg-white dark:bg-slate-900 border-none resize-none" placeholder="Primary issues reported by patient..." {...field} /></FormControl>
+                  </FormItem>
+                )}
+              />
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <FormField
+                  control={form.control}
+                  name="past_history"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="text-xs font-black uppercase tracking-widest text-indigo-600 dark:text-indigo-400">Past Medical History</FormLabel>
+                      <FormControl><Textarea className="rounded-2xl bg-white dark:bg-slate-900 border-none resize-none" placeholder="Previous conditions, surgeries..." {...field} /></FormControl>
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="physical_exam"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="text-xs font-black uppercase tracking-widest text-indigo-600 dark:text-indigo-400">Objective Examination</FormLabel>
+                      <FormControl><Textarea className="rounded-2xl bg-white dark:bg-slate-900 border-none resize-none" placeholder="BP, HR, physical findings..." {...field} /></FormControl>
+                    </FormItem>
+                  )}
+                />
+              </div>
+
+              <FormField
+                control={form.control}
+                name="diagnosis"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="text-xs font-black uppercase tracking-widest text-rose-600 dark:text-rose-400">Final / Differential Diagnosis</FormLabel>
+                    <FormControl>
+                      <AutocompleteInput 
+                        value={field.value} 
+                        onChange={field.onChange} 
+                        fieldName="diagnosis" 
+                        clinicId={patient.clinic_id} 
+                        placeholder="Required for table tracking..."
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <FormField
+                  control={form.control}
+                  name="treatment_plan"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="text-xs font-black uppercase tracking-widest text-emerald-600 dark:text-emerald-400">Treatment / Medication</FormLabel>
+                      <FormControl><Textarea className="rounded-2xl bg-white dark:bg-slate-900 border-none resize-none" placeholder="Prescribed medicines, dosages..." {...field} /></FormControl>
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="home_plan"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="text-xs font-black uppercase tracking-widest text-emerald-600 dark:text-emerald-400">Home Plan & Recovery</FormLabel>
+                      <FormControl><Textarea className="rounded-2xl bg-white dark:bg-slate-900 border-none resize-none" placeholder="Exercises, rest, monitoring..." {...field} /></FormControl>
+                    </FormItem>
+                  )}
+                />
+              </div>
+
+              <FormField
+                control={form.control}
+                name="advice"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="text-xs font-black uppercase tracking-widest text-indigo-600 dark:text-indigo-400">Advice & Next Steps</FormLabel>
+                    <FormControl><Textarea className="rounded-2xl bg-white dark:bg-slate-900 border-none resize-none" placeholder="General precautions, follow-up timeline..." {...field} /></FormControl>
+                  </FormItem>
+                )}
+              />
+            </div>
+          </TabsContent>
+        </Tabs>
+
+        <div className="flex gap-3 pt-2">
+          <Button type="button" variant="outline" className="flex-1 h-14 rounded-2xl font-bold" onClick={onCancel}>Cancel</Button>
+          <Button type="submit" className="flex-1 h-14 rounded-2xl bg-blue-600 hover:bg-blue-700 text-white font-bold shadow-xl shadow-blue-100 dark:shadow-none" disabled={form.formState.isSubmitting}>
+            {form.formState.isSubmitting ? <Loader2 className="w-5 h-5 animate-spin" /> : <><Save className="w-5 h-5 mr-2" /> Commit Record</>}
           </Button>
         </div>
       </form>

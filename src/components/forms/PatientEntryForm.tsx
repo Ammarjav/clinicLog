@@ -10,9 +10,9 @@ import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { toast } from 'sonner';
-import { Loader2, UserPlus, CheckCircle2, History, AlertTriangle, Phone, Globe } from 'lucide-react';
+import { Loader2, UserPlus, CheckCircle2, Phone, Sparkles } from 'lucide-react';
 import AutocompleteInput from './AutocompleteInput';
-import { Link, useParams } from 'react-router-dom';
+import { Link, useParams, useNavigate } from 'react-router-dom';
 
 const COUNTRIES = [
   { code: '+92', name: 'Pakistan', flag: '🇵🇰' },
@@ -33,7 +33,6 @@ const formSchema = z.object({
     invalid_type_error: "Age must be a number" 
   }).min(0, "Age cannot be negative").max(120, "Age cannot exceed 120"),
   gender: z.enum(['Male', 'Female', 'Other']),
-  diagnosis: z.string().min(1, "Diagnosis is required"),
   visit_type: z.enum(['New', 'Follow-up']),
   visit_date: z.string(),
   clinic_id: z.string().uuid(),
@@ -41,6 +40,7 @@ const formSchema = z.object({
 
 const PatientEntryForm = () => {
   const { slug } = useParams();
+  const navigate = useNavigate();
   const [clinicData, setClinicData] = useState<any>(null);
   const [currentPatients, setCurrentPatients] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
@@ -54,7 +54,6 @@ const PatientEntryForm = () => {
       // @ts-ignore
       age: '',
       gender: 'Male',
-      diagnosis: '',
       visit_type: 'New',
       visit_date: new Date().toISOString().split('T')[0],
       clinic_id: '',
@@ -105,13 +104,9 @@ const PatientEntryForm = () => {
       
       form.setValue('age', record.age);
       form.setValue('gender', record.gender);
-      form.setValue('diagnosis', record.diagnosis);
       form.setValue('visit_type', 'Follow-up');
       
-      toast.success(`Imported data for returning patient: ${record.name}`, {
-        icon: <History className="w-4 h-4 text-blue-500" />,
-        duration: 3000
-      });
+      toast.success(`Imported demographics for returning patient: ${record.name}`);
     }
   };
 
@@ -121,51 +116,33 @@ const PatientEntryForm = () => {
       return;
     }
 
-    // Format phone number logic
     let rawNumber = values.phone?.trim() || '';
     let formattedPhone = null;
 
     if (rawNumber) {
-      // Basic cleaning
       let cleaned = rawNumber.replace(/\D/g, '');
-      
-      // Specialized logic for Pakistan
       if (values.countryCode === '+92') {
         if (cleaned.startsWith('0')) cleaned = cleaned.substring(1);
         if (cleaned.startsWith('92')) cleaned = cleaned.substring(2);
       }
-      
       formattedPhone = values.countryCode + cleaned;
     }
 
     try {
-      // Create copy of values without countryCode for DB
       const { countryCode, ...dbValues } = values;
-      const { error } = await supabase.from('patients').insert([{
+      const { data, error } = await supabase.from('patients').insert([{
         ...dbValues,
-        phone: formattedPhone
-      }]);
+        phone: formattedPhone,
+        diagnosis: 'Pending Documentation' // Placeholder until prescription is written
+      }]).select().single();
       
       if (error) throw error;
       
-      toast.success("Patient recorded successfully", {
-        icon: <CheckCircle2 className="w-4 h-4 text-green-500" />
+      toast.success("Patient intake successful", {
+        description: "Redirecting to management console to add clinical notes."
       });
 
-      setCurrentPatients(prev => prev + 1);
-
-      form.reset({
-        name: '',
-        countryCode: values.countryCode,
-        phone: '',
-        // @ts-ignore
-        age: '',
-        gender: 'Male',
-        diagnosis: '',
-        visit_type: 'New',
-        visit_date: values.visit_date,
-        clinic_id: values.clinic_id,
-      });
+      navigate(`/clinic/${slug}/patients`);
       
     } catch (error: any) {
       toast.error("Failed to save: " + error.message);
@@ -181,25 +158,11 @@ const PatientEntryForm = () => {
     );
   }
 
-  if (!clinicData) {
-    return (
-      <div className="max-w-2xl mx-auto p-10 bg-white dark:bg-slate-900 rounded-[2.5rem] shadow-xl dark:shadow-none border border-gray-100 dark:border-slate-800 flex flex-col items-center text-center">
-        <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Portal Access Required</h2>
-        <Button className="mt-8 px-8 h-12 rounded-2xl bg-blue-600 hover:bg-blue-700" asChild>
-          <a href="/admin/login">Log in to Clinic Portal</a>
-        </Button>
-      </div>
-    );
-  }
-
   return (
     <div className="max-w-2xl mx-auto p-6 sm:p-10 bg-white dark:bg-slate-900 rounded-[2.5rem] shadow-2xl shadow-blue-50/50 dark:shadow-none border border-gray-100 dark:border-slate-800 relative overflow-hidden">
       {isLimitReached && (
         <div className="absolute inset-0 z-10 bg-white/60 dark:bg-slate-900/60 backdrop-blur-[2px] flex items-center justify-center p-8">
           <div className="bg-white dark:bg-slate-800 p-8 rounded-[2rem] shadow-2xl border border-slate-100 dark:border-slate-700 text-center max-w-sm animate-in zoom-in-95 duration-300">
-            <div className="bg-rose-50 dark:bg-rose-900/30 p-4 rounded-2xl inline-block mb-4">
-              <AlertTriangle className="w-8 h-8 text-rose-600" />
-            </div>
             <h3 className="text-xl font-black text-slate-900 dark:text-white mb-2">Limit Reached</h3>
             <p className="text-slate-500 dark:text-slate-400 font-medium text-sm mb-6">
               You've hit your plan limit of {clinicData.patient_limit} patients.
@@ -217,7 +180,7 @@ const PatientEntryForm = () => {
         </div>
         <div>
           <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white tracking-tight leading-none">Record Entry</h1>
-          <p className="text-gray-500 dark:text-slate-400 text-sm sm:text-base mt-2">Instantly add a patient to your database</p>
+          <p className="text-gray-500 dark:text-slate-400 text-sm sm:text-base mt-2">Capture basic patient information</p>
         </div>
       </div>
 
@@ -297,8 +260,6 @@ const PatientEntryForm = () => {
                   <FormControl>
                     <Input 
                       type="number" 
-                      min="0" 
-                      max="120" 
                       placeholder="Years" 
                       className="rounded-2xl h-12 sm:h-14 bg-gray-50/50 dark:bg-slate-800 border-gray-100 dark:border-slate-800 focus:bg-white dark:focus:bg-slate-800 dark:text-white transition-all text-base" 
                       {...field} 
@@ -373,39 +334,19 @@ const PatientEntryForm = () => {
             />
           </div>
 
-          <FormField
-            control={form.control}
-            name="diagnosis"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel className="text-sm font-bold text-gray-700 dark:text-slate-300">Diagnosis / Reason</FormLabel>
-                <FormControl>
-                  <AutocompleteInput 
-                    value={field.value} 
-                    onChange={field.onChange} 
-                    placeholder="e.g. Hypertension, Routine checkup..." 
-                    fieldName="diagnosis"
-                    clinicId={clinicData.id}
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
           <Button 
             type="submit" 
-            className="w-full h-14 sm:h-16 text-lg sm:text-xl font-bold rounded-[1.25rem] bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 transition-all duration-300 active:scale-[0.98] mt-4"
+            className="w-full h-14 sm:h-16 text-lg sm:text-xl font-bold rounded-[1.25rem] bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 transition-all duration-300 active:scale-[0.98] mt-4 shadow-xl shadow-blue-200 dark:shadow-none"
             disabled={form.formState.isSubmitting}
           >
             {form.formState.isSubmitting ? (
               <Loader2 className="mr-3 h-6 w-6 animate-spin" />
-            ) : "Save Patient Entry"}
+            ) : (
+              <span className="flex items-center gap-2">
+                Continue to Clinical Notes <Sparkles className="w-5 h-5" />
+              </span>
+            )}
           </Button>
-          
-          <p className="text-center text-xs text-gray-400 dark:text-slate-600 font-medium uppercase tracking-widest mt-4">
-            Secured for clinic portal
-          </p>
         </form>
       </Form>
     </div>
