@@ -61,7 +61,7 @@ const Contact = () => {
               </div>
               <div className="text-left">
                 <p className="text-[9px] sm:text-[10px] font-black uppercase tracking-widest text-slate-400">Email Us</p>
-                <p className="font-bold text-slate-900 dark:text-white text-sm sm:text-base">hello@cliniclog.com</p>
+                <p className="font-bold text-slate-900 dark:text-white text-sm sm:text-base">drammarjaved17@gmail.com</p>
               </div>
             </div>
             <div className="flex items-center gap-4 justify-center lg:justify-start">
