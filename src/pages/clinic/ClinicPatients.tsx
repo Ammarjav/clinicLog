@@ -100,14 +100,14 @@ const ClinicPatients = () => {
           <Button 
             variant="outline" 
             asChild
-            className="rounded-xl border-indigo-100 bg-indigo-50/30 hover:bg-indigo-50 text-indigo-700 h-11 px-5 font-bold shadow-sm"
+            className="rounded-2xl border-indigo-100 dark:border-indigo-900/30 bg-indigo-50/30 dark:bg-indigo-900/10 text-indigo-700 dark:text-indigo-400 h-12 px-6 font-bold shadow-sm hover:bg-indigo-600 hover:text-white dark:hover:bg-indigo-500 dark:hover:text-white transition-all duration-300 group"
           >
             <Link to={`/clinic/${slug}/patients/followups`}>
-              <CalendarClock className="w-4 h-4 mr-2" />
+              <CalendarClock className="w-4 h-4 mr-2 group-hover:scale-110 transition-transform" />
               Follow-ups
             </Link>
           </Button>
-          <div className="bg-white dark:bg-slate-900 px-5 py-3 rounded-xl shadow-sm dark:shadow-none border border-slate-50 dark:border-slate-800 flex items-center justify-center gap-3 h-11">
+          <div className="bg-white dark:bg-slate-900 px-5 py-3 rounded-2xl shadow-sm dark:shadow-none border border-slate-50 dark:border-slate-800 flex items-center justify-center gap-3 h-12">
             <Users className="w-4 h-4 text-indigo-600 dark:text-indigo-400" />
             <span className="text-xs sm:text-sm font-black text-slate-900 dark:text-white whitespace-nowrap">{filteredPatients.length} Total</span>
           </div>
