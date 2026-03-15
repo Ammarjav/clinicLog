@@ -8,6 +8,8 @@ import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 import Login from "./pages/admin/Login";
 import Signup from "./pages/admin/Signup";
+import Contact from "./pages/Contact";
+import Terms from "./pages/Terms";
 import ClinicGuard from "./components/auth/ClinicGuard";
 import ClinicLayout from "./components/layout/ClinicLayout";
 import ClinicDashboard from "./pages/clinic/ClinicDashboard";
@@ -33,6 +35,8 @@ const App = () => {
               <Route path="/" element={<Index />} />
               <Route path="/admin/login" element={<Login />} />
               <Route path="/admin/signup" element={<Signup />} />
+              <Route path="/contact" element={<Contact />} />
+              <Route path="/terms" element={<Terms />} />
               
               {/* Internal Admin Payment Tool */}
               <Route path="/admin/payments-management" element={<AdminPayments />} />

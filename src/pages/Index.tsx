@@ -4,46 +4,33 @@ import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import Logo from '@/components/Logo';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
 import { ModeToggle } from '@/components/ModeToggle';
 import { 
   Zap, 
   ShieldCheck, 
   BarChart4, 
-  Users, 
   Sparkles,
   Activity,
   ChevronRight,
   Target,
   Heart,
   Globe,
-  MessageCircle,
   FileText,
   MousePointer2,
-  Database
+  Menu,
+  X
 } from 'lucide-react';
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
+import { motion, AnimatePresence } from 'framer-motion';
 
 const Index = () => {
-  const [contactForm, setContactForm] = useState({ name: '', info: '', message: '' });
-  const [isContactOpen, setIsContactOpen] = useState(false);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
-  const handleWhatsAppRedirect = (e: React.FormEvent) => {
-    e.preventDefault();
-    const phone = "923106960468"; 
-    const text = `Hello ClinicLog! %0A%0AMy Name: ${contactForm.name}%0AContact Info: ${contactForm.info}%0A%0AMessage: ${contactForm.message}`;
-    window.open(`https://wa.me/${phone}?text=${text}`, '_blank');
-    setIsContactOpen(false);
-    setContactForm({ name: '', info: '', message: '' });
-  };
+  const navLinks = [
+    { name: 'Vision', href: '#vision' },
+    { name: 'Features', href: '#features' },
+    { name: 'Contact', href: '/contact' },
+    { name: 'Terms', href: '/terms' },
+  ];
 
   return (
     <div className="min-h-screen bg-[#FDFDFF] dark:bg-slate-950 selection:bg-indigo-100 dark:selection:bg-indigo-900/50 overflow-x-hidden scroll-smooth">
@@ -55,79 +42,105 @@ const Index = () => {
 
       {/* Modern Navigation */}
       <nav className="fixed top-4 md:top-6 left-1/2 -translate-x-1/2 w-[94%] max-w-6xl z-50">
-        <div className="bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border border-white/40 dark:border-slate-800 shadow-2xl shadow-indigo-100/20 dark:shadow-none rounded-2xl md:rounded-[2rem] px-2.5 md:px-6 h-14 md:h-16 flex items-center justify-between">
-          <div className="flex items-center gap-1.5 md:gap-3">
+        <div className="bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border border-white/40 dark:border-slate-800 shadow-2xl shadow-indigo-100/20 dark:shadow-none rounded-2xl md:rounded-[2rem] px-4 md:px-6 h-14 md:h-16 flex items-center justify-between">
+          <Link to="/" className="flex items-center gap-1.5 md:gap-3">
             <Logo className="w-6 h-6 md:w-8 md:h-8 rounded-lg md:rounded-xl" />
             <span className="text-base md:text-xl font-black text-slate-900 dark:text-white tracking-tighter">Clinic<span className="text-indigo-600">Log</span></span>
-          </div>
+          </Link>
           
+          {/* Desktop Nav */}
           <div className="hidden lg:flex items-center gap-8 font-semibold text-slate-500 dark:text-slate-400 text-sm">
-            <a href="#vision" className="hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">Vision</a>
-            <a href="#features" className="hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">Features</a>
-            <Dialog open={isContactOpen} onOpenChange={setIsContactOpen}>
-              <DialogTrigger asChild>
-                <button className="hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-indigo-50/50 dark:hover:bg-indigo-900/20 px-4 py-2 rounded-xl transition-all focus:outline-none">Contact</button>
-              </DialogTrigger>
-              <DialogContent className="sm:max-w-md rounded-[2.5rem] border-none shadow-2xl p-0 overflow-hidden animate-in fade-in zoom-in-95 slide-in-from-bottom-8 duration-1000 ease-in-out">
-                <div className="bg-indigo-600 p-8 text-white relative">
-                  <DialogHeader className="text-left">
-                    <DialogTitle className="text-2xl font-black tracking-tight">Direct Access</DialogTitle>
-                    <DialogDescription className="text-indigo-100 font-medium">
-                      Fill this out and we'll jump straight to WhatsApp.
-                    </DialogDescription>
-                  </DialogHeader>
-                  <MessageCircle className="absolute right-6 top-6 w-12 h-12 text-white/10" />
-                </div>
-                <form onSubmit={handleWhatsAppRedirect} className="p-8 space-y-4 bg-white dark:bg-slate-900">
-                  <div className="space-y-1.5">
-                    <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Your Name</label>
-                    <Input 
-                      required
-                      placeholder="Dr. Jordan Smith" 
-                      className="rounded-xl h-12 bg-slate-50 dark:bg-slate-800 border-none focus-visible:ring-indigo-500/20 dark:text-white"
-                      value={contactForm.name}
-                      onChange={(e) => setContactForm({...contactForm, name: e.target.value})}
-                    />
-                  </div>
-                  <div className="space-y-1.5">
-                    <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Email or Phone</label>
-                    <Input 
-                      required
-                      placeholder="dr.smith@example.com" 
-                      className="rounded-xl h-12 bg-slate-50 dark:bg-slate-800 border-none focus-visible:ring-indigo-500/20 dark:text-white"
-                      value={contactForm.info}
-                      onChange={(e) => setContactForm({...contactForm, info: e.target.value})}
-                    />
-                  </div>
-                  <div className="space-y-1.5">
-                    <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Your Message</label>
-                    <Textarea 
-                      required
-                      placeholder="Tell us about your clinic's needs..." 
-                      className="rounded-xl min-h-[100px] bg-slate-50 dark:bg-slate-800 border-none focus-visible:ring-indigo-500/20 resize-none dark:text-white"
-                      value={contactForm.message}
-                      onChange={(e) => setContactForm({...contactForm, message: e.target.value})}
-                    />
-                  </div>
-                  <Button type="submit" className="w-full h-14 rounded-2xl bg-indigo-600 hover:bg-indigo-700 font-bold text-lg shadow-xl shadow-indigo-100 mt-2">
-                    Send to WhatsApp
-                  </Button>
-                </form>
-              </DialogContent>
-            </Dialog>
+            {navLinks.map((link) => (
+              link.href.startsWith('#') ? (
+                <a key={link.name} href={link.href} className="hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">{link.name}</a>
+              ) : (
+                <Link key={link.name} to={link.href} className="hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">{link.name}</Link>
+              )
+            ))}
           </div>
 
-          <div className="flex items-center gap-1 md:gap-3">
-            <ModeToggle />
-            <Button variant="ghost" asChild className="rounded-xl font-bold text-slate-600 dark:text-slate-400 hover:bg-indigo-50 dark:hover:bg-indigo-900/20 hover:text-indigo-600 dark:hover:text-indigo-400 text-[10px] md:text-sm px-2 md:px-3 h-8 md:h-10">
-              <Link to="/admin/login">Sign In</Link>
-            </Button>
-            <Button asChild className="rounded-xl bg-slate-900 dark:bg-white dark:text-slate-900 hover:bg-indigo-600 dark:hover:bg-indigo-400 text-white shadow-lg dark:shadow-none transition-all px-3 md:px-6 text-[10px] md:text-sm h-8 md:h-10">
+          <div className="flex items-center gap-2">
+            <div className="hidden sm:flex items-center gap-2">
+              <ModeToggle />
+              <Button variant="ghost" asChild className="rounded-xl font-bold text-slate-600 dark:text-slate-400 hover:bg-indigo-50 dark:hover:bg-indigo-900/20 hover:text-indigo-600 dark:hover:text-indigo-400 text-sm h-10">
+                <Link to="/admin/login">Sign In</Link>
+              </Button>
+            </div>
+            
+            <Button asChild className="hidden sm:flex rounded-xl bg-slate-900 dark:bg-white dark:text-slate-900 hover:bg-indigo-600 dark:hover:bg-indigo-400 text-white shadow-lg dark:shadow-none transition-all px-6 text-sm h-10">
               <Link to="/admin/signup">Join Now</Link>
+            </Button>
+
+            {/* Hamburger Toggle */}
+            <Button 
+              variant="ghost" 
+              size="icon" 
+              className="lg:hidden rounded-xl h-10 w-10 text-slate-600 dark:text-slate-400"
+              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+            >
+              {isMobileMenuOpen ? <X /> : <Menu />}
             </Button>
           </div>
         </div>
       </nav>
+
+      {/* Mobile Menu Overlay */}
+      <AnimatePresence>
+        {isMobileMenuOpen && (
+          <motion.div 
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -20 }}
+            className="fixed inset-0 z-40 lg:hidden"
+          >
+            <div className="absolute inset-0 bg-white/95 dark:bg-slate-950/95 backdrop-blur-2xl flex flex-col p-8 pt-24">
+              <div className="space-y-4">
+                {navLinks.map((link) => (
+                  <motion.div
+                    key={link.name}
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: 0.1 }}
+                  >
+                    {link.href.startsWith('#') ? (
+                      <a 
+                        href={link.href} 
+                        onClick={() => setIsMobileMenuOpen(false)}
+                        className="text-3xl font-black text-slate-900 dark:text-white block hover:text-indigo-600 transition-colors"
+                      >
+                        {link.name}
+                      </a>
+                    ) : (
+                      <Link 
+                        to={link.href}
+                        onClick={() => setIsMobileMenuOpen(false)}
+                        className="text-3xl font-black text-slate-900 dark:text-white block hover:text-indigo-600 transition-colors"
+                      >
+                        {link.name}
+                      </Link>
+                    )}
+                  </motion.div>
+                ))}
+              </div>
+
+              <div className="mt-auto space-y-4 pb-12">
+                <div className="flex items-center justify-between p-4 bg-slate-50 dark:bg-slate-900 rounded-2xl">
+                  <span className="font-bold text-slate-500">Appearance</span>
+                  <ModeToggle />
+                </div>
+                <div className="grid grid-cols-2 gap-4">
+                  <Button variant="outline" asChild className="rounded-2xl h-14 font-bold border-slate-200" onClick={() => setIsMobileMenuOpen(false)}>
+                    <Link to="/admin/login">Login</Link>
+                  </Button>
+                  <Button asChild className="rounded-2xl h-14 font-bold bg-indigo-600 text-white" onClick={() => setIsMobileMenuOpen(false)}>
+                    <Link to="/admin/signup">Get Started</Link>
+                  </Button>
+                </div>
+              </div>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* Hero Section */}
       <section className="pt-24 md:pt-36 pb-12 md:pb-20 px-4 md:px-6">
@@ -333,12 +346,8 @@ const Index = () => {
             <Button asChild size="lg" className="rounded-2xl bg-slate-900 dark:bg-white dark:text-slate-900 hover:bg-black dark:hover:bg-indigo-100 h-14 md:h-16 px-10 md:px-12 text-base md:text-lg font-bold shadow-xl shadow-slate-200 dark:shadow-none transition-all active:scale-[0.98]">
               <Link to="/admin/signup">Create Your Portal</Link>
             </Button>
-            <Button 
-              variant="ghost" 
-              onClick={() => setIsContactOpen(true)} 
-              className="h-14 md:h-16 px-8 text-base md:text-lg font-bold text-slate-500 dark:text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-900/20 hover:rounded-2xl transition-all duration-300"
-            >
-              Get in Touch
+            <Button asChild variant="ghost" size="lg" className="h-14 md:h-16 px-8 text-base md:text-lg font-bold text-slate-500 dark:text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-900/20 transition-all duration-300">
+              <Link to="/contact">Get in Touch</Link>
             </Button>
           </div>
         </div>
@@ -358,7 +367,8 @@ const Index = () => {
           <div className="flex flex-wrap justify-center gap-6 md:gap-12 text-xs md:text-sm font-bold text-slate-400 dark:text-slate-500">
             <a href="#vision" className="hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors uppercase tracking-widest">Protocol</a>
             <a href="#features" className="hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors uppercase tracking-widest">Features</a>
-            <a href="#" className="hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors uppercase tracking-widest">Status</a>
+            <Link to="/contact" className="hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors uppercase tracking-widest">Contact</Link>
+            <Link to="/terms" className="hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors uppercase tracking-widest">Terms</Link>
           </div>
 
           <div className="text-slate-300 dark:text-slate-700 text-[10px] md:text-xs font-bold uppercase tracking-widest text-center">
