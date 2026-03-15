@@ -33,7 +33,7 @@ const formSchema = z.object({
   gender: z.enum(['Male', 'Female', 'Other']),
   visit_type: z.enum(['New', 'Follow-up']),
   visit_date: z.string().min(1),
-  // Clinical Fields
+  // Clinical Fields (Synchronized across entries)
   chief_complaint: z.string().optional(),
   past_history: z.string().optional(),
   physical_exam: z.string().optional(),
@@ -92,7 +92,19 @@ const EditPatientForm = ({ patient, onSuccess, onCancel }: EditPatientFormProps)
 
     try {
       const { countryCode, ...dbValues } = values;
-      const { error } = await supabase
+      
+      // Separate demographics (isolated) and clinical notes (synchronized)
+      const clinicalNotes = {
+        chief_complaint: dbValues.chief_complaint,
+        past_history: dbValues.past_history,
+        physical_exam: dbValues.physical_exam,
+        diagnosis: dbValues.diagnosis,
+        treatment_plan: dbValues.treatment_plan,
+        home_plan: dbValues.home_plan
+      };
+
+      // 1. Update the current record specifically (includes isolated demographics)
+      const { error: singleError } = await supabase
         .from('patients')
         .update({
           ...dbValues,
@@ -100,9 +112,27 @@ const EditPatientForm = ({ patient, onSuccess, onCancel }: EditPatientFormProps)
         })
         .eq('id', patient.id);
         
-      if (error) throw error;
+      if (singleError) throw singleError;
+
+      // 2. Synchronize clinical notes for ALL records belonging to this patient
+      // A patient is identified by (clinic_id + phone) or (clinic_id + name if no phone)
+      let syncQuery = supabase
+        .from('patients')
+        .update(clinicalNotes)
+        .eq('clinic_id', patient.clinic_id);
+
+      if (formattedPhone) {
+        syncQuery = syncQuery.eq('phone', formattedPhone);
+      } else {
+        syncQuery = syncQuery.eq('name', values.name);
+      }
+
+      const { error: syncError } = await syncQuery;
+      if (syncError) console.error("Note sync error:", syncError);
       
-      toast.success("Clinical record saved successfully");
+      toast.success("Clinical record saved", {
+        description: "Doctor notes synchronized across all visit logs for this patient."
+      });
       onSuccess();
     } catch (error: any) {
       toast.error("Save failed: " + error.message);

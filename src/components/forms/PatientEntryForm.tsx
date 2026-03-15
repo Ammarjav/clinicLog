@@ -43,6 +43,7 @@ const PatientEntryForm = () => {
   const [clinicData, setClinicData] = useState<any>(null);
   const [currentPatients, setCurrentPatients] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
+  const [selectedPatientNotes, setSelectedPatientNotes] = useState<any>(null);
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -91,21 +92,33 @@ const PatientEntryForm = () => {
   const isLimitReached = clinicData && currentPatients >= clinicData.patient_limit;
 
   const handleRecordSelect = (record: any) => {
-    if (record && record.phone) {
-      const fullPhone = record.phone;
-      const matchedCountry = COUNTRIES.find(c => fullPhone.startsWith(c.code));
-      if (matchedCountry) {
-        form.setValue('countryCode', matchedCountry.code);
-        form.setValue('phone', fullPhone.replace(matchedCountry.code, ''));
-      } else {
-        form.setValue('phone', fullPhone);
+    if (record) {
+      if (record.phone) {
+        const fullPhone = record.phone;
+        const matchedCountry = COUNTRIES.find(c => fullPhone.startsWith(c.code));
+        if (matchedCountry) {
+          form.setValue('countryCode', matchedCountry.code);
+          form.setValue('phone', fullPhone.replace(matchedCountry.code, ''));
+        } else {
+          form.setValue('phone', fullPhone);
+        }
       }
       
       form.setValue('age', record.age);
       form.setValue('gender', record.gender);
       form.setValue('visit_type', 'Follow-up');
       
-      toast.success(`Imported demographics for returning patient: ${record.name}`);
+      // Store clinical notes to be copied to the new record
+      setSelectedPatientNotes({
+        diagnosis: record.diagnosis,
+        chief_complaint: record.chief_complaint,
+        past_history: record.past_history,
+        physical_exam: record.physical_exam,
+        treatment_plan: record.treatment_plan,
+        home_plan: record.home_plan
+      });
+      
+      toast.success(`Patient selected. Clinical notes will be synced.`);
     }
   };
 
@@ -129,16 +142,25 @@ const PatientEntryForm = () => {
 
     try {
       const { countryCode, ...dbValues } = values;
-      const { error } = await supabase.from('patients').insert([{
+      
+      // If it's a returning patient, we use the stored notes. Otherwise, it's pending.
+      const entryData = {
         ...dbValues,
         phone: formattedPhone,
-        diagnosis: 'Pending Documentation'
-      }]);
+        diagnosis: selectedPatientNotes?.diagnosis || 'Pending Documentation',
+        chief_complaint: selectedPatientNotes?.chief_complaint || '',
+        past_history: selectedPatientNotes?.past_history || '',
+        physical_exam: selectedPatientNotes?.physical_exam || '',
+        treatment_plan: selectedPatientNotes?.treatment_plan || '',
+        home_plan: selectedPatientNotes?.home_plan || ''
+      };
+
+      const { error } = await supabase.from('patients').insert([entryData]);
       
       if (error) throw error;
       
-      toast.success("Patient data saved successfully", {
-        description: "You can now record another entry or check the console."
+      toast.success("Patient entry saved", {
+        description: selectedPatientNotes ? "Follow-up notes inherited from previous visit." : "New patient log created."
       });
 
       // Reset form but keep clinic_id and date
@@ -153,8 +175,7 @@ const PatientEntryForm = () => {
         visit_date: values.visit_date,
         clinic_id: values.clinic_id,
       });
-      
-      // Update local count
+      setSelectedPatientNotes(null);
       setCurrentPatients(prev => prev + 1);
       
     } catch (error: any) {
