@@ -11,11 +11,12 @@ import { Activity, Users, UserCheck } from 'lucide-react';
 
 interface ChartsProps {
   data: any[];
+  showCorrelation?: boolean;
 }
 
 const COLORS = ['#6366f1', '#10b981', '#f59e0b', '#ec4899', '#8b5cf6', '#3b82f6'];
 
-const Charts = ({ data }: ChartsProps) => {
+const Charts = ({ data, showCorrelation = true }: ChartsProps) => {
   // 1. Visit Type (New vs Follow-up)
   const visitData = useMemo(() => {
     const visitCounts: Record<string, number> = {};
@@ -79,6 +80,7 @@ const Charts = ({ data }: ChartsProps) => {
 
   // 6. Age vs Condition Correlation
   const correlationData = useMemo(() => {
+    if (!showCorrelation) return [];
     const ageRanges = [
       { label: '0-18', min: 0, max: 18 },
       { label: '19-30', min: 19, max: 30 },
@@ -97,7 +99,7 @@ const Charts = ({ data }: ChartsProps) => {
       row.Others = patientsInRange.length - accounted;
       return row;
     });
-  }, [data, diagData]);
+  }, [data, diagData, showCorrelation]);
 
   const CustomTooltip = ({ active, payload, label }: any) => {
     if (active && payload && payload.length) {
@@ -227,30 +229,32 @@ const Charts = ({ data }: ChartsProps) => {
         </Card>
       </div>
 
-      {/* Correlation Chart */}
-      <Card className="p-8 border-none shadow-sm dark:shadow-none rounded-[2.5rem] bg-white dark:bg-slate-900">
-        <div className="flex items-center gap-3 mb-8">
-          <div className="p-2 bg-indigo-50 dark:bg-indigo-900/30 rounded-xl">
-            <Activity className="w-5 h-5 text-indigo-600" />
+      {/* Correlation Chart - Only visible if prop is true */}
+      {showCorrelation && (
+        <Card className="p-8 border-none shadow-sm dark:shadow-none rounded-[2.5rem] bg-white dark:bg-slate-900">
+          <div className="flex items-center gap-3 mb-8">
+            <div className="p-2 bg-indigo-50 dark:bg-indigo-900/30 rounded-xl">
+              <Activity className="w-5 h-5 text-indigo-600" />
+            </div>
+            <h3 className="text-xl font-black text-slate-900 dark:text-white tracking-tight">Age vs Condition Correlation</h3>
           </div>
-          <h3 className="text-xl font-black text-slate-900 dark:text-white tracking-tight">Age vs Condition Correlation</h3>
-        </div>
-        <div className="h-[400px]">
-          <ResponsiveContainer width="100%" height="100%">
-            <BarChart data={correlationData}>
-              <CartesianGrid strokeDasharray="3 3" vertical={false} strokeOpacity={0.05} />
-              <XAxis dataKey="range" tick={{ fontSize: 12, fontWeight: 'bold', fill: '#94a3b8' }} axisLine={false} tickLine={false} />
-              <YAxis tick={{ fontSize: 12, fontWeight: 'bold', fill: '#94a3b8' }} axisLine={false} tickLine={false} />
-              <Tooltip content={<CustomTooltip />} />
-              <Legend verticalAlign="top" align="right" iconType="circle" wrapperStyle={{ paddingBottom: '20px', fontSize: '11px', fontWeight: 'bold' }} />
-              {topConditions.map((cond, i) => (
-                <Bar key={cond} dataKey={cond} stackId="a" fill={COLORS[i % COLORS.length]} />
-              ))}
-              <Bar dataKey="Others" stackId="a" fill="#e2e8f0" radius={[4, 4, 0, 0]} />
-            </BarChart>
-          </ResponsiveContainer>
-        </div>
-      </Card>
+          <div className="h-[400px]">
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart data={correlationData}>
+                <CartesianGrid strokeDasharray="3 3" vertical={false} strokeOpacity={0.05} />
+                <XAxis dataKey="range" tick={{ fontSize: 12, fontWeight: 'bold', fill: '#94a3b8' }} axisLine={false} tickLine={false} />
+                <YAxis tick={{ fontSize: 12, fontWeight: 'bold', fill: '#94a3b8' }} axisLine={false} tickLine={false} />
+                <Tooltip content={<CustomTooltip />} />
+                <Legend verticalAlign="top" align="right" iconType="circle" wrapperStyle={{ paddingBottom: '20px', fontSize: '11px', fontWeight: 'bold' }} />
+                {topConditions.map((cond, i) => (
+                  <Bar key={cond} dataKey={cond} stackId="a" fill={COLORS[i % COLORS.length]} />
+                ))}
+                <Bar dataKey="Others" stackId="a" fill="#e2e8f0" radius={[4, 4, 0, 0]} />
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
+        </Card>
+      )}
     </div>
   );
 };

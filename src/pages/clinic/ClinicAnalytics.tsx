@@ -7,9 +7,10 @@ import RevenueCharts from '@/components/dashboard/RevenueCharts';
 import ReportFilters from '@/components/reports/ReportFilters';
 import AdvancedClinicalCards from '@/components/dashboard/AdvancedClinicalCards';
 import { toast } from 'sonner';
-import { BarChart3, Activity, Banknote, Sparkles, Loader2 } from 'lucide-react';
-import { useParams } from 'react-router-dom';
+import { BarChart3, Activity, Banknote, Sparkles, Loader2, Lock, Star } from 'lucide-react';
+import { useParams, Link } from 'react-router-dom';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Button } from '@/components/ui/button';
 
 const ClinicAnalytics = () => {
   const { slug } = useParams();
@@ -28,14 +29,12 @@ const ClinicAnalytics = () => {
   const fetchData = async () => {
     setLoading(true);
     try {
-      if (!clinic) {
-        const { data: clinicData } = await supabase
-          .from('clinics')
-          .select('*')
-          .eq('slug', slug)
-          .single();
-        if (clinicData) setClinic(clinicData);
-      }
+      const { data: clinicData } = await supabase
+        .from('clinics')
+        .select('*')
+        .eq('slug', slug)
+        .single();
+      if (clinicData) setClinic(clinicData);
 
       let query = supabase.from('patients').select('*');
 
@@ -69,6 +68,42 @@ const ClinicAnalytics = () => {
   useEffect(() => {
     fetchData();
   }, [slug, filterType, filters]);
+
+  // Analytics are restricted for the Free plan
+  const isLocked = clinic?.plan === 'Free';
+
+  if (isLocked) {
+    return (
+      <div className="max-w-4xl mx-auto py-20 px-6 text-center animate-in fade-in duration-700">
+        <div className="bg-white dark:bg-slate-900 p-12 md:p-20 rounded-[3rem] border border-slate-100 dark:border-slate-800 shadow-2xl shadow-indigo-100/20 dark:shadow-none flex flex-col items-center">
+          <div className="w-24 h-24 bg-indigo-50 dark:bg-indigo-900/30 rounded-[2rem] flex items-center justify-center mb-10 group">
+            <Lock className="w-10 h-10 text-indigo-600 dark:text-indigo-400 group-hover:scale-110 transition-transform" />
+          </div>
+          <h1 className="text-4xl md:text-5xl font-black text-slate-900 dark:text-white tracking-tighter mb-4">Analytics Protocol Locked</h1>
+          <p className="text-lg text-slate-500 dark:text-slate-400 font-medium max-w-md mx-auto mb-12">
+            Advanced clinical insights, behavior patterns, and deep financial tracking require a <strong>Basic</strong> or <strong>Pro</strong> plan.
+          </p>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 w-full max-w-xl mb-12">
+            <div className="p-6 bg-slate-50 dark:bg-slate-800 rounded-3xl text-left border border-slate-100 dark:border-slate-700">
+              <Star className="w-5 h-5 text-indigo-600 mb-3" />
+              <h4 className="font-bold text-slate-900 dark:text-white mb-1">Retention Tracking</h4>
+              <p className="text-xs text-slate-500">Monitor exactly how many patients return for care.</p>
+            </div>
+            <div className="p-6 bg-slate-50 dark:bg-slate-800 rounded-3xl text-left border border-slate-100 dark:border-slate-700">
+              <Activity className="w-5 h-5 text-emerald-600 mb-3" />
+              <h4 className="font-bold text-slate-900 dark:text-white mb-1">Demographic Analysis</h4>
+              <p className="text-xs text-slate-500">Deep correlations between age groups and conditions.</p>
+            </div>
+          </div>
+
+          <Button asChild className="h-16 px-12 rounded-2xl bg-indigo-600 hover:bg-indigo-700 text-white font-black text-lg shadow-xl shadow-indigo-100 dark:shadow-none">
+            <Link to={`/clinic/${slug}/billing`}>Upgrade Clinic Now</Link>
+          </Button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="max-w-6xl mx-auto space-y-10 animate-in fade-in slide-in-from-bottom-4 duration-700 pb-20">
