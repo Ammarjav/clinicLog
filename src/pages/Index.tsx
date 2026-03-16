@@ -5,6 +5,7 @@ import { Link } from 'react-router-dom';
 import Logo from '@/components/Logo';
 import { Button } from '@/components/ui/button';
 import { ModeToggle } from '@/components/ModeToggle';
+import PricingSection from '@/components/landing/PricingSection';
 import { 
   ShieldCheck, 
   BarChart4, 
@@ -27,6 +28,7 @@ const Index = () => {
   const navLinks = [
     { name: 'Vision', href: '#vision' },
     { name: 'Features', href: '#features' },
+    { name: 'Pricing', href: '#pricing' },
     { name: 'Contact', href: '/contact' },
     { name: 'Terms', href: '/terms' },
   ];
@@ -331,6 +333,9 @@ const Index = () => {
         </div>
       </section>
 
+      {/* Integrated Pricing Section */}
+      <PricingSection />
+
       {/* Dynamic CTA */}
       <section className="py-16 md:py-28 px-4 md:px-6 relative overflow-hidden">
         <div className="max-w-4xl mx-auto text-center px-4">
@@ -366,6 +371,7 @@ const Index = () => {
           <div className="flex flex-wrap justify-center gap-6 md:gap-12 text-xs md:text-sm font-bold text-slate-400 dark:text-slate-500">
             <a href="#vision" className="hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors uppercase tracking-widest">Protocol</a>
             <a href="#features" className="hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors uppercase tracking-widest">Features</a>
+            <a href="#pricing" className="hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors uppercase tracking-widest">Pricing</a>
             <Link to="/contact" className="hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors uppercase tracking-widest">Contact</Link>
             <Link to="/terms" className="hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors uppercase tracking-widest">Terms</Link>
           </div>

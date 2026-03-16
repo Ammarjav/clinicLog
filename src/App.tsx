@@ -28,7 +28,7 @@ const queryClient = new QueryClient();
 const App = () => {
   return (
     <QueryClientProvider client={queryClient}>
-      <ThemeProvider defaultTheme="light" storageKey="clinic-log-theme" attribute="class">
+      <ThemeProvider defaultTheme="light" enableSystem={false} storageKey="clinic-log-theme" attribute="class">
         <TooltipProvider>
           <Toaster position="top-center" richColors />
           <BrowserRouter>
