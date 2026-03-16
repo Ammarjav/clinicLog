@@ -8,13 +8,8 @@ export type Clinic = {
   slug: string;
   owner_id: string;
   created_at: string;
-};
-
-export type AppUser = {
-  id: string;
-  clinic_id: string;
-  role: string;
-  created_at: string;
+  new_visit_fee: number;
+  followup_visit_fee: number;
 };
 
 export type Patient = {
@@ -28,8 +23,8 @@ export type Patient = {
   category?: string;
   visit_type: 'New' | 'Follow-up';
   visit_date: string;
+  fee_paid: number;
   created_at: string;
-  // Clinical Fields
   chief_complaint?: string;
   past_history?: string;
   physical_exam?: string;

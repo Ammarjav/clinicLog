@@ -10,7 +10,7 @@ import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { toast } from 'sonner';
-import { Loader2, UserPlus, Save, Lock, Tags } from 'lucide-react';
+import { Loader2, UserPlus, Save, Lock, Tags, Banknote } from 'lucide-react';
 import AutocompleteInput from './AutocompleteInput';
 import { Link, useParams } from 'react-router-dom';
 
@@ -28,23 +28,19 @@ const formSchema = z.object({
   name: z.string().min(1, "Patient name is required"),
   countryCode: z.string().default('+92'),
   phone: z.string().optional(),
-  age: z.coerce.number({ 
-    required_error: "Age is required",
-    invalid_type_error: "Age must be a number" 
-  }).min(0, "Age cannot be negative").max(120, "Age cannot exceed 120"),
+  age: z.coerce.number().min(0).max(120),
   gender: z.enum(['Male', 'Female', 'Other']),
   visit_type: z.enum(['New', 'Follow-up']),
   visit_date: z.string(),
   clinic_id: z.string().uuid(),
   category: z.string().optional(),
+  fee_paid: z.coerce.number().min(0),
 });
 
 const PatientEntryForm = () => {
   const { slug } = useParams();
   const [clinicData, setClinicData] = useState<any>(null);
   const [currentPatients, setCurrentPatients] = useState(0);
-  const [isLoading, setIsLoading] = useState(true);
-  
   const [existingIdentities, setExistingIdentities] = useState<Set<string>>(new Set());
 
   const form = useForm<z.infer<typeof formSchema>>({
@@ -60,13 +56,17 @@ const PatientEntryForm = () => {
       visit_date: new Date().toISOString().split('T')[0],
       clinic_id: '',
       category: '',
+      fee_paid: 0,
     },
   });
 
   const watchName = form.watch('name');
   const watchPhone = form.watch('phone');
   const watchCountryCode = form.watch('countryCode');
+  const watchCategory = form.watch('category');
+  const watchVisitType = form.watch('visit_type');
 
+  // Multi-factor recognition: Name + Phone + Category
   const isExistingPatient = useMemo(() => {
     const nameKey = watchName.toLowerCase().trim();
     if (!nameKey) return false;
@@ -82,14 +82,25 @@ const PatientEntryForm = () => {
       currentFormattedPhone = watchCountryCode + cleaned;
     }
 
-    return existingIdentities.has(`${nameKey}|${currentFormattedPhone}`);
-  }, [watchName, watchPhone, watchCountryCode, existingIdentities]);
+    const catKey = watchCategory?.toLowerCase().trim() || 'general';
+    return existingIdentities.has(`${nameKey}|${currentFormattedPhone}|${catKey}`);
+  }, [watchName, watchPhone, watchCountryCode, watchCategory, existingIdentities]);
 
+  // Sync visit type and default fee
   useEffect(() => {
     if (isExistingPatient) {
       form.setValue('visit_type', 'Follow-up');
     }
-  }, [isExistingPatient, form]);
+  }, [isExistingPatient]);
+
+  useEffect(() => {
+    if (clinicData) {
+      const standardFee = watchVisitType === 'New' 
+        ? (clinicData.new_visit_fee || 0) 
+        : (clinicData.followup_visit_fee || 0);
+      form.setValue('fee_paid', standardFee);
+    }
+  }, [watchVisitType, clinicData]);
 
   const fetchData = async () => {
     try {
@@ -107,12 +118,12 @@ const PatientEntryForm = () => {
           
           const { data: identities, count } = await supabase
             .from('patients')
-            .select('name, phone')
+            .select('name, phone, category')
             .eq('clinic_id', data.clinic_id);
             
           if (identities) {
             const set = new Set(identities.map(i => 
-              `${i.name.toLowerCase().trim()}|${i.phone || ''}`
+              `${i.name.toLowerCase().trim()}|${i.phone || ''}|${i.category?.toLowerCase().trim() || 'general'}`
             ));
             setExistingIdentities(set);
           }
@@ -121,8 +132,6 @@ const PatientEntryForm = () => {
       }
     } catch (err) {
       console.error(err);
-    } finally {
-      setIsLoading(false);
     }
   };
 
@@ -131,20 +140,19 @@ const PatientEntryForm = () => {
   const handleRecordSelect = (record: any) => {
     if (record) {
       if (record.phone) {
-        const fullPhone = record.phone;
-        const matchedCountry = COUNTRIES.find(c => fullPhone.startsWith(c.code));
+        const matchedCountry = COUNTRIES.find(c => record.phone.startsWith(c.code));
         if (matchedCountry) {
           form.setValue('countryCode', matchedCountry.code);
-          form.setValue('phone', fullPhone.replace(matchedCountry.code, ''));
+          form.setValue('phone', record.phone.replace(matchedCountry.code, ''));
         } else {
-          form.setValue('phone', fullPhone);
+          form.setValue('phone', record.phone);
         }
       }
       form.setValue('name', record.name);
       form.setValue('age', record.age);
       form.setValue('gender', record.gender);
+      form.setValue('category', record.category || '');
       form.setValue('visit_type', 'Follow-up');
-      if (record.category) form.setValue('category', record.category);
     }
   };
 
@@ -168,7 +176,7 @@ const PatientEntryForm = () => {
     try {
       const { countryCode, ...baseValues } = values;
 
-      let clinicalData = {
+      let clinicalData: any = {
         diagnosis: 'Pending Documentation',
         chief_complaint: '',
         past_history: '',
@@ -183,6 +191,7 @@ const PatientEntryForm = () => {
           .select('*')
           .eq('name', values.name)
           .eq('phone', formattedPhone || '')
+          .eq('category', values.category || null)
           .order('created_at', { ascending: false })
           .limit(1)
           .maybeSingle();
@@ -196,8 +205,6 @@ const PatientEntryForm = () => {
             treatment_plan: history.treatment_plan,
             home_plan: history.home_plan
           };
-          // Carry over category if not provided
-          if (!values.category) baseValues.category = history.category;
         }
       }
 
@@ -211,8 +218,8 @@ const PatientEntryForm = () => {
       
       toast.success(values.visit_type === 'Follow-up' ? "Follow-up record synced" : "New patient saved");
 
-      if (!isExistingPatient) {
-        const newKey = `${values.name.toLowerCase().trim()}|${formattedPhone || ''}`;
+      const newKey = `${values.name.toLowerCase().trim()}|${formattedPhone || ''}|${values.category?.toLowerCase().trim() || 'general'}`;
+      if (!existingIdentities.has(newKey)) {
         setExistingIdentities(prev => new Set(prev).add(newKey));
         setCurrentPatients(prev => prev + 1);
       }
@@ -228,6 +235,7 @@ const PatientEntryForm = () => {
         visit_date: values.visit_date,
         clinic_id: values.clinic_id,
         category: '',
+        fee_paid: values.visit_type === 'New' ? (clinicData?.new_visit_fee || 0) : (clinicData?.followup_visit_fee || 0)
       });
       
     } catch (error: any) {
@@ -243,7 +251,7 @@ const PatientEntryForm = () => {
         </div>
         <div>
           <h1 className="text-2xl font-bold text-gray-900 dark:text-white tracking-tight">Record Entry</h1>
-          <p className="text-gray-500 text-sm">Capture basic patient information</p>
+          <p className="text-gray-500 text-sm">Capture session and revenue data</p>
         </div>
       </div>
 
@@ -299,42 +307,12 @@ const PatientEntryForm = () => {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <FormField
               control={form.control}
-              name="age"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel className="text-sm font-bold">Age</FormLabel>
-                  <FormControl><Input type="number" className="rounded-xl h-12" {...field} /></FormControl>
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="gender"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel className="text-sm font-bold">Gender</FormLabel>
-                  <Select onValueChange={field.onChange} value={field.value}>
-                    <FormControl><SelectTrigger className="rounded-xl h-12"><SelectValue /></SelectTrigger></FormControl>
-                    <SelectContent>
-                      <SelectItem value="Male">Male</SelectItem>
-                      <SelectItem value="Female">Female</SelectItem>
-                      <SelectItem value="Other">Other</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </FormItem>
-              )}
-            />
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <FormField
-              control={form.control}
               name="category"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel className="text-sm font-bold flex items-center gap-2">
                     <Tags className="w-3.5 h-3.5 text-slate-400" />
-                    Category (Optional)
+                    Category
                   </FormLabel>
                   <FormControl>
                     <AutocompleteInput 
@@ -342,7 +320,7 @@ const PatientEntryForm = () => {
                       onChange={field.onChange} 
                       fieldName="category"
                       clinicId={clinicData?.id}
-                      placeholder="e.g. VIP, Staff, Corporate"
+                      placeholder="e.g. VIP, Staff"
                     />
                   </FormControl>
                 </FormItem>
@@ -377,8 +355,56 @@ const PatientEntryForm = () => {
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      {!isExistingPatient && <SelectItem value="New">New Patient</SelectItem>}
+                      <SelectItem value="New">New Patient</SelectItem>
                       <SelectItem value="Follow-up">Follow-up Visit</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="fee_paid"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel className="text-sm font-bold flex items-center gap-2">
+                    <Banknote className="w-3.5 h-3.5 text-emerald-500" />
+                    Fee Charged (Rs.)
+                  </FormLabel>
+                  <FormControl>
+                    <div className="relative">
+                      <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 font-bold text-xs">Rs.</span>
+                      <Input type="number" className="rounded-xl h-12 pl-12 font-bold text-emerald-600 bg-emerald-50/30 border-emerald-100" {...field} />
+                    </div>
+                  </FormControl>
+                </FormItem>
+              )}
+            />
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <FormField
+              control={form.control}
+              name="age"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel className="text-sm font-bold">Age</FormLabel>
+                  <FormControl><Input type="number" className="rounded-xl h-12" {...field} /></FormControl>
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="gender"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel className="text-sm font-bold">Gender</FormLabel>
+                  <Select onValueChange={field.onChange} value={field.value}>
+                    <FormControl><SelectTrigger className="rounded-xl h-12"><SelectValue /></SelectTrigger></FormControl>
+                    <SelectContent>
+                      <SelectItem value="Male">Male</SelectItem>
+                      <SelectItem value="Female">Female</SelectItem>
+                      <SelectItem value="Other">Other</SelectItem>
                     </SelectContent>
                   </Select>
                 </FormItem>
@@ -387,7 +413,7 @@ const PatientEntryForm = () => {
           </div>
 
           <Button type="submit" className="w-full h-14 rounded-2xl bg-blue-600 hover:bg-blue-700 font-bold shadow-xl" disabled={form.formState.isSubmitting}>
-            {form.formState.isSubmitting ? <Loader2 className="animate-spin h-6 w-6" /> : "Save Patient Data"}
+            {form.formState.isSubmitting ? <Loader2 className="animate-spin h-6 w-6" /> : "Complete Session Log"}
           </Button>
         </form>
       </Form>
