@@ -3,7 +3,7 @@
 import React from 'react';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
-import { Edit, Trash2, Phone, FileText, AlertCircle } from "lucide-react";
+import { Edit, Trash2, Phone, FileText, AlertCircle, Tags } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { cn } from '@/lib/utils';
 
@@ -16,13 +16,12 @@ interface PatientTableProps {
 const PatientTable = ({ patients, onEdit, onDelete }: PatientTableProps) => {
   return (
     <div className="bg-white dark:bg-slate-900 rounded-3xl shadow-2xl shadow-indigo-100/20 dark:shadow-none border border-slate-50 dark:border-slate-800 animate-in fade-in duration-700 overflow-hidden">
-      {/* Scrollable Container with Fixed Max Height */}
       <div className="max-h-[650px] overflow-y-auto overflow-x-auto custom-scrollbar">
         <Table>
           <TableHeader className="sticky top-0 z-10 bg-slate-50/95 dark:bg-slate-800/95 backdrop-blur-md">
             <TableRow className="border-none">
               <TableHead className="py-6 px-8 font-black text-[10px] uppercase tracking-widest text-slate-400 dark:text-slate-500">Patient Name</TableHead>
-              <TableHead className="py-6 px-4 font-black text-[10px] uppercase tracking-widest text-slate-400 dark:text-slate-500">Contact</TableHead>
+              <TableHead className="py-6 px-4 font-black text-[10px] uppercase tracking-widest text-slate-400 dark:text-slate-500">Category</TableHead>
               <TableHead className="py-6 px-4 font-black text-[10px] uppercase tracking-widest text-slate-400 dark:text-slate-500">Age / Gender</TableHead>
               <TableHead className="py-6 px-4 font-black text-[10px] uppercase tracking-widest text-slate-400 dark:text-slate-500">Visit Status</TableHead>
               <TableHead className="py-6 px-4 font-black text-[10px] uppercase tracking-widest text-slate-400 dark:text-slate-500">Primary Diagnosis</TableHead>
@@ -41,10 +40,14 @@ const PatientTable = ({ patients, onEdit, onDelete }: PatientTableProps) => {
                       <span className="font-bold text-slate-900 dark:text-white text-base">{patient.name || 'Anonymous'}</span>
                     </TableCell>
                     <TableCell className="px-4 py-5">
-                      <div className="flex items-center gap-2 text-slate-500 dark:text-slate-400">
-                        <Phone className="w-3.5 h-3.5 text-indigo-400" />
-                        <span className="text-sm font-medium">{patient.phone || 'N/A'}</span>
-                      </div>
+                      {patient.category ? (
+                        <div className="flex items-center gap-2 px-3 py-1 bg-slate-50 dark:bg-slate-800 rounded-lg w-fit">
+                          <Tags className="w-3 h-3 text-slate-400" />
+                          <span className="text-[10px] font-black uppercase text-slate-600 dark:text-slate-400 tracking-wider">{patient.category}</span>
+                        </div>
+                      ) : (
+                        <span className="text-[10px] font-medium text-slate-300 dark:text-slate-600 uppercase tracking-widest">General</span>
+                      )}
                     </TableCell>
                     <TableCell className="px-4 py-5">
                       <div className="flex flex-col gap-1">

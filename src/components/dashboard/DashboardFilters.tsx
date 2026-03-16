@@ -1,7 +1,7 @@
 "use client";
 
 import React from 'react';
-import { Search, Calendar as CalendarIcon, FilterX } from 'lucide-react';
+import { Search, Calendar as CalendarIcon, FilterX, Tags } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
@@ -14,15 +14,17 @@ interface FilterState {
   minAge: string;
   maxAge: string;
   date: string;
+  category: string;
 }
 
 interface DashboardFiltersProps {
   filters: FilterState;
   onFilterChange: (key: keyof FilterState, value: string) => void;
   onReset: () => void;
+  availableCategories?: string[];
 }
 
-const DashboardFilters = ({ filters, onFilterChange, onReset }: DashboardFiltersProps) => {
+const DashboardFilters = ({ filters, onFilterChange, onReset, availableCategories = [] }: DashboardFiltersProps) => {
   return (
     <Card className="bg-white dark:bg-slate-900 p-5 md:p-8 rounded-3xl shadow-sm dark:shadow-none border-none mb-8 animate-in fade-in slide-in-from-top-4 duration-500">
       <div className="space-y-6">
@@ -39,7 +41,6 @@ const DashboardFilters = ({ filters, onFilterChange, onReset }: DashboardFilters
         </div>
 
         <div className="flex flex-col gap-4">
-          {/* Search */}
           <div className="relative w-full">
             <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 dark:text-slate-500" />
             <Input 
@@ -51,7 +52,6 @@ const DashboardFilters = ({ filters, onFilterChange, onReset }: DashboardFilters
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:flex lg:flex-row items-center gap-3">
-            {/* Date Filter */}
             <div className="relative w-full lg:w-[180px]">
               <CalendarIcon className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 dark:text-slate-500 pointer-events-none" />
               <Input 
@@ -62,7 +62,21 @@ const DashboardFilters = ({ filters, onFilterChange, onReset }: DashboardFilters
               />
             </div>
 
-            {/* Gender Filter */}
+            <Select value={filters.category} onValueChange={(v) => onFilterChange('category', v)}>
+              <SelectTrigger className="w-full lg:w-[160px] h-14 rounded-2xl bg-slate-50 dark:bg-slate-800 border-none text-slate-600 dark:text-slate-300 font-medium">
+                <div className="flex items-center gap-2">
+                  <Tags className="w-4 h-4 text-slate-400" />
+                  <SelectValue placeholder="Category" />
+                </div>
+              </SelectTrigger>
+              <SelectContent className="rounded-2xl border-none shadow-2xl dark:bg-slate-900">
+                <SelectItem value="all">All Categories</SelectItem>
+                {availableCategories.map(cat => (
+                  <SelectItem key={cat} value={cat}>{cat}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+
             <Select value={filters.gender} onValueChange={(v) => onFilterChange('gender', v)}>
               <SelectTrigger className="w-full lg:w-[150px] h-14 rounded-2xl bg-slate-50 dark:bg-slate-800 border-none text-slate-600 dark:text-slate-300 font-medium">
                 <SelectValue placeholder="Gender" />
@@ -75,7 +89,6 @@ const DashboardFilters = ({ filters, onFilterChange, onReset }: DashboardFilters
               </SelectContent>
             </Select>
 
-            {/* Visit Type Filter */}
             <Select value={filters.visitType} onValueChange={(v) => onFilterChange('visitType', v)}>
               <SelectTrigger className="w-full lg:w-[160px] h-14 rounded-2xl bg-slate-50 dark:bg-slate-800 border-none text-slate-600 dark:text-slate-300 font-medium">
                 <SelectValue placeholder="Visit Status" />
@@ -87,7 +100,6 @@ const DashboardFilters = ({ filters, onFilterChange, onReset }: DashboardFilters
               </SelectContent>
             </Select>
 
-            {/* Age Range */}
             <div className="flex items-center gap-2 bg-slate-50 dark:bg-slate-800 p-2 rounded-2xl w-full lg:w-auto">
               <Input 
                 type="number" 

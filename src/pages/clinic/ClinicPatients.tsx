@@ -31,6 +31,7 @@ const ClinicPatients = () => {
     minAge: '',
     maxAge: '',
     date: '',
+    category: 'all',
   });
 
   const fetchPatients = async () => {
@@ -46,6 +47,14 @@ const ClinicPatients = () => {
     fetchPatients(); 
   }, [slug]);
 
+  const availableCategories = useMemo(() => {
+    const cats = new Set<string>();
+    patients.forEach(p => {
+      if (p.category) cats.add(p.category);
+    });
+    return Array.from(cats).sort();
+  }, [patients]);
+
   const handleFilterChange = (key: string, value: string) => {
     setFilters(prev => ({ ...prev, [key]: value }));
   };
@@ -59,13 +68,14 @@ const ClinicPatients = () => {
       const matchesGender = filters.gender === 'all' || p.gender === filters.gender;
       const matchesVisit = filters.visitType === 'all' || p.visit_type === filters.visitType;
       const matchesDate = !filters.date || p.visit_date === filters.date;
+      const matchesCategory = filters.category === 'all' || p.category === filters.category;
       
       const age = parseInt(p.age);
       const minAge = filters.minAge === '' ? 0 : parseInt(filters.minAge);
       const maxAge = filters.maxAge === '' ? Infinity : parseInt(filters.maxAge);
       const matchesAge = age >= minAge && age <= maxAge;
 
-      return matchesSearch && matchesGender && matchesVisit && matchesAge && matchesDate;
+      return matchesSearch && matchesGender && matchesVisit && matchesAge && matchesDate && matchesCategory;
     });
   }, [patients, filters]);
 
@@ -92,7 +102,7 @@ const ClinicPatients = () => {
           <Button 
             variant="outline" 
             asChild
-            className="rounded-2xl border-indigo-100 dark:border-indigo-900/30 bg-indigo-50/30 dark:bg-indigo-900/10 text-indigo-700 dark:text-indigo-400 h-12 px-6 font-bold shadow-sm hover:bg-indigo-600 hover:text-white dark:hover:bg-indigo-500 dark:hover:text-white transition-all duration-300 group"
+            className="rounded-2xl border-indigo-100 dark:border-indigo-900/30 bg-indigo-50/30 dark:bg-indigo-900/10 text-indigo-700 dark:indigo-400 h-12 px-6 font-bold shadow-sm hover:bg-indigo-600 hover:text-white dark:hover:bg-indigo-500 dark:hover:text-white transition-all duration-300 group"
           >
             <Link to={`/clinic/${slug}/patients/followups`}>
               <CalendarClock className="w-4 h-4 mr-2 group-hover:scale-110 transition-transform" />
@@ -109,7 +119,8 @@ const ClinicPatients = () => {
       <DashboardFilters 
         filters={filters} 
         onFilterChange={handleFilterChange} 
-        onReset={() => setFilters({ search: '', gender: 'all', visitType: 'all', minAge: '', maxAge: '', date: '' })} 
+        onReset={() => setFilters({ search: '', gender: 'all', visitType: 'all', minAge: '', maxAge: '', date: '', category: 'all' })} 
+        availableCategories={availableCategories}
       />
 
       <div className="space-y-6">

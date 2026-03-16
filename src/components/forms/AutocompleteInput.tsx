@@ -11,7 +11,7 @@ interface AutocompleteInputProps {
   onChange: (value: string) => void;
   onSelectRecord?: (record: any) => void;
   placeholder?: string;
-  fieldName: 'name' | 'diagnosis';
+  fieldName: 'name' | 'diagnosis' | 'category';
   clinicId?: string;
 }
 

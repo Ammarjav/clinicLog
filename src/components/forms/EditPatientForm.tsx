@@ -11,7 +11,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Textarea } from '@/components/ui/textarea';
 import { toast } from 'sonner';
-import { Loader2, Save, FileText, Activity, Stethoscope } from 'lucide-react';
+import { Loader2, Save, FileText, Activity, Stethoscope, Tags } from 'lucide-react';
 import AutocompleteInput from './AutocompleteInput';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
@@ -33,7 +33,7 @@ const formSchema = z.object({
   gender: z.enum(['Male', 'Female', 'Other']),
   visit_type: z.enum(['New', 'Follow-up']),
   visit_date: z.string().min(1),
-  // Clinical Fields (Synchronized across entries)
+  category: z.string().optional(),
   chief_complaint: z.string().optional(),
   past_history: z.string().optional(),
   physical_exam: z.string().optional(),
@@ -68,6 +68,7 @@ const EditPatientForm = ({ patient, onSuccess, onCancel }: EditPatientFormProps)
       gender: patient.gender,
       visit_type: patient.visit_type,
       visit_date: patient.visit_date,
+      category: patient.category || '',
       chief_complaint: patient.chief_complaint || '',
       past_history: patient.past_history || '',
       physical_exam: patient.physical_exam || '',
@@ -93,17 +94,16 @@ const EditPatientForm = ({ patient, onSuccess, onCancel }: EditPatientFormProps)
     try {
       const { countryCode, ...dbValues } = values;
       
-      // Separate demographics (isolated) and clinical notes (synchronized)
       const clinicalNotes = {
         chief_complaint: dbValues.chief_complaint,
         past_history: dbValues.past_history,
         physical_exam: dbValues.physical_exam,
         diagnosis: dbValues.diagnosis,
         treatment_plan: dbValues.treatment_plan,
-        home_plan: dbValues.home_plan
+        home_plan: dbValues.home_plan,
+        category: dbValues.category // Category also syncs across identity
       };
 
-      // 1. Update the current record specifically (includes demographics)
       const { error: singleError } = await supabase
         .from('patients')
         .update({
@@ -114,26 +114,22 @@ const EditPatientForm = ({ patient, onSuccess, onCancel }: EditPatientFormProps)
         
       if (singleError) throw singleError;
 
-      // 2. Synchronize clinical notes for ALL records belonging to this specific identity
-      // Identity = Clinic ID + Exact Name + Exact Phone
       let syncQuery = supabase
         .from('patients')
         .update(clinicalNotes)
         .eq('clinic_id', patient.clinic_id)
-        .eq('name', values.name); // Stricter matching: Name must match exactly
+        .eq('name', values.name);
 
       if (formattedPhone) {
-        syncQuery = syncQuery.eq('phone', formattedPhone); // Must also match phone if provided
+        syncQuery = syncQuery.eq('phone', formattedPhone);
       } else {
-        syncQuery = syncQuery.is('phone', null); // Or both must have no phone number
+        syncQuery = syncQuery.is('phone', null);
       }
 
       const { error: syncError } = await syncQuery;
       if (syncError) console.error("Note sync error:", syncError);
       
-      toast.success("Clinical record saved", {
-        description: "Doctor notes synchronized for this specific patient profile."
-      });
+      toast.success("Clinical record saved");
       onSuccess();
     } catch (error: any) {
       toast.error("Save failed: " + error.message);
@@ -150,24 +146,47 @@ const EditPatientForm = ({ patient, onSuccess, onCancel }: EditPatientFormProps)
           </TabsList>
 
           <TabsContent value="demographics" className="space-y-5 animate-in fade-in duration-300">
-            <FormField
-              control={form.control}
-              name="name"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel className="text-xs font-black uppercase tracking-widest text-slate-400">Patient Name</FormLabel>
-                  <FormControl>
-                    <AutocompleteInput 
-                      value={field.value} 
-                      onChange={field.onChange} 
-                      fieldName="name" 
-                      clinicId={patient.clinic_id} 
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+              <FormField
+                control={form.control}
+                name="name"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="text-xs font-black uppercase tracking-widest text-slate-400">Patient Name</FormLabel>
+                    <FormControl>
+                      <AutocompleteInput 
+                        value={field.value} 
+                        onChange={field.onChange} 
+                        fieldName="name" 
+                        clinicId={patient.clinic_id} 
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="category"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="text-xs font-black uppercase tracking-widest text-slate-400 flex items-center gap-2">
+                      <Tags className="w-3 h-3" /> Category
+                    </FormLabel>
+                    <FormControl>
+                      <AutocompleteInput 
+                        value={field.value || ''} 
+                        onChange={field.onChange} 
+                        fieldName="category" 
+                        clinicId={patient.clinic_id} 
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
 
             <div className="flex flex-col gap-2">
               <FormLabel className="text-xs font-black uppercase tracking-widest text-slate-400">Contact Number</FormLabel>

@@ -10,7 +10,7 @@ import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { toast } from 'sonner';
-import { Loader2, UserPlus, Save, Lock } from 'lucide-react';
+import { Loader2, UserPlus, Save, Lock, Tags } from 'lucide-react';
 import AutocompleteInput from './AutocompleteInput';
 import { Link, useParams } from 'react-router-dom';
 
@@ -36,6 +36,7 @@ const formSchema = z.object({
   visit_type: z.enum(['New', 'Follow-up']),
   visit_date: z.string(),
   clinic_id: z.string().uuid(),
+  category: z.string().optional(),
 });
 
 const PatientEntryForm = () => {
@@ -44,7 +45,6 @@ const PatientEntryForm = () => {
   const [currentPatients, setCurrentPatients] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
   
-  // Cache of existing identities to trigger Follow-up mode
   const [existingIdentities, setExistingIdentities] = useState<Set<string>>(new Set());
 
   const form = useForm<z.infer<typeof formSchema>>({
@@ -59,6 +59,7 @@ const PatientEntryForm = () => {
       visit_type: 'New',
       visit_date: new Date().toISOString().split('T')[0],
       clinic_id: '',
+      category: '',
     },
   });
 
@@ -66,7 +67,6 @@ const PatientEntryForm = () => {
   const watchPhone = form.watch('phone');
   const watchCountryCode = form.watch('countryCode');
 
-  // Check if current Name + Phone exists in our database
   const isExistingPatient = useMemo(() => {
     const nameKey = watchName.toLowerCase().trim();
     if (!nameKey) return false;
@@ -85,7 +85,6 @@ const PatientEntryForm = () => {
     return existingIdentities.has(`${nameKey}|${currentFormattedPhone}`);
   }, [watchName, watchPhone, watchCountryCode, existingIdentities]);
 
-  // Lock status to Follow-up if patient is recognized
   useEffect(() => {
     if (isExistingPatient) {
       form.setValue('visit_type', 'Follow-up');
@@ -145,6 +144,7 @@ const PatientEntryForm = () => {
       form.setValue('age', record.age);
       form.setValue('gender', record.gender);
       form.setValue('visit_type', 'Follow-up');
+      if (record.category) form.setValue('category', record.category);
     }
   };
 
@@ -166,7 +166,6 @@ const PatientEntryForm = () => {
     }
 
     try {
-      // Destructure countryCode out so we don't send it to the database
       const { countryCode, ...baseValues } = values;
 
       let clinicalData = {
@@ -178,7 +177,6 @@ const PatientEntryForm = () => {
         home_plan: ''
       };
 
-      // If it's a Follow-up, fetch the most recent data for this patient to clone it
       if (values.visit_type === 'Follow-up') {
         const { data: history } = await supabase
           .from('patients')
@@ -198,6 +196,8 @@ const PatientEntryForm = () => {
             treatment_plan: history.treatment_plan,
             home_plan: history.home_plan
           };
+          // Carry over category if not provided
+          if (!values.category) baseValues.category = history.category;
         }
       }
 
@@ -227,6 +227,7 @@ const PatientEntryForm = () => {
         visit_type: 'New',
         visit_date: values.visit_date,
         clinic_id: values.clinic_id,
+        category: '',
       });
       
     } catch (error: any) {
@@ -328,6 +329,40 @@ const PatientEntryForm = () => {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <FormField
               control={form.control}
+              name="category"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel className="text-sm font-bold flex items-center gap-2">
+                    <Tags className="w-3.5 h-3.5 text-slate-400" />
+                    Category (Optional)
+                  </FormLabel>
+                  <FormControl>
+                    <AutocompleteInput 
+                      value={field.value || ''} 
+                      onChange={field.onChange} 
+                      fieldName="category"
+                      clinicId={clinicData?.id}
+                      placeholder="e.g. VIP, Staff, Corporate"
+                    />
+                  </FormControl>
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="visit_date"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel className="text-sm font-bold">Visit Date</FormLabel>
+                  <FormControl><Input type="date" className="rounded-xl h-12" {...field} /></FormControl>
+                </FormItem>
+              )}
+            />
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <FormField
+              control={form.control}
               name="visit_type"
               render={({ field }) => (
                 <FormItem>
@@ -346,16 +381,6 @@ const PatientEntryForm = () => {
                       <SelectItem value="Follow-up">Follow-up Visit</SelectItem>
                     </SelectContent>
                   </Select>
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="visit_date"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel className="text-sm font-bold">Visit Date</FormLabel>
-                  <FormControl><Input type="date" className="rounded-xl h-12" {...field} /></FormControl>
                 </FormItem>
               )}
             />

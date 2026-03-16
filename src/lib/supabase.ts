@@ -25,6 +25,7 @@ export type Patient = {
   age: number;
   gender: 'Male' | 'Female' | 'Other';
   diagnosis: string;
+  category?: string;
   visit_type: 'New' | 'Follow-up';
   visit_date: string;
   created_at: string;
