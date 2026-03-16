@@ -7,7 +7,7 @@ import {
   CartesianGrid, LineChart, Line, Legend 
 } from 'recharts';
 import { Card } from '@/components/ui/card';
-import { Activity } from 'lucide-react';
+import { Activity, Users, UserCheck } from 'lucide-react';
 
 interface ChartsProps {
   data: any[];
@@ -25,7 +25,30 @@ const Charts = ({ data }: ChartsProps) => {
     return Object.entries(visitCounts).map(([name, value]) => ({ name, value }));
   }, [data]);
 
-  // 2. Daily Trend
+  // 2. Gender Distribution
+  const genderData = useMemo(() => {
+    const genderCounts: Record<string, number> = {};
+    data.forEach(p => {
+      genderCounts[p.gender] = (genderCounts[p.gender] || 0) + 1;
+    });
+    return Object.entries(genderCounts).map(([name, value]) => ({ name, value }));
+  }, [data]);
+
+  // 3. Age Group Distribution
+  const ageGroupData = useMemo(() => {
+    const groups = [
+      { name: '0-18', min: 0, max: 18 },
+      { name: '19-35', min: 19, max: 35 },
+      { name: '36-60', min: 36, max: 60 },
+      { name: '60+', min: 61, max: 200 },
+    ];
+    return groups.map(g => ({
+      name: g.name,
+      value: data.filter(p => p.age >= g.min && p.age <= g.max).length
+    }));
+  }, [data]);
+
+  // 4. Daily Trend
   const trendData = useMemo(() => {
     const trendGroups: Record<string, number> = {};
     data.forEach(p => {
@@ -37,7 +60,7 @@ const Charts = ({ data }: ChartsProps) => {
       .slice(-14);
   }, [data]);
 
-  // 3. Diagnosis Distribution (Top 8)
+  // 5. Diagnosis Distribution (Top 8)
   const diagData = useMemo(() => {
     const diagGroups: Record<string, number> = {};
     const diagCasing: Record<string, string> = {};
@@ -54,7 +77,7 @@ const Charts = ({ data }: ChartsProps) => {
       .slice(0, 8);
   }, [data]);
 
-  // 4. Age vs Condition Correlation (Advanced)
+  // 6. Age vs Condition Correlation
   const correlationData = useMemo(() => {
     const ageRanges = [
       { label: '0-18', min: 0, max: 18 },
@@ -63,22 +86,15 @@ const Charts = ({ data }: ChartsProps) => {
       { label: '46-60', min: 46, max: 60 },
       { label: '60+', min: 61, max: 200 },
     ];
-
-    // Find top 5 conditions overall to use as stacks
     const topConditions = diagData.slice(0, 5).map(d => d.name);
-
     return ageRanges.map(range => {
       const patientsInRange = data.filter(p => p.age >= range.min && p.age <= range.max);
       const row: any = { range: range.label };
-      
       topConditions.forEach(cond => {
         row[cond] = patientsInRange.filter(p => p.diagnosis?.toLowerCase() === cond.toLowerCase()).length;
       });
-      
-      // Calculate "Others"
       const accounted = topConditions.reduce((acc, cond) => acc + row[cond], 0);
       row.Others = patientsInRange.length - accounted;
-
       return row;
     });
   }, [data, diagData]);
@@ -109,8 +125,8 @@ const Charts = ({ data }: ChartsProps) => {
 
   return (
     <div className="space-y-8">
+      {/* Top Row: Main Trends */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        {/* Patient Volume Trend */}
         <Card className="p-8 border-none shadow-sm dark:shadow-none rounded-[2.5rem] bg-white dark:bg-slate-900">
           <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-6">Patient Volume Trend</h3>
           <div className="h-[300px]">
@@ -126,20 +142,12 @@ const Charts = ({ data }: ChartsProps) => {
                 />
                 <YAxis tick={{ fontSize: 11, fill: '#94a3b8' }} axisLine={false} tickLine={false} />
                 <Tooltip content={<CustomTooltip />} />
-                <Line 
-                  type="monotone" 
-                  dataKey="count" 
-                  stroke="#6366f1" 
-                  strokeWidth={4} 
-                  dot={{ r: 4, fill: '#6366f1', strokeWidth: 2, stroke: '#fff' }} 
-                  activeDot={{ r: 6, strokeWidth: 0 }}
-                />
+                <Line type="monotone" dataKey="count" stroke="#6366f1" strokeWidth={4} dot={{ r: 4, fill: '#6366f1', stroke: '#fff' }} />
               </LineChart>
             </ResponsiveContainer>
           </div>
         </Card>
 
-        {/* Common Conditions Bar */}
         <Card className="p-8 border-none shadow-sm dark:shadow-none rounded-[2.5rem] bg-white dark:bg-slate-900">
           <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-6">Common Conditions</h3>
           <div className="h-[300px]">
@@ -163,7 +171,63 @@ const Charts = ({ data }: ChartsProps) => {
         </Card>
       </div>
 
-      {/* Advanced Feature 3: Age vs Condition Correlation */}
+      {/* Advanced Demographics Row */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+        {/* Gender Distribution */}
+        <Card className="p-8 border-none shadow-sm dark:shadow-none rounded-[2.5rem] bg-white dark:bg-slate-900">
+          <div className="flex items-center gap-2 mb-6">
+            <UserCheck className="w-4 h-4 text-indigo-600" />
+            <h3 className="text-sm font-bold text-gray-400 dark:text-slate-500 uppercase tracking-widest">Gender Split</h3>
+          </div>
+          <div className="h-[200px]">
+            <ResponsiveContainer width="100%" height="100%">
+              <PieChart>
+                <Pie data={genderData} innerRadius={50} outerRadius={70} paddingAngle={10} dataKey="value">
+                  {genderData.map((_, index) => <Cell key={index} fill={index === 0 ? '#6366f1' : '#ec4899'} />)}
+                </Pie>
+                <Tooltip content={<CustomTooltip />} />
+              </PieChart>
+            </ResponsiveContainer>
+          </div>
+        </Card>
+
+        {/* Age Group Distribution */}
+        <Card className="p-8 border-none shadow-sm dark:shadow-none rounded-[2.5rem] bg-white dark:bg-slate-900">
+          <div className="flex items-center gap-2 mb-6">
+            <Users className="w-4 h-4 text-indigo-600" />
+            <h3 className="text-sm font-bold text-gray-400 dark:text-slate-500 uppercase tracking-widest">Age Range</h3>
+          </div>
+          <div className="h-[200px]">
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart data={ageGroupData}>
+                <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 10, fontWeight: 'bold' }} />
+                <Tooltip content={<CustomTooltip />} />
+                <Bar dataKey="value" fill="#10b981" radius={[6, 6, 0, 0]} />
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
+        </Card>
+
+        {/* Visit Composition */}
+        <Card className="p-8 border-none shadow-sm dark:shadow-none rounded-[2.5rem] bg-white dark:bg-slate-900">
+          <div className="flex items-center gap-2 mb-6">
+            <Activity className="w-4 h-4 text-indigo-600" />
+            <h3 className="text-sm font-bold text-gray-400 dark:text-slate-500 uppercase tracking-widest">Visit Status</h3>
+          </div>
+          <div className="h-[200px]">
+            <ResponsiveContainer width="100%" height="100%">
+              <PieChart>
+                <Pie data={visitData} innerRadius={50} outerRadius={70} paddingAngle={10} dataKey="value">
+                  {visitData.map((_, index) => <Cell key={index} fill={COLORS[index % COLORS.length]} />)}
+                </Pie>
+                <Tooltip content={<CustomTooltip />} />
+              </PieChart>
+            </ResponsiveContainer>
+          </div>
+        </Card>
+      </div>
+
+      {/* Correlation Chart */}
       <Card className="p-8 border-none shadow-sm dark:shadow-none rounded-[2.5rem] bg-white dark:bg-slate-900">
         <div className="flex items-center gap-3 mb-8">
           <div className="p-2 bg-indigo-50 dark:bg-indigo-900/30 rounded-xl">
@@ -178,48 +242,15 @@ const Charts = ({ data }: ChartsProps) => {
               <XAxis dataKey="range" tick={{ fontSize: 12, fontWeight: 'bold', fill: '#94a3b8' }} axisLine={false} tickLine={false} />
               <YAxis tick={{ fontSize: 12, fontWeight: 'bold', fill: '#94a3b8' }} axisLine={false} tickLine={false} />
               <Tooltip content={<CustomTooltip />} />
-              <Legend verticalAlign="top" align="right" iconType="circle" wrapperStyle={{ paddingBottom: '20px', fontSize: '12px', fontWeight: 'bold' }} />
+              <Legend verticalAlign="top" align="right" iconType="circle" wrapperStyle={{ paddingBottom: '20px', fontSize: '11px', fontWeight: 'bold' }} />
               {topConditions.map((cond, i) => (
-                <Bar key={cond} dataKey={cond} stackId="a" fill={COLORS[i % COLORS.length]} radius={[0, 0, 0, 0]} />
+                <Bar key={cond} dataKey={cond} stackId="a" fill={COLORS[i % COLORS.length]} />
               ))}
               <Bar dataKey="Others" stackId="a" fill="#e2e8f0" radius={[4, 4, 0, 0]} />
             </BarChart>
           </ResponsiveContainer>
         </div>
       </Card>
-
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-        {/* Visit Composition Donut */}
-        <Card className="p-8 border-none shadow-sm dark:shadow-none rounded-[2.5rem] bg-white dark:bg-slate-900">
-          <h3 className="text-sm font-bold text-gray-400 dark:text-slate-500 uppercase tracking-widest mb-6 text-center">Visit Composition</h3>
-          <div className="h-[240px]">
-            <ResponsiveContainer width="100%" height="100%">
-              <PieChart>
-                <Pie 
-                  data={visitData} 
-                  innerRadius={60} 
-                  outerRadius={90} 
-                  paddingAngle={8} 
-                  dataKey="value"
-                  stroke="none"
-                >
-                  {visitData.map((_, index) => <Cell key={index} fill={COLORS[index % COLORS.length]} />)}
-                </Pie>
-                <Tooltip content={<CustomTooltip />} />
-                <Legend verticalAlign="bottom" height={36} iconType="circle" wrapperStyle={{ fontSize: '12px', fontWeight: 'bold' }} />
-              </PieChart>
-            </ResponsiveContainer>
-          </div>
-        </Card>
-
-        {/* Simplified Stat Overview */}
-        <Card className="p-8 border-none shadow-sm dark:shadow-none rounded-[2.5rem] bg-indigo-600 text-white flex flex-col justify-center items-center text-center overflow-hidden relative">
-          <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full translate-x-1/2 -translate-y-1/2 blur-2xl" />
-          <h4 className="text-indigo-100 text-sm font-bold uppercase tracking-widest mb-4">Total Patient Logs</h4>
-          <span className="text-7xl font-black tracking-tighter mb-4">{data.length}</span>
-          <p className="text-indigo-200 text-sm max-w-[200px] font-medium">Synchronized with clinic database.</p>
-        </Card>
-      </div>
     </div>
   );
 };
