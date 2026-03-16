@@ -4,6 +4,7 @@ import React, { useEffect, useState, useCallback } from 'react';
 import { supabase } from '@/lib/supabase';
 import { useParams, Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { 
   MessageCircle, 
   UserRoundCheck,
@@ -13,7 +14,9 @@ import {
   AlertCircle,
   History,
   Info,
-  ArrowLeft
+  ArrowLeft,
+  CalendarClock,
+  ExternalLink
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
@@ -106,65 +109,142 @@ const ClinicFollowups = () => {
   };
 
   return (
-    <div className="max-w-4xl mx-auto space-y-6 md:space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700 pb-20">
-      <div className="flex items-center gap-3 sm:gap-4">
-        <Button variant="ghost" size="icon" asChild className="rounded-xl shrink-0">
-          <Link to={`/clinic/${slug}/patients`}><ArrowLeft className="w-5 h-5" /></Link>
-        </Button>
-        <div className="overflow-hidden">
-          <h1 className="text-2xl sm:text-3xl font-black text-slate-900 dark:text-white tracking-tighter truncate">Follow-up Protocol</h1>
-          <p className="text-slate-500 dark:text-slate-400 font-medium text-xs sm:text-sm mt-0.5">Automated screening for returning patients</p>
+    <div className="max-w-7xl mx-auto space-y-8 md:space-y-10 animate-in fade-in slide-in-from-bottom-4 duration-700 pb-20">
+      <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6">
+        <div className="flex items-center gap-4">
+          <Button variant="ghost" size="icon" asChild className="rounded-xl shrink-0 h-12 w-12 bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 shadow-sm">
+            <Link to={`/clinic/${slug}/patients`}><ArrowLeft className="w-5 h-5 text-slate-400" /></Link>
+          </Button>
+          <div className="overflow-hidden">
+            <h1 className="text-3xl sm:text-4xl font-black text-slate-900 dark:text-white tracking-tighter truncate">Follow-up Protocol</h1>
+            <p className="text-slate-500 dark:text-slate-400 font-medium text-sm mt-0.5">Identifying and reminding patients pending recovery monitoring</p>
+          </div>
+        </div>
+
+        <div className="flex items-center gap-3 w-full lg:w-auto">
+          <div className="bg-indigo-50 dark:bg-indigo-900/20 px-5 py-3 rounded-2xl border border-indigo-100 dark:border-indigo-900/30 flex items-center gap-3 h-14 flex-1 lg:flex-none">
+            <CalendarClock className="w-5 h-5 text-indigo-600 dark:text-indigo-400" />
+            <div className="text-left">
+              <p className="text-[10px] font-black text-indigo-900 dark:text-indigo-400 uppercase tracking-widest leading-none">Pending Actions</p>
+              <p className="text-lg font-black text-indigo-900 dark:text-indigo-200">{reminders.length}</p>
+            </div>
+          </div>
         </div>
       </div>
 
-      <div className="p-4 sm:p-6 bg-blue-50 dark:bg-blue-900/20 rounded-2xl sm:rounded-[2rem] border border-blue-100 dark:border-blue-900/30 flex gap-4">
-        <Info className="w-5 h-5 sm:w-6 sm:h-6 text-blue-600 shrink-0 mt-0.5" />
-        <p className="text-xs sm:text-sm font-medium text-blue-700 dark:text-blue-300 leading-relaxed">
-          The protocol identifies patients with an initial visit who haven't returned. Mark Sent hides them for 48 hours.
+      <div className="p-6 bg-blue-50/50 dark:bg-blue-900/10 rounded-[2.5rem] border border-blue-100 dark:border-blue-900/20 flex gap-4 shadow-sm">
+        <div className="bg-white dark:bg-slate-900 p-2.5 rounded-xl shadow-sm h-fit">
+          <Info className="w-5 h-5 text-blue-600" />
+        </div>
+        <p className="text-sm font-medium text-blue-700 dark:text-blue-300 leading-relaxed py-1">
+          This terminal identifies patients who had an initial consultation but haven't recorded a follow-up. 
+          Use <span className="font-black text-blue-900 dark:text-white">WhatsApp</span> to send recovery check-ins or <span className="font-black text-blue-900 dark:text-white">Mark Sent</span> to snooze them for 48 hours.
         </p>
       </div>
 
       {loading ? (
-        <div className="flex flex-col items-center justify-center p-12 sm:p-20 gap-4 text-center">
-          <Loader2 className="w-10 h-10 animate-spin text-indigo-600" />
-          <p className="text-[10px] font-black uppercase tracking-widest text-slate-400">Analyzing Database...</p>
+        <div className="bg-white dark:bg-slate-900 rounded-[2.5rem] shadow-2xl shadow-indigo-100/20 dark:shadow-none border border-slate-50 dark:border-slate-800 p-20 flex flex-col items-center justify-center gap-4 text-center">
+          <Loader2 className="w-12 h-12 animate-spin text-indigo-600" />
+          <p className="text-[10px] font-black uppercase tracking-widest text-slate-400">Performing Database Scan...</p>
         </div>
       ) : reminders.length > 0 ? (
-        <div className="grid grid-cols-1 gap-4">
-          {reminders.map((patient) => (
-            <div key={patient.id} className="p-5 sm:p-6 bg-white dark:bg-slate-900 rounded-2xl sm:rounded-[2rem] border border-slate-100 dark:border-slate-800 shadow-sm flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-6 hover:shadow-xl transition-all group">
-              <div className="flex items-start sm:items-center gap-4 w-full">
-                <div className="bg-slate-50 dark:bg-slate-800 p-3.5 sm:p-4 rounded-xl sm:rounded-2xl group-hover:scale-105 transition-transform shrink-0">
-                  <UserRoundCheck className="w-5 h-5 sm:w-6 sm:h-6 text-slate-400" />
-                </div>
-                <div className="overflow-hidden">
-                  <h4 className="font-black text-slate-900 dark:text-white text-base sm:text-lg truncate">{patient.name}</h4>
-                  <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 text-slate-400 text-[10px] sm:text-xs font-bold mt-1">
-                    <div className="flex items-center gap-1.5 shrink-0"><Stethoscope className="w-3.5 h-3.5" /> {patient.diagnosis}</div>
-                    <div className="hidden sm:block text-slate-200 dark:text-slate-800">•</div>
-                    <div className="flex items-center gap-1.5 shrink-0"><History className="w-3.5 h-3.5" /> First: {new Date(patient.visit_date).toLocaleDateString()}</div>
-                  </div>
-                </div>
-              </div>
-              
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:flex lg:items-center gap-3 w-full lg:w-auto pt-2 lg:pt-0">
-                <Button onClick={() => handleWhatsApp(patient)} className="rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold h-11 sm:h-12 px-6 sm:px-8 shadow-lg shadow-emerald-100 dark:shadow-none text-xs sm:text-sm">
-                  <MessageCircle className="w-4 h-4 mr-2" /> Send Reminder
-                </Button>
-                <Button onClick={() => markAsSent(patient.id)} disabled={isProcessing === patient.id} variant="outline" className="rounded-xl h-11 sm:h-12 px-6 border-slate-100 dark:border-slate-800 font-bold text-xs sm:text-sm text-slate-500">
-                  {isProcessing === patient.id ? <Loader2 className="w-4 h-4 animate-spin" /> : <><CheckCheck className="w-4 h-4 mr-2" /> Mark Sent</>}
-                </Button>
-              </div>
-            </div>
-          ))}
+        <div className="bg-white dark:bg-slate-900 rounded-[2.5rem] shadow-2xl shadow-indigo-100/20 dark:shadow-none border border-slate-50 dark:border-slate-800 overflow-hidden animate-in fade-in duration-700">
+          <div className="overflow-x-auto">
+            <Table>
+              <TableHeader className="bg-slate-50/95 dark:bg-slate-800/95 backdrop-blur-md">
+                <TableRow className="border-none">
+                  <TableHead className="py-6 px-8 font-black text-[10px] uppercase tracking-widest text-slate-400 dark:text-slate-500">Patient Identity</TableHead>
+                  <TableHead className="py-6 px-4 font-black text-[10px] uppercase tracking-widest text-slate-400 dark:text-slate-500">Primary Diagnosis</TableHead>
+                  <TableHead className="py-6 px-4 font-black text-[10px] uppercase tracking-widest text-slate-400 dark:text-slate-500">Initial Visit</TableHead>
+                  <TableHead className="py-6 px-4 font-black text-[10px] uppercase tracking-widest text-slate-400 dark:text-slate-500">Last Contacted</TableHead>
+                  <TableHead className="py-6 px-8 text-right font-black text-[10px] uppercase tracking-widest text-slate-400 dark:text-slate-500">Reminders</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {reminders.map((patient) => (
+                  <TableRow key={patient.id} className="hover:bg-indigo-50/30 dark:hover:bg-indigo-900/10 transition-all border-b border-slate-50 dark:border-slate-800 group">
+                    <TableCell className="px-8 py-6">
+                      <div className="flex items-center gap-4">
+                        <div className="bg-slate-50 dark:bg-slate-800 p-3 rounded-2xl group-hover:scale-110 transition-transform">
+                          <UserRoundCheck className="w-5 h-5 text-slate-400" />
+                        </div>
+                        <div>
+                          <p className="font-bold text-slate-900 dark:text-white text-base">{patient.name}</p>
+                          <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 mt-0.5">{patient.phone || 'No Phone'}</p>
+                        </div>
+                      </div>
+                    </TableCell>
+                    <TableCell className="px-4 py-6">
+                      <div className="flex items-center gap-2 text-slate-600 dark:text-slate-300 font-medium">
+                        <Stethoscope className="w-4 h-4 text-indigo-400" />
+                        <span>{patient.diagnosis}</span>
+                      </div>
+                    </TableCell>
+                    <TableCell className="px-4 py-6">
+                      <div className="flex items-center gap-2 text-slate-500 dark:text-slate-400 text-sm font-bold">
+                        <History className="w-3.5 h-3.5" />
+                        {new Date(patient.visit_date).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}
+                      </div>
+                    </TableCell>
+                    <TableCell className="px-4 py-6">
+                      {patient.last_reminder_sent_at ? (
+                        <div className="flex flex-col">
+                          <span className="text-emerald-600 dark:text-emerald-400 font-bold text-xs">Sent Recently</span>
+                          <span className="text-[10px] text-slate-400">{new Date(patient.last_reminder_sent_at).toLocaleDateString()}</span>
+                        </div>
+                      ) : (
+                        <span className="text-slate-300 dark:text-slate-700 font-black text-[10px] uppercase tracking-widest">Never Sent</span>
+                      )}
+                    </TableCell>
+                    <TableCell className="px-8 py-6 text-right">
+                      <div className="flex justify-end gap-2">
+                        <Button 
+                          onClick={() => handleWhatsApp(patient)}
+                          className="rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold h-10 px-6 shadow-lg shadow-emerald-100 dark:shadow-none transition-all active:scale-[0.98]"
+                        >
+                          <MessageCircle className="w-4 h-4 mr-2" />
+                          Chat
+                        </Button>
+                        <Button 
+                          onClick={() => markAsSent(patient.id)}
+                          disabled={isProcessing === patient.id}
+                          variant="outline"
+                          className="rounded-xl h-10 px-6 border-slate-100 dark:border-slate-800 font-bold text-slate-500 hover:text-indigo-600 hover:bg-indigo-50 transition-all"
+                        >
+                          {isProcessing === patient.id ? <Loader2 className="w-4 h-4 animate-spin" /> : <CheckCheck className="w-4 h-4 mr-2" />}
+                          Mark
+                        </Button>
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </div>
         </div>
       ) : (
-        <div className="bg-slate-50 dark:bg-slate-900 rounded-2xl sm:rounded-[2.5rem] p-12 sm:p-20 text-center border-2 border-dashed border-slate-200 dark:border-slate-800">
-          <AlertCircle className="w-10 h-10 sm:w-12 sm:h-12 text-slate-300 mx-auto mb-4" />
-          <h3 className="text-lg sm:text-xl font-black text-slate-900 dark:text-white">Zero Pending Actions</h3>
-          <p className="text-slate-500 font-medium mt-2 text-xs sm:text-sm">All patients are either up-to-date or have been recently reminded.</p>
+        <div className="bg-slate-50 dark:bg-slate-900 rounded-[2.5rem] p-20 text-center border-2 border-dashed border-slate-200 dark:border-slate-800">
+          <div className="w-20 h-20 bg-white dark:bg-slate-800 rounded-[2rem] flex items-center justify-center mx-auto mb-6 shadow-sm">
+            <AlertCircle className="w-10 h-10 text-slate-200 dark:text-slate-700" />
+          </div>
+          <h3 className="text-2xl font-black text-slate-900 dark:text-white tracking-tight">Zero Pending Actions</h3>
+          <p className="text-slate-500 dark:text-slate-400 font-medium mt-2 max-w-xs mx-auto leading-relaxed">
+            Your database is synchronized. All patients are either up-to-date or have been recently contacted.
+          </p>
+          <Button 
+            variant="ghost" 
+            onClick={fetchData} 
+            className="mt-8 rounded-xl text-indigo-600 font-bold uppercase text-[10px] tracking-[0.2em] hover:bg-indigo-50"
+          >
+            Force Live Scan
+          </Button>
         </div>
       )}
+
+      <div className="flex items-center justify-center gap-2 text-[10px] font-black text-slate-300 dark:text-slate-700 uppercase tracking-[0.3em]">
+        <CalendarClock className="w-3 h-3" />
+        Automated Protocol Sync Active
+      </div>
     </div>
   );
 };
