@@ -11,12 +11,14 @@ import { Activity, Users, UserCheck } from 'lucide-react';
 
 interface ChartsProps {
   data: any[];
-  showCorrelation?: boolean;
+  variant?: 'dashboard' | 'full';
 }
 
 const COLORS = ['#6366f1', '#10b981', '#f59e0b', '#ec4899', '#8b5cf6', '#3b82f6'];
 
-const Charts = ({ data, showCorrelation = true }: ChartsProps) => {
+const Charts = ({ data, variant = 'full' }: ChartsProps) => {
+  const isDashboard = variant === 'dashboard';
+
   // 1. Visit Type (New vs Follow-up)
   const visitData = useMemo(() => {
     const visitCounts: Record<string, number> = {};
@@ -35,8 +37,9 @@ const Charts = ({ data, showCorrelation = true }: ChartsProps) => {
     return Object.entries(genderCounts).map(([name, value]) => ({ name, value }));
   }, [data]);
 
-  // 3. Age Group Distribution
+  // 3. Age Group Distribution (Full only)
   const ageGroupData = useMemo(() => {
+    if (isDashboard) return [];
     const groups = [
       { name: '0-18', min: 0, max: 18 },
       { name: '19-35', min: 19, max: 35 },
@@ -47,7 +50,7 @@ const Charts = ({ data, showCorrelation = true }: ChartsProps) => {
       name: g.name,
       value: data.filter(p => p.age >= g.min && p.age <= g.max).length
     }));
-  }, [data]);
+  }, [data, isDashboard]);
 
   // 4. Daily Trend
   const trendData = useMemo(() => {
@@ -61,8 +64,9 @@ const Charts = ({ data, showCorrelation = true }: ChartsProps) => {
       .slice(-14);
   }, [data]);
 
-  // 5. Diagnosis Distribution (Top 8)
+  // 5. Diagnosis Distribution (Full only)
   const diagData = useMemo(() => {
+    if (isDashboard) return [];
     const diagGroups: Record<string, number> = {};
     const diagCasing: Record<string, string> = {};
     data.forEach(p => {
@@ -76,11 +80,11 @@ const Charts = ({ data, showCorrelation = true }: ChartsProps) => {
       .map(([key, value]) => ({ name: diagCasing[key], value }))
       .sort((a, b) => b.value - a.value)
       .slice(0, 8);
-  }, [data]);
+  }, [data, isDashboard]);
 
-  // 6. Age vs Condition Correlation
+  // 6. Age vs Condition Correlation (Full only)
   const correlationData = useMemo(() => {
-    if (!showCorrelation) return [];
+    if (isDashboard) return [];
     const ageRanges = [
       { label: '0-18', min: 0, max: 18 },
       { label: '19-30', min: 19, max: 30 },
@@ -99,7 +103,7 @@ const Charts = ({ data, showCorrelation = true }: ChartsProps) => {
       row.Others = patientsInRange.length - accounted;
       return row;
     });
-  }, [data, diagData, showCorrelation]);
+  }, [data, diagData, isDashboard]);
 
   const CustomTooltip = ({ active, payload, label }: any) => {
     if (active && payload && payload.length) {
@@ -125,9 +129,72 @@ const Charts = ({ data, showCorrelation = true }: ChartsProps) => {
 
   const topConditions = diagData.slice(0, 5).map(d => d.name);
 
+  if (isDashboard) {
+    return (
+      <div className="space-y-8">
+        <Card className="p-8 border-none shadow-sm dark:shadow-none rounded-[2.5rem] bg-white dark:bg-slate-900">
+          <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-6">Patient Volume Trend</h3>
+          <div className="h-[300px]">
+            <ResponsiveContainer width="100%" height="100%">
+              <LineChart data={trendData}>
+                <CartesianGrid strokeDasharray="3 3" vertical={false} strokeOpacity={0.05} />
+                <XAxis 
+                  dataKey="date" 
+                  tickFormatter={(str) => new Date(str).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}
+                  tick={{ fontSize: 11, fill: '#94a3b8' }}
+                  axisLine={false}
+                  tickLine={false}
+                />
+                <YAxis tick={{ fontSize: 11, fill: '#94a3b8' }} axisLine={false} tickLine={false} />
+                <Tooltip content={<CustomTooltip />} />
+                <Line type="monotone" dataKey="count" stroke="#6366f1" strokeWidth={4} dot={{ r: 4, fill: '#6366f1', stroke: '#fff' }} />
+              </LineChart>
+            </ResponsiveContainer>
+          </div>
+        </Card>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+          <Card className="p-8 border-none shadow-sm dark:shadow-none rounded-[2.5rem] bg-white dark:bg-slate-900">
+            <div className="flex items-center gap-2 mb-6">
+              <UserCheck className="w-4 h-4 text-indigo-600" />
+              <h3 className="text-sm font-bold text-gray-400 dark:text-slate-500 uppercase tracking-widest">Gender Split</h3>
+            </div>
+            <div className="h-[200px]">
+              <ResponsiveContainer width="100%" height="100%">
+                <PieChart>
+                  <Pie data={genderData} innerRadius={50} outerRadius={70} paddingAngle={10} dataKey="value">
+                    {genderData.map((_, index) => <Cell key={index} fill={index === 0 ? '#6366f1' : '#ec4899'} />)}
+                  </Pie>
+                  <Tooltip content={<CustomTooltip />} />
+                </PieChart>
+              </ResponsiveContainer>
+            </div>
+          </Card>
+
+          <Card className="p-8 border-none shadow-sm dark:shadow-none rounded-[2.5rem] bg-white dark:bg-slate-900">
+            <div className="flex items-center gap-2 mb-6">
+              <Activity className="w-4 h-4 text-indigo-600" />
+              <h3 className="text-sm font-bold text-gray-400 dark:text-slate-500 uppercase tracking-widest">Visit Status</h3>
+            </div>
+            <div className="h-[200px]">
+              <ResponsiveContainer width="100%" height="100%">
+                <PieChart>
+                  <Pie data={visitData} innerRadius={50} outerRadius={70} paddingAngle={10} dataKey="value">
+                    {visitData.map((_, index) => <Cell key={index} fill={COLORS[index % COLORS.length]} />)}
+                  </Pie>
+                  <Tooltip content={<CustomTooltip />} />
+                </PieChart>
+              </ResponsiveContainer>
+            </div>
+          </Card>
+        </div>
+      </div>
+    );
+  }
+
+  // Full Analytics View
   return (
     <div className="space-y-8">
-      {/* Top Row: Main Trends */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         <Card className="p-8 border-none shadow-sm dark:shadow-none rounded-[2.5rem] bg-white dark:bg-slate-900">
           <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-6">Patient Volume Trend</h3>
@@ -173,9 +240,7 @@ const Charts = ({ data, showCorrelation = true }: ChartsProps) => {
         </Card>
       </div>
 
-      {/* Advanced Demographics Row */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-        {/* Gender Distribution */}
         <Card className="p-8 border-none shadow-sm dark:shadow-none rounded-[2.5rem] bg-white dark:bg-slate-900">
           <div className="flex items-center gap-2 mb-6">
             <UserCheck className="w-4 h-4 text-indigo-600" />
@@ -193,7 +258,6 @@ const Charts = ({ data, showCorrelation = true }: ChartsProps) => {
           </div>
         </Card>
 
-        {/* Age Group Distribution */}
         <Card className="p-8 border-none shadow-sm dark:shadow-none rounded-[2.5rem] bg-white dark:bg-slate-900">
           <div className="flex items-center gap-2 mb-6">
             <Users className="w-4 h-4 text-indigo-600" />
@@ -210,7 +274,6 @@ const Charts = ({ data, showCorrelation = true }: ChartsProps) => {
           </div>
         </Card>
 
-        {/* Visit Composition */}
         <Card className="p-8 border-none shadow-sm dark:shadow-none rounded-[2.5rem] bg-white dark:bg-slate-900">
           <div className="flex items-center gap-2 mb-6">
             <Activity className="w-4 h-4 text-indigo-600" />
@@ -229,32 +292,29 @@ const Charts = ({ data, showCorrelation = true }: ChartsProps) => {
         </Card>
       </div>
 
-      {/* Correlation Chart - Only visible if prop is true */}
-      {showCorrelation && (
-        <Card className="p-8 border-none shadow-sm dark:shadow-none rounded-[2.5rem] bg-white dark:bg-slate-900">
-          <div className="flex items-center gap-3 mb-8">
-            <div className="p-2 bg-indigo-50 dark:bg-indigo-900/30 rounded-xl">
-              <Activity className="w-5 h-5 text-indigo-600" />
-            </div>
-            <h3 className="text-xl font-black text-slate-900 dark:text-white tracking-tight">Age vs Condition Correlation</h3>
+      <Card className="p-8 border-none shadow-sm dark:shadow-none rounded-[2.5rem] bg-white dark:bg-slate-900">
+        <div className="flex items-center gap-3 mb-8">
+          <div className="p-2 bg-indigo-50 dark:bg-indigo-900/30 rounded-xl">
+            <Activity className="w-5 h-5 text-indigo-600" />
           </div>
-          <div className="h-[400px]">
-            <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={correlationData}>
-                <CartesianGrid strokeDasharray="3 3" vertical={false} strokeOpacity={0.05} />
-                <XAxis dataKey="range" tick={{ fontSize: 12, fontWeight: 'bold', fill: '#94a3b8' }} axisLine={false} tickLine={false} />
-                <YAxis tick={{ fontSize: 12, fontWeight: 'bold', fill: '#94a3b8' }} axisLine={false} tickLine={false} />
-                <Tooltip content={<CustomTooltip />} />
-                <Legend verticalAlign="top" align="right" iconType="circle" wrapperStyle={{ paddingBottom: '20px', fontSize: '11px', fontWeight: 'bold' }} />
-                {topConditions.map((cond, i) => (
-                  <Bar key={cond} dataKey={cond} stackId="a" fill={COLORS[i % COLORS.length]} />
-                ))}
-                <Bar dataKey="Others" stackId="a" fill="#e2e8f0" radius={[4, 4, 0, 0]} />
-              </BarChart>
-            </ResponsiveContainer>
-          </div>
-        </Card>
-      )}
+          <h3 className="text-xl font-black text-slate-900 dark:text-white tracking-tight">Age vs Condition Correlation</h3>
+        </div>
+        <div className="h-[400px]">
+          <ResponsiveContainer width="100%" height="100%">
+            <BarChart data={correlationData}>
+              <CartesianGrid strokeDasharray="3 3" vertical={false} strokeOpacity={0.05} />
+              <XAxis dataKey="range" tick={{ fontSize: 12, fontWeight: 'bold', fill: '#94a3b8' }} axisLine={false} tickLine={false} />
+              <YAxis tick={{ fontSize: 12, fontWeight: 'bold', fill: '#94a3b8' }} axisLine={false} tickLine={false} />
+              <Tooltip content={<CustomTooltip />} />
+              <Legend verticalAlign="top" align="right" iconType="circle" wrapperStyle={{ paddingBottom: '20px', fontSize: '11px', fontWeight: 'bold' }} />
+              {topConditions.map((cond, i) => (
+                <Bar key={cond} dataKey={cond} stackId="a" fill={COLORS[i % COLORS.length]} />
+              ))}
+              <Bar dataKey="Others" stackId="a" fill="#e2e8f0" radius={[4, 4, 0, 0]} />
+            </BarChart>
+          </ResponsiveContainer>
+        </div>
+      </Card>
     </div>
   );
 };

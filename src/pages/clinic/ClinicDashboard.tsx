@@ -109,7 +109,7 @@ const ClinicDashboard = () => {
           <TrendingUp className="w-5 h-5 text-indigo-600 dark:text-indigo-400" />
           <h2 className="text-xl font-black text-slate-900 dark:text-white tracking-tight">Clinical Basics</h2>
         </div>
-        <Charts data={patients} showCorrelation={false} />
+        <Charts data={patients} variant="dashboard" />
       </div>
     </div>
   );
