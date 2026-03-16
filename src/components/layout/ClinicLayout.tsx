@@ -57,7 +57,7 @@ export const ClinicLayout = ({ children }: ClinicLayoutProps) => {
     { name: 'Analytics', path: `/clinic/${slug}/analytics`, icon: BarChart3 },
     { name: 'Reports', path: `/clinic/${slug}/reports`, icon: FileText },
     { name: 'New Entry', path: `/clinic/${slug}/entry`, icon: UserPlus },
-    { name: 'Billing', path: `/clinic/${slug}/billing`, icon: CreditCard },
+    { name: 'Subscription', path: `/clinic/${slug}/billing`, icon: CreditCard },
   ];
 
   const handleLogout = async () => {
