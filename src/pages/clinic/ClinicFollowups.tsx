@@ -16,7 +16,9 @@ import {
   Info,
   ArrowLeft,
   CalendarClock,
-  ExternalLink
+  Lock,
+  Zap,
+  Star
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
@@ -34,46 +36,49 @@ const ClinicFollowups = () => {
     try {
       const { data: clinicData } = await supabase
         .from('clinics')
-        .select('name')
+        .select('*')
         .eq('slug', slug)
         .single();
       setClinic(clinicData);
 
-      const { data, error } = await supabase
-        .from('patients')
-        .select('*')
-        .order('visit_date', { ascending: false });
+      // Only fetch patients if clinic is Pro
+      if (clinicData?.plan === 'Pro') {
+        const { data, error } = await supabase
+          .from('patients')
+          .select('*')
+          .order('visit_date', { ascending: false });
 
-      if (error) throw error;
+        if (error) throw error;
 
-      if (data) {
-        const patientHistory: Record<string, any[]> = {};
-        data.forEach(p => {
-          const key = (p.phone || p.name).toLowerCase().trim();
-          if (!patientHistory[key]) patientHistory[key] = [];
-          patientHistory[key].push(p);
-        });
+        if (data) {
+          const patientHistory: Record<string, any[]> = {};
+          data.forEach(p => {
+            const key = (p.phone || p.name).toLowerCase().trim();
+            if (!patientHistory[key]) patientHistory[key] = [];
+            patientHistory[key].push(p);
+          });
 
-        const now = new Date();
-        const today = startOfDay(now);
-        
-        const missedFollowups = Object.values(patientHistory)
-          .filter(history => {
-            const latest = history[0];
-            const hasAnyFollowup = history.some(h => h.visit_type === 'Follow-up');
-            const visitDate = parseISO(latest.visit_date);
-            const isPastVisit = isBefore(visitDate, today);
-            
-            const isEligible = latest.visit_type === 'New' && isPastVisit && !hasAnyFollowup;
-            if (!isEligible) return false;
+          const now = new Date();
+          const today = startOfDay(now);
+          
+          const missedFollowups = Object.values(patientHistory)
+            .filter(history => {
+              const latest = history[0];
+              const hasAnyFollowup = history.some(h => h.visit_type === 'Follow-up');
+              const visitDate = parseISO(latest.visit_date);
+              const isPastVisit = isBefore(visitDate, today);
+              
+              const isEligible = latest.visit_type === 'New' && isPastVisit && !hasAnyFollowup;
+              if (!isEligible) return false;
 
-            if (!latest.last_reminder_sent_at) return true;
-            const lastSent = parseISO(latest.last_reminder_sent_at);
-            return differenceInDays(now, lastSent) >= 2;
-          })
-          .map(h => h[0]);
+              if (!latest.last_reminder_sent_at) return true;
+              const lastSent = parseISO(latest.last_reminder_sent_at);
+              return differenceInDays(now, lastSent) >= 2;
+            })
+            .map(h => h[0]);
 
-        setReminders(missedFollowups);
+          setReminders(missedFollowups);
+        }
       }
     } catch (err: any) {
       console.error(err);
@@ -107,6 +112,39 @@ const ClinicFollowups = () => {
       setIsProcessing(null);
     }
   };
+
+  if (!loading && clinic?.plan !== 'Pro') {
+    return (
+      <div className="max-w-4xl mx-auto py-20 px-6 text-center animate-in fade-in duration-700">
+        <div className="bg-white dark:bg-slate-900 p-12 md:p-20 rounded-[3rem] border border-slate-100 dark:border-slate-800 shadow-2xl shadow-indigo-100/20 dark:shadow-none flex flex-col items-center">
+          <div className="w-24 h-24 bg-indigo-50 dark:bg-indigo-900/30 rounded-[2rem] flex items-center justify-center mb-10 group">
+            <Lock className="w-10 h-10 text-indigo-600 dark:text-indigo-400 group-hover:scale-110 transition-transform" />
+          </div>
+          <h1 className="text-4xl md:text-5xl font-black text-slate-900 dark:text-white tracking-tighter mb-4">Follow-up Protocol Locked</h1>
+          <p className="text-lg text-slate-500 dark:text-slate-400 font-medium max-w-md mx-auto mb-12">
+            The automated Follow-up system is a high-performance tool reserved for **Pro** clinics. 
+          </p>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 w-full max-w-xl mb-12">
+            <div className="p-6 bg-slate-50 dark:bg-slate-800 rounded-3xl text-left border border-slate-100 dark:border-slate-700">
+              <MessageCircle className="w-5 h-5 text-emerald-600 mb-3" />
+              <h4 className="font-bold text-slate-900 dark:text-white mb-1">WhatsApp Reminders</h4>
+              <p className="text-xs text-slate-500">Auto-generate recovery check-ins for your patients.</p>
+            </div>
+            <div className="p-6 bg-slate-50 dark:bg-slate-800 rounded-3xl text-left border border-slate-100 dark:border-slate-700">
+              <Zap className="w-5 h-5 text-indigo-600 mb-3" />
+              <h4 className="font-bold text-slate-900 dark:text-white mb-1">Smart Snoozing</h4>
+              <p className="text-xs text-slate-500">Clear your workflow with one-click reminder management.</p>
+            </div>
+          </div>
+
+          <Button asChild className="h-16 px-12 rounded-2xl bg-indigo-600 hover:bg-indigo-700 text-white font-black text-lg shadow-xl shadow-indigo-100 dark:shadow-none">
+            <Link to={`/clinic/${slug}/billing`}>Upgrade to Pro</Link>
+          </Button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="max-w-7xl mx-auto space-y-8 md:space-y-10 animate-in fade-in slide-in-from-bottom-4 duration-700 pb-20">

@@ -6,7 +6,7 @@ import { supabase } from '@/lib/supabase';
 import PatientTable from '@/components/dashboard/PatientTable';
 import DashboardFilters from '@/components/dashboard/DashboardFilters';
 import { toast } from 'sonner';
-import { Users, FileText, CalendarClock } from 'lucide-react';
+import { Users, FileText, CalendarClock, Lock } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
   AlertDialog,
@@ -23,6 +23,7 @@ const ClinicPatients = () => {
   const { slug } = useParams();
   const navigate = useNavigate();
   const [patients, setPatients] = useState<any[]>([]);
+  const [clinic, setClinic] = useState<any>(null);
   const [deleteId, setDeleteId] = useState<string | null>(null);
   const [filters, setFilters] = useState({
     search: '',
@@ -34,17 +35,27 @@ const ClinicPatients = () => {
     category: 'all',
   });
 
-  const fetchPatients = async () => {
+  const fetchData = async () => {
+    // Fetch Clinic
+    const { data: clinicData } = await supabase
+      .from('clinics')
+      .select('*')
+      .eq('slug', slug)
+      .single();
+    if (clinicData) setClinic(clinicData);
+
+    // Fetch Patients
     const { data, error } = await supabase
       .from('patients')
       .select('*')
       .order('visit_date', { ascending: false });
+    
     if (error) toast.error(error.message);
     else setPatients(data || []);
   };
 
   useEffect(() => { 
-    fetchPatients(); 
+    fetchData(); 
   }, [slug]);
 
   const availableCategories = useMemo(() => {
@@ -90,6 +101,20 @@ const ClinicPatients = () => {
     setDeleteId(null);
   };
 
+  const handleFollowupClick = () => {
+    if (clinic?.plan !== 'Pro') {
+      toast.error("Follow-up Protocol is exclusive to the Pro plan.", {
+        description: "Upgrade your clinic to Pro to unlock automated recovery monitoring.",
+        action: {
+          label: "Upgrade",
+          onClick: () => navigate(`/clinic/${slug}/billing`)
+        }
+      });
+      return;
+    }
+    navigate(`/clinic/${slug}/patients/followups`);
+  };
+
   return (
     <div className="max-w-7xl mx-auto space-y-8 md:space-y-10 animate-in fade-in slide-in-from-bottom-4 duration-700 pb-20">
       <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6">
@@ -101,13 +126,11 @@ const ClinicPatients = () => {
         <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full lg:w-auto">
           <Button 
             variant="outline" 
-            asChild
-            className="rounded-2xl border-indigo-100 dark:border-indigo-900/30 bg-indigo-50/30 dark:bg-indigo-900/10 text-indigo-700 dark:indigo-400 h-12 px-6 font-bold shadow-sm hover:bg-indigo-600 hover:text-white dark:hover:bg-indigo-500 dark:hover:text-white transition-all duration-300 group"
+            onClick={handleFollowupClick}
+            className="rounded-2xl border-indigo-100 dark:border-indigo-900/30 bg-indigo-50/30 dark:bg-indigo-900/10 text-indigo-700 dark:text-indigo-400 h-12 px-6 font-bold shadow-sm hover:bg-indigo-600 hover:text-white dark:hover:bg-indigo-500 dark:hover:text-white transition-all duration-300 group"
           >
-            <Link to={`/clinic/${slug}/patients/followups`}>
-              <CalendarClock className="w-4 h-4 mr-2 group-hover:scale-110 transition-transform" />
-              Follow-ups
-            </Link>
+            {clinic?.plan !== 'Pro' ? <Lock className="w-4 h-4 mr-2" /> : <CalendarClock className="w-4 h-4 mr-2 group-hover:scale-110 transition-transform" />}
+            Follow-ups
           </Button>
           <div className="bg-white dark:bg-slate-900 px-5 py-3 rounded-2xl shadow-sm dark:shadow-none border border-slate-50 dark:border-slate-800 flex items-center justify-center gap-3 h-12">
             <Users className="w-4 h-4 text-indigo-600 dark:text-indigo-400" />
