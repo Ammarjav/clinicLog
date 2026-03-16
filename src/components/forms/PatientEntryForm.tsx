@@ -66,7 +66,6 @@ const PatientEntryForm = () => {
   const watchCategory = form.watch('category');
   const watchVisitType = form.watch('visit_type');
 
-  // Multi-factor recognition: Name + Phone + Category
   const isExistingPatient = useMemo(() => {
     const nameKey = watchName.toLowerCase().trim();
     if (!nameKey) return false;
@@ -86,7 +85,6 @@ const PatientEntryForm = () => {
     return existingIdentities.has(`${nameKey}|${currentFormattedPhone}|${catKey}`);
   }, [watchName, watchPhone, watchCountryCode, watchCategory, existingIdentities]);
 
-  // Sync visit type and default fee
   useEffect(() => {
     if (isExistingPatient) {
       form.setValue('visit_type', 'Follow-up');
@@ -413,7 +411,7 @@ const PatientEntryForm = () => {
           </div>
 
           <Button type="submit" className="w-full h-14 rounded-2xl bg-blue-600 hover:bg-blue-700 font-bold shadow-xl" disabled={form.formState.isSubmitting}>
-            {form.formState.isSubmitting ? <Loader2 className="animate-spin h-6 w-6" /> : "Complete Session Log"}
+            {form.formState.isSubmitting ? <Loader2 className="animate-spin h-6 w-6" /> : "Save"}
           </Button>
         </form>
       </Form>

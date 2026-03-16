@@ -184,10 +184,14 @@ const EditPatientForm = ({ patient, onSuccess, onCancel }: EditPatientFormProps)
           <TabsContent value="clinical" className="space-y-5">
             <div className="bg-indigo-50/50 dark:bg-indigo-950/20 p-6 rounded-[2rem] border border-indigo-100 dark:border-indigo-900/30 space-y-6">
               <FormField control={form.control} name="diagnosis" render={({ field }) => (<FormItem><FormLabel className="text-xs font-black uppercase tracking-widest text-rose-600">Diagnosis</FormLabel><FormControl><AutocompleteInput value={field.value} onChange={field.onChange} fieldName="diagnosis" clinicId={patient.clinic_id} /></FormControl></FormItem>)} />
-              <FormField control={form.control} name="chief_complaint" render={({ field }) => (<FormItem><FormLabel className="text-xs font-black uppercase tracking-widest text-slate-400">Complaints</FormLabel><FormControl><Textarea className="rounded-2xl border-none" {...field} /></FormControl></FormItem>)} />
+              
+              <FormField control={form.control} name="chief_complaint" render={({ field }) => (<FormItem><FormLabel className="text-xs font-black uppercase tracking-widest text-slate-400">Chief Complaints</FormLabel><FormControl><Textarea className="rounded-2xl border-none min-h-[80px]" {...field} /></FormControl></FormItem>)} />
+              
+              <FormField control={form.control} name="physical_exam" render={({ field }) => (<FormItem><FormLabel className="text-xs font-black uppercase tracking-widest text-indigo-600">Objective Examination</FormLabel><FormControl><Textarea className="rounded-2xl border-none min-h-[80px]" {...field} /></FormControl></FormItem>)} />
+
               <div className="grid grid-cols-2 gap-4">
-                <FormField control={form.control} name="treatment_plan" render={({ field }) => (<FormItem><FormLabel className="text-xs font-black uppercase tracking-widest text-emerald-600">Treatment</FormLabel><FormControl><Textarea className="rounded-2xl border-none" {...field} /></FormControl></FormItem>)} />
-                <FormField control={form.control} name="home_plan" render={({ field }) => (<FormItem><FormLabel className="text-xs font-black uppercase tracking-widest text-emerald-600">Home Care</FormLabel><FormControl><Textarea className="rounded-2xl border-none" {...field} /></FormControl></FormItem>)} />
+                <FormField control={form.control} name="treatment_plan" render={({ field }) => (<FormItem><FormLabel className="text-xs font-black uppercase tracking-widest text-emerald-600">Treatment</FormLabel><FormControl><Textarea className="rounded-2xl border-none min-h-[100px]" {...field} /></FormControl></FormItem>)} />
+                <FormField control={form.control} name="home_plan" render={({ field }) => (<FormItem><FormLabel className="text-xs font-black uppercase tracking-widest text-emerald-600">Home Care</FormLabel><FormControl><Textarea className="rounded-2xl border-none min-h-[100px]" {...field} /></FormControl></FormItem>)} />
               </div>
             </div>
           </TabsContent>

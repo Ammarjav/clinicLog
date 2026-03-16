@@ -79,7 +79,7 @@ const PatientTable = ({ patients, onEdit, onDelete }: PatientTableProps) => {
                       {new Date(patient.visit_date).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}
                     </TableCell>
                     <TableCell className="px-8 py-5 text-right">
-                      <div className="flex justify-end gap-1 opacity-100 sm:opacity-0 group-hover:opacity-100 transition-opacity">
+                      <div className="flex justify-end gap-1 transition-opacity">
                         <Button 
                           variant="ghost" 
                           size="icon" 
