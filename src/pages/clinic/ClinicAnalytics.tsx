@@ -5,6 +5,7 @@ import { supabase } from '@/lib/supabase';
 import Charts from '@/components/dashboard/Charts';
 import RevenueCharts from '@/components/dashboard/RevenueCharts';
 import ReportFilters from '@/components/reports/ReportFilters';
+import AdvancedClinicalCards from '@/components/dashboard/AdvancedClinicalCards';
 import { toast } from 'sonner';
 import { BarChart3, Activity, Banknote, Sparkles, Loader2 } from 'lucide-react';
 import { useParams } from 'react-router-dom';
@@ -27,7 +28,6 @@ const ClinicAnalytics = () => {
   const fetchData = async () => {
     setLoading(true);
     try {
-      // 1. Fetch clinic data first
       if (!clinic) {
         const { data: clinicData } = await supabase
           .from('clinics')
@@ -37,7 +37,6 @@ const ClinicAnalytics = () => {
         if (clinicData) setClinic(clinicData);
       }
 
-      // 2. Prepare query based on filters
       let query = supabase.from('patients').select('*');
 
       if (filterType === 'monthly') {
@@ -76,7 +75,7 @@ const ClinicAnalytics = () => {
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
         <div>
           <h1 className="text-4xl font-black text-slate-900 dark:text-white tracking-tighter">Clinical Analytics</h1>
-          <p className="text-slate-500 dark:text-slate-400 font-medium mt-1">Deep dive into population trends and financial performance</p>
+          <p className="text-slate-500 dark:text-slate-400 font-medium mt-1">Deep dive into population trends and clinical performance</p>
         </div>
         <div className="bg-white dark:bg-slate-900 px-5 py-3 rounded-2xl shadow-sm dark:shadow-none border border-slate-50 dark:border-slate-800 flex items-center gap-3">
           <div className="bg-emerald-50 dark:bg-emerald-900/30 p-2 rounded-xl">
@@ -117,6 +116,7 @@ const ClinicAnalytics = () => {
           )}
 
           <TabsContent value="clinical" className="outline-none space-y-8 m-0">
+            <AdvancedClinicalCards data={patients} />
             <div className="flex items-center gap-2">
               <BarChart3 className="w-5 h-5 text-indigo-600 dark:text-indigo-400" />
               <h2 className="text-xl font-black text-slate-900 dark:text-white tracking-tight">Patient Distribution</h2>
