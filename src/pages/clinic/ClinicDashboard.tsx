@@ -20,7 +20,6 @@ const ClinicDashboard = () => {
   const fetchData = async () => {
     setLoading(true);
     try {
-      // Fetch clinic for fees
       const { data: clinicData } = await supabase
         .from('clinics')
         .select('*')
@@ -28,7 +27,6 @@ const ClinicDashboard = () => {
         .single();
       if (clinicData) setClinic(clinicData);
 
-      // Fetch patients
       const { data, error } = await supabase
         .from('patients')
         .select('*')
@@ -91,7 +89,7 @@ const ClinicDashboard = () => {
 
       <StatCards data={patients} />
 
-      {/* Basic Financial Summary for Dashboard */}
+      {/* Simplified Revenue Summary for Dashboard */}
       <div className="space-y-6">
         <div className="flex items-center gap-2 px-1">
           <Banknote className="w-5 h-5 text-emerald-600" />
@@ -101,6 +99,7 @@ const ClinicDashboard = () => {
           <RevenueCharts 
             data={patients} 
             fees={{ new: clinic.new_visit_fee || 0, followUp: clinic.followup_visit_fee || 0 }} 
+            variant="dashboard"
           />
         )}
       </div>
