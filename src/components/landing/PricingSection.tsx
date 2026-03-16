@@ -73,7 +73,7 @@ const PricingSection = () => {
           <div className="relative">
             <Carousel 
               setApi={setApi}
-              className="w-full" 
+              className="w-full py-10" 
               opts={{ align: "center", loop: false }}
             >
               <CarouselContent className="-ml-0 items-stretch">
@@ -98,7 +98,7 @@ const PricingSection = () => {
             </Carousel>
             
             {/* Pagination Dots */}
-            <div className="flex justify-center gap-2 mt-10">
+            <div className="flex justify-center gap-2 mt-4">
               {PLANS.map((_, i) => (
                 <div 
                   key={i} 
@@ -132,14 +132,14 @@ const PricingSection = () => {
 
 const PricingCard = ({ plan }: { plan: any }) => (
   <div
-    className={`flex flex-col p-8 md:p-10 rounded-[3rem] h-full transition-all duration-500 ${
+    className={`flex flex-col p-8 md:p-10 rounded-[3rem] h-full transition-all duration-500 relative ${
       plan.highlight 
-        ? 'bg-slate-900 text-white shadow-2xl shadow-indigo-500/20 ring-4 ring-indigo-500/10 relative z-10' 
+        ? 'bg-slate-900 text-white shadow-2xl shadow-indigo-500/20 ring-4 ring-indigo-500/10 z-10' 
         : 'bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 shadow-xl shadow-indigo-100/10 dark:shadow-none'
     }`}
   >
     {plan.highlight && (
-      <Badge className="absolute -top-4 left-1/2 -translate-x-1/2 bg-indigo-500 text-white px-6 py-1.5 rounded-full font-black uppercase text-[10px] tracking-widest border-none">
+      <Badge className="absolute -top-4 left-1/2 -translate-x-1/2 bg-indigo-500 text-white px-6 py-1.5 rounded-full font-black uppercase text-[10px] tracking-widest border-none whitespace-nowrap shadow-xl">
         Practitioner's Choice
       </Badge>
     )}
