@@ -3,6 +3,7 @@
 import React from 'react';
 import { ModemFooter } from '@/components/ui/modem-animated-footer';
 import { Mail, Linkedin, MessageCircle, Stethoscope } from 'lucide-react';
+import Logo from '@/components/Logo';
 
 const Footer = () => {
   const whatsappNumber = "923106960468";
@@ -41,6 +42,7 @@ const Footer = () => {
       navLinks={navLinks}
       creatorName="M. Ammar Javed"
       creatorUrl="https://www.linkedin.com/in/m-ammar-javed-07161b394"
+      logo={<Logo className="w-10 h-10 md:w-12 md:h-12" />}
       brandIcon={<Stethoscope className="w-8 h-8 md:w-10 md:h-10 text-white" />}
     />
   );

@@ -22,6 +22,7 @@ interface FooterProps {
   creatorName?: string;
   creatorUrl?: string;
   brandIcon?: React.ReactNode;
+  logo?: React.ReactNode;
   className?: string;
 }
 
@@ -33,6 +34,7 @@ export const ModemFooter = ({
   creatorName,
   creatorUrl,
   brandIcon,
+  logo,
   className,
 }: FooterProps) => {
   return (
@@ -40,11 +42,12 @@ export const ModemFooter = ({
       <footer className="border-t bg-background mt-20 relative">
         <div className="max-w-7xl flex flex-col justify-between mx-auto min-h-[30rem] sm:min-h-[35rem] md:min-h-[40rem] relative p-4 py-10">
           <div className="flex flex-col mb-12 sm:mb-20 md:mb-0 w-full">
-            <div className="w-full flex flex-col items-center">
-              <div className="space-y-2 flex flex-col items-center flex-1">
-                <div className="flex items-center gap-2">
-                  <span className="text-foreground text-4xl font-black tracking-tighter">
-                    {brandName}
+            <div className="w-full flex flex-col items-center text-center">
+              <div className="space-y-4 flex flex-col items-center flex-1">
+                <div className="flex items-center gap-3">
+                  {logo}
+                  <span className="text-foreground text-3xl md:text-4xl font-black tracking-tighter">
+                    Clinic<span className="text-indigo-600">Log</span>
                   </span>
                 </div>
                 <p className="text-muted-foreground font-semibold text-center w-full max-w-sm sm:w-96 px-4 sm:px-0 text-sm">
@@ -99,7 +102,7 @@ export const ModemFooter = ({
 
           <div className="mt-20 md:mt-24 flex flex-col gap-2 md:gap-1 items-center justify-center md:flex-row md:items-center md:justify-between px-4 md:px-0">
             <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-muted-foreground text-center md:text-left">
-              ©{new Date().getFullYear()} {brandName.toUpperCase()} PROTOCOL. ALL RIGHTS RESERVED.
+              ©{new Date().getFullYear()} CLINICLOG PROTOCOL. ALL RIGHTS RESERVED.
             </p>
             {creatorName && creatorUrl && (
               <nav className="flex gap-4">
@@ -124,7 +127,7 @@ export const ModemFooter = ({
             maxWidth: '95vw'
           }}
         >
-          {brandName.toUpperCase()}
+          CLINICLOG
         </div>
 
         {/* Bottom logo */}
