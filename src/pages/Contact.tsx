@@ -11,8 +11,10 @@ import Footer from '@/components/landing/Footer';
 import { MessageCircle, Mail, Phone, Sparkles, Menu, X } from 'lucide-react';
 import { toast } from 'sonner';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 const Contact = () => {
+  const isMobile = useIsMobile();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [form, setForm] = useState({ name: '', info: '', message: '' });
 
@@ -194,7 +196,7 @@ const Contact = () => {
             </div>
             <Button type="submit" className="w-full h-16 rounded-2xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-lg shadow-xl shadow-indigo-100/50 dark:shadow-none transition-all active:scale-[0.98] mt-2">
               <MessageCircle className="w-5 h-5 mr-2" />
-              Start WhatsApp Chat
+              {isMobile ? "Send" : "Start WhatsApp Chat"}
             </Button>
             <div className="flex items-center justify-center gap-2 text-[10px] font-black text-slate-300 dark:text-slate-700 uppercase tracking-[0.2em] pt-2">
               <Sparkles className="w-3 h-3" />
