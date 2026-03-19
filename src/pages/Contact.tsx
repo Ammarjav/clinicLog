@@ -121,80 +121,82 @@ const Contact = () => {
         )}
       </AnimatePresence>
 
-      <div className="w-full max-w-5xl grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 items-center animate-in fade-in slide-in-from-bottom-4 duration-700 mt-28 md:mt-32 mb-20 px-2 sm:px-0">
-        <div className="space-y-6 md:space-y-8 text-center lg:text-left">
-          <div className="flex justify-center lg:justify-start">
-            <Logo className="w-12 h-12 sm:w-14 sm:h-14" />
+      <div className="w-full max-w-4xl flex flex-col items-center animate-in fade-in slide-in-from-bottom-4 duration-700 mt-20 md:mt-24 mb-20 px-4">
+        {/* Content Section - Now Above the form */}
+        <div className="w-full space-y-8 text-center mb-12">
+          <div className="flex justify-center">
+            <Logo className="w-14 h-14" />
           </div>
-          <div className="space-y-3 sm:space-y-4">
-            <h1 className="text-3xl sm:text-4xl md:text-6xl font-black text-slate-900 dark:text-white tracking-tighter">
+          <div className="space-y-4">
+            <h1 className="text-4xl md:text-6xl font-black text-slate-900 dark:text-white tracking-tighter">
               Let's Start a <br />
               <span className="text-indigo-600">Conversation.</span>
             </h1>
-            <p className="text-base sm:text-lg text-slate-500 dark:text-slate-400 font-medium max-w-md mx-auto lg:mx-0">
+            <p className="text-lg text-slate-500 dark:text-slate-400 font-medium max-w-xl mx-auto">
               Whether you're looking for enterprise solutions or have a quick question, our team is ready to help.
             </p>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-1 gap-4 sm:gap-6 pt-2">
-            <div className="flex items-center gap-4 justify-center lg:justify-start">
-              <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-2xl bg-indigo-50 dark:bg-indigo-900/30 flex items-center justify-center text-indigo-600">
-                <Mail className="w-4 h-4 sm:w-5 sm:h-5" />
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-8 md:gap-12 pt-4">
+            <div className="flex items-center gap-4">
+              <div className="w-12 h-12 rounded-2xl bg-indigo-50 dark:bg-indigo-900/30 flex items-center justify-center text-indigo-600">
+                <Mail className="w-5 h-5" />
               </div>
               <div className="text-left">
-                <p className="text-[9px] sm:text-[10px] font-black uppercase tracking-widest text-slate-400">Email Us</p>
-                <p className="font-bold text-slate-900 dark:text-white text-sm sm:text-base">drammarjaved17@gmail.com</p>
+                <p className="text-[10px] font-black uppercase tracking-widest text-slate-400">Email Us</p>
+                <p className="font-bold text-slate-900 dark:text-white">drammarjaved17@gmail.com</p>
               </div>
             </div>
-            <div className="flex items-center gap-4 justify-center lg:justify-start">
-              <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-2xl bg-emerald-50 dark:bg-emerald-900/30 flex items-center justify-center text-emerald-600">
-                <Phone className="w-4 h-4 sm:w-5 sm:h-5" />
+            <div className="flex items-center gap-4">
+              <div className="w-12 h-12 rounded-2xl bg-emerald-50 dark:bg-emerald-900/30 flex items-center justify-center text-emerald-600">
+                <Phone className="w-5 h-5" />
               </div>
               <div className="text-left">
-                <p className="text-[9px] sm:text-[10px] font-black uppercase tracking-widest text-slate-400">Direct Line</p>
-                <p className="font-bold text-slate-900 dark:text-white text-sm sm:text-base">+92 310 6960468</p>
+                <p className="text-[10px] font-black uppercase tracking-widest text-slate-400">Direct Line</p>
+                <p className="font-bold text-slate-900 dark:text-white">+92 310 6960468</p>
               </div>
             </div>
           </div>
         </div>
 
-        <div className="bg-white dark:bg-slate-900 p-6 sm:p-8 md:p-10 rounded-[2rem] sm:rounded-[2.5rem] border border-slate-100 dark:border-slate-800 shadow-2xl shadow-indigo-100/20 dark:shadow-none mb-10 lg:mb-0 text-left">
-          <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-5">
-            <div className="space-y-1.5 sm:space-y-2 text-left">
-              <label className="text-[9px] sm:text-[10px] font-black uppercase tracking-widest text-slate-400 dark:text-slate-500 ml-1">Your Identity</label>
+        {/* Form Section - Now Below the content */}
+        <div className="w-full max-w-2xl bg-white dark:bg-slate-900 p-8 md:p-12 rounded-[2.5rem] border border-slate-100 dark:border-slate-800 shadow-2xl shadow-indigo-100/20 dark:shadow-none text-left">
+          <form onSubmit={handleSubmit} className="space-y-6">
+            <div className="space-y-2">
+              <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 dark:text-slate-500 ml-1">Your Identity</label>
               <Input 
                 required
                 placeholder="Dr. Alexander Wright" 
-                className="h-12 sm:h-14 rounded-2xl bg-slate-50 dark:bg-slate-800/50 border-none focus:ring-indigo-500/20 dark:text-white text-sm sm:text-base"
+                className="h-14 rounded-2xl bg-slate-50 dark:bg-slate-800/50 border-none focus:ring-indigo-500/20 dark:text-white"
                 value={form.name}
                 onChange={(e) => setForm({...form, name: e.target.value})}
               />
             </div>
-            <div className="space-y-1.5 sm:space-y-2 text-left">
-              <label className="text-[9px] sm:text-[10px] font-black uppercase tracking-widest text-slate-400 dark:text-slate-500 ml-1">Contact Details</label>
+            <div className="space-y-2">
+              <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 dark:text-slate-500 ml-1">Contact Details</label>
               <Input 
                 required
                 placeholder="alex@clinic.com" 
-                className="h-12 sm:h-14 rounded-2xl bg-slate-50 dark:bg-slate-800/50 border-none focus:ring-indigo-500/20 dark:text-white text-sm sm:text-base"
+                className="h-14 rounded-2xl bg-slate-50 dark:bg-slate-800/50 border-none focus:ring-indigo-500/20 dark:text-white"
                 value={form.info}
                 onChange={(e) => setForm({...form, info: e.target.value})}
               />
             </div>
-            <div className="space-y-1.5 sm:space-y-2 text-left">
-              <label className="text-[9px] sm:text-[10px] font-black uppercase tracking-widest text-slate-400 dark:text-slate-500 ml-1">The Inquiry</label>
+            <div className="space-y-2">
+              <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 dark:text-slate-500 ml-1">The Inquiry</label>
               <Textarea 
                 required
                 placeholder="How can ClinicLog transform your practice?" 
-                className="min-h-[120px] sm:min-h-[140px] rounded-2xl bg-slate-50 dark:bg-slate-800/50 border-none focus:ring-indigo-500/20 dark:text-white text-sm sm:text-base resize-none"
+                className="min-h-[140px] rounded-2xl bg-slate-50 dark:bg-slate-800/50 border-none focus:ring-indigo-500/20 dark:text-white resize-none"
                 value={form.message}
                 onChange={(e) => setForm({...form, message: e.target.value})}
               />
             </div>
-            <Button type="submit" className="w-full h-14 sm:h-16 rounded-2xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-sm sm:text-lg shadow-xl shadow-indigo-100/50 dark:shadow-none transition-all active:scale-[0.98] mt-2">
-              <MessageCircle className="w-4 h-4 sm:w-5 sm:h-5 mr-2" />
+            <Button type="submit" className="w-full h-16 rounded-2xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-lg shadow-xl shadow-indigo-100/50 dark:shadow-none transition-all active:scale-[0.98] mt-2">
+              <MessageCircle className="w-5 h-5 mr-2" />
               Start WhatsApp Chat
             </Button>
-            <div className="flex items-center justify-center gap-2 text-[9px] sm:text-[10px] font-black text-slate-300 dark:text-slate-700 uppercase tracking-[0.2em] pt-1 sm:pt-2">
+            <div className="flex items-center justify-center gap-2 text-[10px] font-black text-slate-300 dark:text-slate-700 uppercase tracking-[0.2em] pt-2">
               <Sparkles className="w-3 h-3" />
               Priority Response Protocol
             </div>
