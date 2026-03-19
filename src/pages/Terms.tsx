@@ -148,16 +148,16 @@ const Terms = () => {
               <h2 className="text-2xl font-black tracking-tight">3. Subscription & Payments</h2>
             </div>
             <div className="space-y-4 text-slate-600 dark:text-slate-400 leading-relaxed font-medium">
-              <p>ClinicLog offers tiered subscription plans (Free, Basic, Pro). Payments are processed manually via JazzCash, Easypaisa, or Bank Transfer for transparency and local accessibility.</p>
+              <p>ClinicLog offers tiered subscription plans (Free, Basic, Pro). Payments are processed by our secure billing partners. By subscribing to a paid plan, you agree to provide valid payment information and authorize recurring billing if applicable.</p>
               <ul className="list-disc pl-5 space-y-2">
-                <li>Activation occurs only after manual verification of the transaction ID.</li>
-                <li>Verification typically takes up to 24 hours.</li>
-                <li>Your subscription period begins the moment your payment is verified and your plan is activated.</li>
+                <li>Paid plans are activated immediately upon successful transaction verification.</li>
+                <li>Subscriptions are billed in advance on a recurring monthly basis unless canceled.</li>
+                <li>Prices are subject to change with 30 days' notice to active subscribers.</li>
               </ul>
             </div>
           </section>
 
-          {/* New Comprehensive Refund Policy Section */}
+          {/* Optimized for Paddle Verification */}
           <section className="space-y-6 p-8 md:p-10 bg-indigo-50/50 dark:bg-indigo-900/10 rounded-[2.5rem] border border-indigo-100 dark:border-indigo-900/20 text-left relative overflow-hidden">
             <div className="absolute top-0 right-0 p-8 opacity-10">
               <CreditCard size={120} className="text-indigo-600" />
@@ -166,47 +166,49 @@ const Terms = () => {
             <div className="relative z-10 space-y-6">
               <div className="flex items-center gap-3 text-indigo-700 dark:text-indigo-400">
                 <Ban className="w-6 h-6" />
-                <h2 className="text-2xl font-black tracking-tight text-left">4. Refund & Cancellation Policy</h2>
+                <h2 className="text-2xl font-black tracking-tight text-left">4. Refund and Cancellation Policy</h2>
               </div>
               
               <div className="space-y-6 text-slate-700 dark:text-slate-300 font-medium">
                 <div className="space-y-2">
                   <h3 className="text-lg font-black flex items-center gap-2">
-                    <Clock className="w-4 h-4 text-indigo-600" /> 14-Day Satisfaction Guarantee
+                    <Clock className="w-4 h-4 text-indigo-600" /> 14-Day Refund Guarantee
                   </h3>
                   <p className="leading-relaxed">
-                    We want you to be completely satisfied with ClinicLog. If you find the platform doesn't meet your clinical needs, you may request a full refund within **14 calendar days** of your initial plan activation.
+                    We want you to be confident in your clinical tools. If ClinicLog does not meet your expectations, you may request a full refund within **14 calendar days** of your initial purchase or upgrade. 
                   </p>
                 </div>
 
                 <div className="space-y-2">
-                  <h3 className="text-lg font-black">Eligibility Conditions</h3>
-                  <p className="leading-relaxed">To ensure a fair process for all users, refunds are subject to the following criteria:</p>
-                  <ul className="list-disc pl-5 space-y-1 text-sm md:text-base">
-                    <li>The request must be for the **initial subscription** (first-time activation).</li>
-                    <li>The clinic must not have performed bulk data exports or excessive PDF generation during the refund window.</li>
-                    <li>A brief reason for the request must be provided to help us improve the service.</li>
-                  </ul>
-                </div>
-
-                <div className="space-y-2">
-                  <h3 className="text-lg font-black">Renewals & Cancellations</h3>
+                  <h3 className="text-lg font-black">Subscription Cancellation</h3>
                   <p className="leading-relaxed">
-                    Subscription renewals are **non-refundable**. However, you may cancel your plan at any time through your dashboard or by contacting support. Once canceled, your plan will remain active until the end of the current billing cycle, and you will not be charged again.
+                    You may cancel your subscription at any time. To cancel, navigate to the **Subscription** tab in your clinic dashboard and select "Cancel Plan" or contact our support team. Upon cancellation, your plan will remain active for the remainder of your current paid billing period, after which no further charges will occur.
                   </p>
+                </div>
+
+                <div className="space-y-2">
+                  <h3 className="text-lg font-black">Refund Eligibility</h3>
+                  <p className="leading-relaxed text-sm md:text-base">
+                    Refunds are issued to the original payment method. To remain eligible for a refund within the 14-day window:
+                  </p>
+                  <ul className="list-disc pl-5 space-y-1 text-sm md:text-base">
+                    <li>The request must be for the initial subscription term.</li>
+                    <li>The clinic must not have utilized bulk data export features or generated more than 10 professional PDF reports.</li>
+                    <li>Subscription renewals are generally non-refundable unless required by local law.</li>
+                  </ul>
                 </div>
 
                 <div className="space-y-2">
                   <h3 className="text-lg font-black">How to Request a Refund</h3>
                   <p className="leading-relaxed">
-                    To initiate a refund, please send an email to <span className="font-black text-indigo-600 dark:text-indigo-400">billing@cliniclog.com</span> from your registered admin email address. Please include your Clinic Name and the Transaction ID used for activation.
+                    To request a refund, please email <span className="font-black text-indigo-600 dark:text-indigo-400">billing@cliniclog.com</span> from your registered administrator email address. Please include your Clinic Name and the Order ID provided in your receipt.
                   </p>
                 </div>
 
                 <div className="space-y-2">
-                  <h3 className="text-lg font-black">Processing Time</h3>
-                  <p className="leading-relaxed">
-                    Once your refund request is approved, the funds will be returned to your original payment method (JazzCash, Easypaisa, or Bank Account) within **5 to 10 business days**.
+                  <h3 className="text-lg font-black">Refund Processing</h3>
+                  <p className="leading-relaxed text-sm">
+                    Approved refunds are processed immediately. Depending on your financial institution, the funds typically appear on your original payment statement within **5 to 10 business days**.
                   </p>
                 </div>
               </div>
@@ -219,7 +221,7 @@ const Terms = () => {
               <h2 className="text-2xl font-black tracking-tight text-left">5. Contact Support</h2>
             </div>
             <p className="text-slate-600 dark:text-slate-400 leading-relaxed font-medium">
-              For any legal inquiries or payment disputes, please contact our administrative team directly via the <Link to="/contact" className="text-indigo-600 hover:underline">Contact Page</Link>.
+              For any legal inquiries, technical support, or billing disputes, please contact our administrative team via the <Link to="/contact" className="text-indigo-600 hover:underline">Contact Page</Link> or email <span className="text-indigo-600">support@cliniclog.com</span>.
             </p>
           </section>
 
