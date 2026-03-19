@@ -1,6 +1,6 @@
 "use client";
 
-import jsPDF from 'jspdf';
+import jsPDF from 'jsPDF';
 import autoTable from 'jspdf-autotable';
 import { Patient } from '@/lib/supabase';
 import { ReportAnalytics } from './reportDataUtils';
@@ -51,15 +51,28 @@ export const generatePdfReport = (
   doc.text(`REPORTING WINDOW: ${dateRangeStr.toUpperCase()}`, margin + 5, 42);
   doc.text(`SYSTEM TIMESTAMP: ${new Date().toLocaleString().toUpperCase()}`, margin + 5, 47);
 
-  // Logo Placeholder / Brand Mark
+  // Logo Brand Mark (Stethoscope Style)
   const logoX = pageWidth - margin - 25;
+  const logoY = 15;
+  const logoSize = 14;
   doc.setFillColor(primaryColor[0], primaryColor[1], primaryColor[2]);
-  doc.roundedRect(logoX, 15, 12, 12, 3, 3, 'F');
-  doc.setTextColor(255, 255, 255);
-  doc.setFontSize(14);
-  doc.text('CL', logoX + 2.5, 23.5);
+  doc.roundedRect(logoX, logoY, logoSize, logoSize, 3, 3, 'F');
+  
+  // Draw Stylized White Stethoscope Icon to match web logo
+  doc.setDrawColor(255, 255, 255);
+  doc.setLineWidth(0.7);
+  
+  // Ear pieces (Binaurals)
+  doc.line(logoX + 4, logoY + 4, logoX + 7, logoY + 7); // Left ear
+  doc.line(logoX + 10, logoY + 4, logoX + 7, logoY + 7); // Right ear
+  
+  // Main tube and chest piece
+  doc.line(logoX + 7, logoY + 7, logoX + 7, logoY + 9);
+  doc.circle(logoX + 7, logoY + 10.5, 1.2, 'S'); // Outer ring
+  doc.setFillColor(255, 255, 255);
+  doc.circle(logoX + 7, logoY + 10.5, 0.6, 'F'); // Inner dot
 
-  // 2. Executive Summary Cards (Simulated)
+  // 2. Executive Summary Cards
   let currentY = 75;
   doc.setTextColor(darkTextColor[0], darkTextColor[1], darkTextColor[2]);
   doc.setFontSize(14);
@@ -123,7 +136,7 @@ export const generatePdfReport = (
     styles: { fontSize: 9 }
   });
 
-  // 5. Detailed Audit Log (New Page if necessary)
+  // 5. Detailed Audit Log (New Page)
   doc.addPage();
   doc.setFillColor(primaryColor[0], primaryColor[1], primaryColor[2]);
   doc.rect(0, 0, pageWidth, 15, 'F');
@@ -170,7 +183,6 @@ export const generatePdfReport = (
       margin,
       pageHeight - 10
     );
-    // Confidentiality stamp
     doc.text('CONFIDENTIAL', pageWidth - margin - 25, pageHeight - 10);
   }
 
