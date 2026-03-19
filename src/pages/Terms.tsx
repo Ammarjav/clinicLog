@@ -13,8 +13,7 @@ const Terms = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   const navLinks = [
-    { name: 'Vision', href: '/#vision' },
-    { name: 'Features', href: '/#features' },
+    { name: 'Home', href: '/' },
     { name: 'Pricing', href: '/pricing' },
     { name: 'Contact', href: '/contact' },
     { name: 'Terms', href: '/terms' },

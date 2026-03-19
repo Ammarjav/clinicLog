@@ -19,8 +19,7 @@ const Contact = () => {
   const [form, setForm] = useState({ name: '', info: '', message: '' });
 
   const navLinks = [
-    { name: 'Vision', href: '/#vision' },
-    { name: 'Features', href: '/#features' },
+    { name: 'Home', href: '/' },
     { name: 'Pricing', href: '/pricing' },
     { name: 'Contact', href: '/contact' },
     { name: 'Terms', href: '/terms' },

@@ -14,8 +14,7 @@ const PricingPage = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   const navLinks = [
-    { name: 'Vision', href: '/#vision' },
-    { name: 'Features', href: '/#features' },
+    { name: 'Home', href: '/' },
     { name: 'Pricing', href: '/pricing' },
     { name: 'Contact', href: '/contact' },
     { name: 'Terms', href: '/terms' },
@@ -76,7 +75,7 @@ const PricingPage = () => {
             exit={{ opacity: 0, y: -20 }}
             className="fixed inset-0 z-40 lg:hidden"
           >
-            <div className="absolute inset-0 bg-white dark:bg-slate-950 backdrop-blur-2xl flex flex-col p-6 pt-24">
+            <div className="absolute inset-0 bg-white dark:bg-slate-950 backdrop-blur-2xl flex flex-col p-6 pt-24 text-left">
               <div className="space-y-2 text-left">
                 {navLinks.map((link, idx) => (
                   <motion.div

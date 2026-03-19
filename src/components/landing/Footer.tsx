@@ -9,8 +9,7 @@ const Footer = () => {
   const whatsappNumber = "923106960468";
   
   const navLinks = [
-    { label: 'Protocol', href: '/#vision' },
-    { label: 'Features', href: '/#features' },
+    { label: 'Home', href: '/' },
     { label: 'Pricing', href: '/pricing' },
     { label: 'Contact', href: '/contact' },
     { label: 'Terms', href: '/terms' },

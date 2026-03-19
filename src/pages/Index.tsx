@@ -27,8 +27,7 @@ const Index = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   const navLinks = [
-    { name: 'Vision', href: '#vision' },
-    { name: 'Features', href: '#features' },
+    { name: 'Home', href: '/' },
     { name: 'Pricing', href: '/pricing' },
     { name: 'Contact', href: '/contact' },
     { name: 'Terms', href: '/terms' },
@@ -53,11 +52,7 @@ const Index = () => {
           {/* Desktop Nav */}
           <div className="hidden lg:flex items-center gap-8 font-semibold text-slate-500 dark:text-slate-400 text-sm">
             {navLinks.map((link) => (
-              link.href.startsWith('#') ? (
-                <a key={link.name} href={link.href} className="hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">{link.name}</a>
-              ) : (
-                <Link key={link.name} to={link.href} className="hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">{link.name}</Link>
-              )
+              <Link key={link.name} to={link.href} className="hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">{link.name}</Link>
             ))}
           </div>
 
@@ -104,23 +99,13 @@ const Index = () => {
                     animate={{ opacity: 1, x: 0 }}
                     transition={{ delay: idx * 0.05 }}
                   >
-                    {link.href.startsWith('#') ? (
-                      <a 
-                        href={link.href} 
-                        onClick={() => setIsMobileMenuOpen(false)}
-                        className="text-xl font-semibold text-slate-600 dark:text-slate-300 block px-4 py-3 rounded-2xl hover:bg-indigo-50 dark:hover:bg-indigo-900/20 hover:text-indigo-600 dark:hover:text-indigo-400 transition-all"
-                      >
-                        {link.name}
-                      </a>
-                    ) : (
-                      <Link 
-                        to={link.href}
-                        onClick={() => setIsMobileMenuOpen(false)}
-                        className="text-xl font-semibold text-slate-600 dark:text-slate-300 block px-4 py-3 rounded-2xl hover:bg-indigo-50 dark:hover:bg-indigo-900/20 hover:text-indigo-600 dark:hover:text-indigo-400 transition-all"
-                      >
-                        {link.name}
-                      </Link>
-                    )}
+                    <Link 
+                      to={link.href}
+                      onClick={() => setIsMobileMenuOpen(false)}
+                      className="text-xl font-semibold text-slate-600 dark:text-slate-300 block px-4 py-3 rounded-2xl hover:bg-indigo-50 dark:hover:bg-indigo-900/20 hover:text-indigo-600 dark:hover:text-indigo-400 transition-all"
+                    >
+                      {link.name}
+                    </Link>
                   </motion.div>
                 ))}
               </div>
@@ -162,7 +147,7 @@ const Index = () => {
           </p>
           
           <div className="flex flex-col sm:flex-row gap-3 md:gap-4 justify-center mb-12 md:mb-16 animate-in fade-in slide-in-from-bottom-16 duration-1000 px-4">
-            <Button asChild size="lg" className="w-full sm:w-auto rounded-2xl bg-indigo-600 hover:bg-indigo-700 h-14 md:h-16 px-8 md:px-10 text-base md:text-lg font-bold shadow-2xl shadow-indigo-200 dark:shadow-none group">
+            <Button asChild size="lg" className="w-full sm:w-auto rounded-2xl bg-indigo-600 hover:bg-indigo-700 h-14 md:h-16 px-8 md:px-10 text-base md:text-lg font-bold shadow-2xl shadow-indigo-100 dark:shadow-none group">
               <Link to="/admin/signup" className="flex items-center justify-center">
                 Get Started <ChevronRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
               </Link>
@@ -200,7 +185,7 @@ const Index = () => {
       </section>
 
       {/* Vision Section */}
-      <section id="vision" className="py-12 md:py-20 px-4 md:px-6 relative overflow-hidden">
+      <section className="py-12 md:py-20 px-4 md:px-6 relative overflow-hidden">
         <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
           <div className="relative order-2 lg:order-1">
             <div className="absolute -inset-4 bg-indigo-100/50 dark:bg-indigo-900/10 rounded-3xl blur-2xl -z-10" />
@@ -257,7 +242,7 @@ const Index = () => {
       </section>
 
       {/* Bento Grid Features */}
-      <section id="features" className="py-12 md:py-20 px-4 md:px-6 bg-slate-50/50 dark:bg-slate-950/50 text-left">
+      <section className="py-12 md:py-20 px-4 md:px-6 bg-slate-50/50 dark:bg-slate-950/50 text-left">
         <div className="max-w-7xl mx-auto">
           <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6 md:gap-8 mb-8 md:mb-12 px-2">
             <div className="max-w-2xl text-left">
