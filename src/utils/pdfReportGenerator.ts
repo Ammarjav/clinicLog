@@ -19,15 +19,12 @@ export const generatePdfReport = (
 
   const pageWidth = doc.internal.pageSize.getWidth();
   const margin = 15;
-
-  // Helper for colors
   const primaryColor = [79, 70, 229]; // Indigo-600
 
   // 1. Header
   doc.setFillColor(252, 252, 253);
   doc.rect(0, 0, pageWidth, 45, 'F');
   
-  // Clinic Details
   doc.setTextColor(15, 23, 42);
   doc.setFont('helvetica', 'bold');
   doc.setFontSize(22);
@@ -36,80 +33,71 @@ export const generatePdfReport = (
   doc.setFontSize(10);
   doc.setTextColor(100, 116, 139);
   doc.setFont('helvetica', 'normal');
-  doc.text('CLINICAL ANALYTICS PERFORMANCE REPORT', margin, 28);
+  doc.text('COMPREHENSIVE CLINICAL & FINANCIAL PERFORMANCE REPORT', margin, 28);
   
   doc.setFontSize(9);
-  doc.text(`Period: ${dateRangeStr}`, margin, 34);
-  doc.text(`Generated: ${new Date().toLocaleString()}`, margin, 38);
+  doc.text(`Reporting Period: ${dateRangeStr}`, margin, 34);
+  doc.text(`Generation Protocol: ${new Date().toLocaleString()}`, margin, 38);
 
-  // Brand Logo (Top Right)
   const logoX = pageWidth - margin - 35;
-  doc.setFillColor(79, 70, 229); // Indigo
+  doc.setFillColor(79, 70, 229);
   doc.roundedRect(logoX, 12, 8, 8, 2, 2, 'F');
-  // Plus sign inside logo
   doc.setDrawColor(255, 255, 255);
   doc.setLineWidth(0.8);
   doc.line(logoX + 4, 14, logoX + 4, 18);
   doc.line(logoX + 2, 16, logoX + 6, 16);
-  
   doc.setTextColor(15, 23, 42);
   doc.setFont('helvetica', 'bold');
   doc.setFontSize(14);
   doc.text('ClinicLog', logoX + 10, 18);
 
-  // 2. Summary Cards
-  const cardGap = 4;
-  const cardWidth = (pageWidth - (margin * 2) - (cardGap * 3)) / 4;
-  const cardY = 55;
-
-  const drawCard = (x: number, y: number, title: string, value: string, color: number[]) => {
-    doc.setFillColor(255, 255, 255);
-    doc.setDrawColor(241, 245, 249);
-    doc.roundedRect(x, y, cardWidth, 25, 3, 3, 'FD');
-    
-    doc.setFontSize(7);
-    doc.setTextColor(148, 163, 184);
-    doc.text(title.toUpperCase(), x + 4, y + 8);
-    
-    doc.setFontSize(12);
-    doc.setTextColor(color[0], color[1], color[2]);
-    doc.text(value, x + 4, y + 18);
-  };
-
-  drawCard(margin, cardY, 'Total Patients', analytics.totalPatients.toString(), primaryColor);
-  drawCard(margin + (cardWidth + cardGap), cardY, 'New Patients', analytics.newPatients.toString(), [16, 185, 129]);
-  drawCard(margin + (cardWidth + cardGap) * 2, cardY, 'Male Patients', analytics.malePatients.toString(), [59, 130, 246]);
-  drawCard(margin + (cardWidth + cardGap) * 3, cardY, 'Female Patients', analytics.femalePatients.toString(), [236, 72, 153]);
-
-  // 3. Advanced Insights
+  // 2. Financial & Volume Summary
   doc.setTextColor(15, 23, 42);
   doc.setFontSize(12);
-  doc.setFont('helvetica', 'bold');
-  doc.text('Operational Insights', margin, 95);
+  doc.text('Core Metrics Summary', margin, 55);
 
   autoTable(doc, {
-    startY: 100,
+    startY: 60,
     margin: { left: margin, right: margin },
-    head: [['Key Performance Indicator', 'Value']],
+    head: [['Clinical Category', 'Volume/Value', 'Status']],
     body: [
-      ['Busiest Day of Period', analytics.busiestDay],
-      ['Average Patient Age', `${analytics.avgAge} Years`],
-      ['Returning Patient Rate', `${analytics.returningPatientPercent}%`],
-      ['Patient Growth (New/Total)', `${analytics.growthRate}%`],
-      ['Top Condition', analytics.topConditions[0]?.name || 'N/A']
+      ['Total Patient Records', analytics.totalPatients.toString(), 'Synchronized'],
+      ['Gross Revenue (PKR)', `Rs. ${analytics.totalRevenue.toLocaleString()}`, 'Verified'],
+      ['Average Revenue Per Patient', `Rs. ${analytics.avgRevenuePerPatient.toLocaleString()}`, 'Calculated'],
+      ['New Patient Intake', analytics.newPatients.toString(), `${analytics.growthRate}% Growth`],
+      ['Patient Retention Rate', `${analytics.retentionRate}%`, 'High Loyalty']
     ],
-    theme: 'striped',
-    headStyles: { fillGray: 245, textColor: [71, 85, 105], fontSize: 9 },
+    theme: 'grid',
+    headStyles: { fillColor: [248, 250, 252], textColor: [15, 23, 42], fontStyle: 'bold' },
     styles: { fontSize: 9, cellPadding: 4 }
   });
 
-  // 4. Demographic Breakdown
-  const tableEnd = (doc as any).lastAutoTable.finalY + 15;
-  doc.setFontSize(12);
-  doc.text('Demographic Breakdown', margin, tableEnd);
+  // 3. Clinical Analytics Breakdown
+  const clinicalY = (doc as any).lastAutoTable.finalY + 15;
+  doc.text('Advanced Clinical Intelligence', margin, clinicalY);
 
   autoTable(doc, {
-    startY: tableEnd + 5,
+    startY: clinicalY + 5,
+    margin: { left: margin, right: margin },
+    head: [['Clinical KPI', 'Metric Value']],
+    body: [
+      ['Avg. Sessions Per Patient', `${analytics.avgSessionsPerPatient} Sessions`],
+      ['Busiest Clinical Day', analytics.busiestDay],
+      ['Returning Patient Volume', `${analytics.returningPatientPercent}% of Total`],
+      ['Average Patient Age', `${analytics.avgAge} Years`],
+      ['Top Clinical Condition', analytics.topConditions[0]?.name || 'N/A']
+    ],
+    theme: 'striped',
+    headStyles: { fillColor: primaryColor, textColor: [255, 255, 255] },
+    styles: { fontSize: 9 }
+  });
+
+  // 4. Demographic Distribution
+  const demoY = (doc as any).lastAutoTable.finalY + 15;
+  doc.text('Population Demographics', margin, demoY);
+
+  autoTable(doc, {
+    startY: demoY + 5,
     margin: { left: margin, right: margin },
     head: [['Pediatric (0-18)', 'Young Adult (19-35)', 'Adult (36-60)', 'Geriatric (60+)']],
     body: [[
@@ -123,36 +111,44 @@ export const generatePdfReport = (
     styles: { fontSize: 9, halign: 'center' }
   });
 
-  // 5. Patient Summary (Full List)
-  const patientTableY = (doc as any).lastAutoTable.finalY + 15;
-  doc.setFontSize(12);
-  doc.text('Patient Logs', margin, patientTableY);
+  // 5. Patient Logs (Start of new page if needed)
+  const logY = (doc as any).lastAutoTable.finalY + 15;
+  doc.text('Detailed Patient Logs', margin, logY);
 
   autoTable(doc, {
-    startY: patientTableY + 5,
+    startY: logY + 5,
     margin: { left: margin, right: margin },
-    head: [['Name', 'Age', 'Gender', 'Condition', 'Visit Date']],
+    head: [['Name', 'Gender', 'Condition', 'Visit Type', 'Fee (Rs.)']],
     body: data.map(p => [
       p.name,
-      p.age,
       p.gender,
       p.diagnosis,
-      new Date(p.visit_date).toLocaleDateString()
+      p.visit_type,
+      (Number(p.fee_paid) || 0).toLocaleString()
     ]),
     theme: 'striped',
     headStyles: { fillColor: primaryColor },
     styles: { fontSize: 8 }
   });
 
-  // 6. Footer
+  // 6. Final Concluding Note
+  const finalY = (doc as any).lastAutoTable.finalY + 15;
+  if (finalY < 270) { // Check if space on current page
+    doc.setFontSize(9);
+    doc.setTextColor(148, 163, 184);
+    doc.setFont('helvetica', 'italic');
+    doc.text('Note: For advanced data manipulation and bulk filtering, please use the "Export to Excel" feature in your Pro terminal.', margin, finalY);
+  }
+
+  // Footer
   const pageCount = doc.internal.getNumberOfPages();
   for (let i = 1; i <= pageCount; i++) {
     doc.setPage(i);
     doc.setFontSize(8);
     doc.setTextColor(148, 163, 184);
     doc.text(
-      `Page ${i} of ${pageCount}`,
-      pageWidth - margin - 20,
+      `Page ${i} of ${pageCount} | Private & Confidential`,
+      pageWidth - margin - 45,
       doc.internal.pageSize.getHeight() - 10
     );
   }

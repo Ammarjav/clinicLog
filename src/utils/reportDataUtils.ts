@@ -14,6 +14,10 @@ export interface ReportAnalytics {
   busiestDay: string;
   returningPatientPercent: number;
   growthRate: number;
+  totalRevenue: number;
+  avgRevenuePerPatient: number;
+  retentionRate: number;
+  avgSessionsPerPatient: number;
   ageGroups: {
     pediatric: number; // 0-18
     youngAdult: number; // 19-35
@@ -37,6 +41,10 @@ export const computeReportAnalytics = (data: Patient[]): ReportAnalytics => {
       busiestDay: 'N/A',
       returningPatientPercent: 0,
       growthRate: 0,
+      totalRevenue: 0,
+      avgRevenuePerPatient: 0,
+      retentionRate: 0,
+      avgSessionsPerPatient: 0,
       ageGroups: { pediatric: 0, youngAdult: 0, adult: 0, geriatric: 0 },
       aiInsights: []
     };
@@ -48,6 +56,22 @@ export const computeReportAnalytics = (data: Patient[]): ReportAnalytics => {
   const female = data.filter(p => p.gender === 'Female').length;
   const other = data.filter(p => p.gender === 'Other').length;
   const avgAge = data.reduce((acc, curr) => acc + curr.age, 0) / total;
+  
+  // Financials
+  const totalRevenue = data.reduce((acc, curr) => acc + (Number(curr.fee_paid) || 0), 0);
+
+  // Identity grouping for retention
+  const patientGroups: Record<string, any[]> = {};
+  data.forEach(p => {
+    const key = `${p.name.toLowerCase().trim()}|${p.phone || ''}`;
+    if (!patientGroups[key]) patientGroups[key] = [];
+    patientGroups[key].push(p);
+  });
+
+  const uniqueCount = Object.keys(patientGroups).length;
+  const returningCount = Object.values(patientGroups).filter(g => g.length > 1).length;
+  const retentionRate = uniqueCount > 0 ? (returningCount / uniqueCount) * 100 : 0;
+  const avgSessions = uniqueCount > 0 ? total / uniqueCount : 0;
 
   // Age Groups
   const ageGroups = { pediatric: 0, youngAdult: 0, adult: 0, geriatric: 0 };
@@ -61,7 +85,7 @@ export const computeReportAnalytics = (data: Patient[]): ReportAnalytics => {
   // Top Conditions
   const condMap: Record<string, number> = {};
   data.forEach(p => {
-    const d = p.diagnosis.trim().toLowerCase();
+    const d = p.diagnosis?.trim().toLowerCase() || 'unspecified';
     condMap[d] = (condMap[d] || 0) + 1;
   });
   const topConditions = Object.entries(condMap)
@@ -69,20 +93,17 @@ export const computeReportAnalytics = (data: Patient[]): ReportAnalytics => {
     .sort((a, b) => b.count - a.count)
     .slice(0, 5);
 
-  // Busiest Day
-  const dayMap: Record<string, number> = {};
-  data.forEach(p => {
-    dayMap[p.visit_date] = (dayMap[p.visit_date] || 0) + 1;
-  });
-  const busiestDay = Object.entries(dayMap).sort((a, b) => b[1] - a[1])[0]?.[0] || 'N/A';
+  const busiestDay = Object.entries(
+    data.reduce((acc: any, p) => {
+      acc[p.visit_date] = (acc[p.visit_date] || 0) + 1;
+      return acc;
+    }, {})
+  ).sort((a: any, b: any) => b[1] - a[1])[0]?.[0] || 'N/A';
 
-  const returningPercent = ((total - newCount) / total) * 100;
-
-  // Simple Insights
   const insights = [
-    `Most common condition this period was "${topConditions[0]?.name || 'N/A'}".`,
-    `${Math.round(returningPercent)}% of your volume came from returning patients.`,
-    `Patient demographic is primarily ${Object.entries(ageGroups).sort((a, b) => b[1] - a[1])[0][0].replace(/([A-Z])/g, ' $1').toLowerCase()}.`
+    `Retention analysis shows a ${Math.round(retentionRate)}% loyalty rate across clinical sessions.`,
+    `Financial yield per unique patient is averaging Rs. ${Math.round(totalRevenue / (uniqueCount || 1))}.`,
+    `Clinical volume is primarily driven by ${topConditions[0]?.name || 'various'} cases.`
   ];
 
   return {
@@ -92,11 +113,15 @@ export const computeReportAnalytics = (data: Patient[]): ReportAnalytics => {
     femalePatients: female,
     otherPatients: other,
     avgAge: Math.round(avgAge * 10) / 10,
-    totalVisits: total, // For this simplified model, visits = patient records
+    totalVisits: total,
     topConditions,
     busiestDay: busiestDay !== 'N/A' ? new Date(busiestDay).toLocaleDateString() : 'N/A',
-    returningPatientPercent: Math.round(returningPercent),
-    growthRate: Math.round((newCount / total) * 100), // Simple proxy for growth
+    returningPatientPercent: Math.round(((total - newCount) / total) * 100),
+    growthRate: Math.round((newCount / total) * 100),
+    totalRevenue,
+    avgRevenuePerPatient: Math.round(totalRevenue / (uniqueCount || 1)),
+    retentionRate: Math.round(retentionRate),
+    avgSessionsPerPatient: Math.round(avgSessions * 10) / 10,
     ageGroups,
     aiInsights: insights
   };
