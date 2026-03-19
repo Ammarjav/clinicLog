@@ -109,7 +109,7 @@ const PricingPage = () => {
         )}
       </AnimatePresence>
 
-      <main className="pt-20">
+      <main className="pt-4 md:pt-8">
         <PricingSection />
         
         {/* Support Section */}
