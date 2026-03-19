@@ -37,18 +37,26 @@ const Index = () => {
     { name: 'Terms', href: '/terms' },
   ];
 
-  // Animation Variants
+  // Refined Animation Variants for a smoother "one-by-one" feel
   const fadeInUp = {
-    initial: { opacity: 0, y: 30 },
-    whileInView: { opacity: 1, y: 0 },
-    viewport: { once: true, margin: "-100px" },
-    transition: { duration: 0.7, ease: [0.22, 1, 0.36, 1] }
+    initial: { opacity: 0, y: 40 },
+    whileInView: { 
+      opacity: 1, 
+      y: 0,
+      transition: { duration: 0.8, ease: [0.22, 1, 0.36, 1] }
+    },
+    viewport: { once: true, margin: "-50px" }
   };
 
   const staggerContainer = {
     initial: {},
-    whileInView: { transition: { staggerChildren: 0.1 } },
-    viewport: { once: true }
+    whileInView: { 
+      transition: { 
+        staggerChildren: 0.2, // Increased delay between children for clearer sequence
+        delayChildren: 0.1 
+      } 
+    },
+    viewport: { once: true, amount: 0.2 }
   };
 
   return (
@@ -81,7 +89,7 @@ const Index = () => {
               </Button>
             </div>
             
-            <Button asChild className="hidden sm:flex rounded-xl bg-slate-900 dark:bg-white dark:text-slate-900 hover:bg-indigo-600 dark:hover:bg-indigo-400 text-white shadow-lg dark:shadow-none transition-all px-6 text-sm h-10">
+            <Button asChild className="hidden sm:flex rounded-xl bg-slate-900 dark:bg-white dark:text-slate-900 hover:bg-indigo-600 dark:hover:text-indigo-400 text-white shadow-lg dark:shadow-none transition-all px-6 text-sm h-10">
               <Link to="/admin/signup">Join Now</Link>
             </Button>
 
@@ -233,11 +241,12 @@ const Index = () => {
             <p className="text-base md:text-lg text-slate-500 dark:text-slate-400 max-w-sm">Every feature is engineered to remove administrative friction from your workflow.</p>
           </motion.div>
 
+          {/* Staggered Container */}
           <motion.div 
             variants={staggerContainer}
             initial="initial"
             whileInView="whileInView"
-            viewport={{ once: true }}
+            viewport={{ once: true, amount: 0.1 }}
             className="grid grid-cols-1 md:grid-cols-6 gap-4 md:gap-6 px-2"
           >
             {/* Follow-up Protocol */}
@@ -330,14 +339,14 @@ const Index = () => {
         </div>
       </section>
 
-      {/* Vision Section */}
+      {/* Vision Section with Staggered Sequence */}
       <section className="py-12 md:py-20 px-4 md:px-6 relative overflow-hidden">
         <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
           <motion.div 
             variants={staggerContainer}
             initial="initial"
             whileInView="whileInView"
-            viewport={{ once: true }}
+            viewport={{ once: true, amount: 0.3 }}
             className="relative order-2 lg:order-1"
           >
             <div className="absolute -inset-4 bg-indigo-100/50 dark:bg-indigo-900/10 rounded-3xl blur-2xl -z-10" />
@@ -372,7 +381,7 @@ const Index = () => {
             initial={{ opacity: 0, x: 30 }}
             whileInView={{ opacity: 1, x: 0 }}
             viewport={{ once: true }}
-            transition={{ duration: 0.8 }}
+            transition={{ duration: 1, ease: "easeOut" }}
             className="order-1 lg:order-2 space-y-6 text-left"
           >
             <div className="inline-block px-4 py-1.5 bg-indigo-50 dark:bg-indigo-900/30 rounded-full">
