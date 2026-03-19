@@ -28,7 +28,7 @@ const Index = () => {
   const navLinks = [
     { name: 'Vision', href: '#vision' },
     { name: 'Features', href: '#features' },
-    { name: 'Pricing', href: '#pricing' },
+    { name: 'Pricing', href: '/pricing' },
     { name: 'Contact', href: '/contact' },
     { name: 'Terms', href: '/terms' },
   ];
@@ -371,7 +371,7 @@ const Index = () => {
           <div className="flex flex-wrap justify-center gap-6 md:gap-12 text-xs md:text-sm font-bold text-slate-400 dark:text-slate-500">
             <a href="#vision" className="hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors uppercase tracking-widest">Protocol</a>
             <a href="#features" className="hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors uppercase tracking-widest">Features</a>
-            <a href="#pricing" className="hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors uppercase tracking-widest">Pricing</a>
+            <Link to="/pricing" className="hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors uppercase tracking-widest">Pricing</Link>
             <Link to="/contact" className="hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors uppercase tracking-widest">Contact</Link>
             <Link to="/terms" className="hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors uppercase tracking-widest">Terms</Link>
           </div>

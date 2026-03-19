@@ -10,6 +10,7 @@ import Login from "./pages/admin/Login";
 import Signup from "./pages/admin/Signup";
 import Contact from "./pages/Contact";
 import Terms from "./pages/Terms";
+import Pricing from "./pages/Pricing";
 import ClinicGuard from "./components/auth/ClinicGuard";
 import ClinicLayout from "./components/layout/ClinicLayout";
 import ClinicDashboard from "./pages/clinic/ClinicDashboard";
@@ -38,6 +39,7 @@ const App = () => {
               <Route path="/admin/signup" element={<Signup />} />
               <Route path="/contact" element={<Contact />} />
               <Route path="/terms" element={<Terms />} />
+              <Route path="/pricing" element={<Pricing />} />
               
               {/* Internal Admin Payment Tool */}
               <Route path="/admin/payments-management" element={<AdminPayments />} />
