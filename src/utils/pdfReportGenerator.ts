@@ -21,7 +21,6 @@ export const generatePdfReport = (
   const pageHeight = doc.internal.pageSize.getHeight();
   const margin = 20;
   const primaryColor = [79, 70, 229]; // Indigo-600
-  const secondaryColor = [16, 185, 129]; // Emerald-500
   const mutedTextColor = [100, 116, 139];
   const darkTextColor = [15, 23, 42];
 
@@ -33,32 +32,16 @@ export const generatePdfReport = (
   doc.setFillColor(primaryColor[0], primaryColor[1], primaryColor[2]);
   doc.rect(0, 0, 4, 55, 'F');
 
-  // Brand Identity (Top Right)
-  const brandX = pageWidth - margin - 45;
-  const logoY = 15;
+  // Brand Typography (Top Right)
+  const brandX = pageWidth - margin - 35;
+  const brandY = 22;
   
-  // Draw Icon Box
-  doc.setFillColor(primaryColor[0], primaryColor[1], primaryColor[2]);
-  doc.roundedRect(brandX, logoY, 11, 11, 2.5, 2.5, 'F');
-  
-  // Draw Stethoscope Icon (White)
-  doc.setDrawColor(255, 255, 255);
-  doc.setLineWidth(0.6);
-  // Binaurals
-  doc.line(brandX + 3, logoY + 3, brandX + 5.5, logoY + 5.5);
-  doc.line(brandX + 8, logoY + 3, brandX + 5.5, logoY + 5.5);
-  // Tube
-  doc.line(brandX + 5.5, logoY + 5.5, brandX + 5.5, logoY + 7.5);
-  // Diaphragm
-  doc.circle(brandX + 5.5, logoY + 8.5, 1, 'S');
-  
-  // Brand Text
   doc.setFont('helvetica', 'bold');
-  doc.setFontSize(16);
+  doc.setFontSize(18);
   doc.setTextColor(darkTextColor[0], darkTextColor[1], darkTextColor[2]);
-  doc.text('Clinic', brandX + 13, logoY + 8);
+  doc.text('Clinic', brandX, brandY);
   doc.setTextColor(primaryColor[0], primaryColor[1], primaryColor[2]);
-  doc.text('Log', brandX + 28, logoY + 8);
+  doc.text('Log', brandX + 16, brandY);
 
   // Clinic Header (Top Left)
   doc.setTextColor(darkTextColor[0], darkTextColor[1], darkTextColor[2]);
@@ -135,10 +118,9 @@ export const generatePdfReport = (
     styles: { fontSize: 9 }
   });
 
-  // 5. Detailed Appendix (Audit Log) - Removed addPage to keep flow continuous
+  // 5. Detailed Appendix (Audit Log)
   currentY = (doc as any).lastAutoTable.finalY + 15;
   
-  // Only add page if very little space remains
   if (currentY > 230) {
     doc.addPage();
     currentY = 25;
@@ -163,7 +145,7 @@ export const generatePdfReport = (
     styles: { fontSize: 8, cellPadding: 3 }
   });
 
-  // 6. Professional Footer Disclaimer
+  // 6. Professional Footer
   currentY = (doc as any).lastAutoTable.finalY + 15;
   if (currentY > pageHeight - 30) {
     doc.addPage();
