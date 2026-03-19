@@ -1,6 +1,6 @@
 "use client";
 
-import jsPDF from 'jsPDF';
+import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import { Patient } from '@/lib/supabase';
 import { ReportAnalytics } from './reportDataUtils';
@@ -25,106 +25,105 @@ export const generatePdfReport = (
   const mutedTextColor = [100, 116, 139];
   const darkTextColor = [15, 23, 42];
 
-  // 1. Premium Header Design
+  // 1. Header Section
+  doc.setFillColor(248, 250, 252);
+  doc.rect(0, 0, pageWidth, 55, 'F');
+  
   // Indigo side accent
   doc.setFillColor(primaryColor[0], primaryColor[1], primaryColor[2]);
-  doc.rect(0, 0, 5, 60, 'F');
-  
-  // Light background for header area
-  doc.setFillColor(248, 250, 252);
-  doc.rect(5, 0, pageWidth - 5, 60, 'F');
+  doc.rect(0, 0, 4, 55, 'F');
 
-  // Clinic Title
-  doc.setTextColor(darkTextColor[0], darkTextColor[1], darkTextColor[2]);
-  doc.setFont('helvetica', 'bold');
-  doc.setFontSize(26);
-  doc.text(clinicName.toUpperCase(), margin + 5, 25);
-  
-  doc.setFontSize(10);
-  doc.setTextColor(mutedTextColor[0], mutedTextColor[1], mutedTextColor[2]);
-  doc.setFont('helvetica', 'bold');
-  doc.text('OFFICIAL CLINICAL PERFORMANCE INTELLIGENCE', margin + 5, 33);
-  
-  // Header Meta Info
-  doc.setFont('helvetica', 'normal');
-  doc.setFontSize(9);
-  doc.text(`REPORTING WINDOW: ${dateRangeStr.toUpperCase()}`, margin + 5, 42);
-  doc.text(`SYSTEM TIMESTAMP: ${new Date().toLocaleString().toUpperCase()}`, margin + 5, 47);
-
-  // Logo Brand Mark (Stethoscope Style)
-  const logoX = pageWidth - margin - 25;
+  // Brand Identity (Top Right)
+  const brandX = pageWidth - margin - 45;
   const logoY = 15;
-  const logoSize = 14;
+  
+  // Draw Icon Box
   doc.setFillColor(primaryColor[0], primaryColor[1], primaryColor[2]);
-  doc.roundedRect(logoX, logoY, logoSize, logoSize, 3, 3, 'F');
+  doc.roundedRect(brandX, logoY, 11, 11, 2.5, 2.5, 'F');
   
-  // Draw Stylized White Stethoscope Icon to match web logo
+  // Draw Stethoscope Icon (White)
   doc.setDrawColor(255, 255, 255);
-  doc.setLineWidth(0.7);
+  doc.setLineWidth(0.6);
+  // Binaurals
+  doc.line(brandX + 3, logoY + 3, brandX + 5.5, logoY + 5.5);
+  doc.line(brandX + 8, logoY + 3, brandX + 5.5, logoY + 5.5);
+  // Tube
+  doc.line(brandX + 5.5, logoY + 5.5, brandX + 5.5, logoY + 7.5);
+  // Diaphragm
+  doc.circle(brandX + 5.5, logoY + 8.5, 1, 'S');
   
-  // Ear pieces (Binaurals)
-  doc.line(logoX + 4, logoY + 4, logoX + 7, logoY + 7); // Left ear
-  doc.line(logoX + 10, logoY + 4, logoX + 7, logoY + 7); // Right ear
-  
-  // Main tube and chest piece
-  doc.line(logoX + 7, logoY + 7, logoX + 7, logoY + 9);
-  doc.circle(logoX + 7, logoY + 10.5, 1.2, 'S'); // Outer ring
-  doc.setFillColor(255, 255, 255);
-  doc.circle(logoX + 7, logoY + 10.5, 0.6, 'F'); // Inner dot
-
-  // 2. Executive Summary Cards
-  let currentY = 75;
-  doc.setTextColor(darkTextColor[0], darkTextColor[1], darkTextColor[2]);
-  doc.setFontSize(14);
+  // Brand Text
   doc.setFont('helvetica', 'bold');
-  doc.text('EXECUTIVE METRICS', margin, currentY);
+  doc.setFontSize(16);
+  doc.setTextColor(darkTextColor[0], darkTextColor[1], darkTextColor[2]);
+  doc.text('Clinic', brandX + 13, logoY + 8);
+  doc.setTextColor(primaryColor[0], primaryColor[1], primaryColor[2]);
+  doc.text('Log', brandX + 28, logoY + 8);
+
+  // Clinic Header (Top Left)
+  doc.setTextColor(darkTextColor[0], darkTextColor[1], darkTextColor[2]);
+  doc.setFontSize(22);
+  doc.text(clinicName.toUpperCase(), margin + 5, 22);
+  
+  doc.setFontSize(9);
+  doc.setTextColor(mutedTextColor[0], mutedTextColor[1], mutedTextColor[2]);
+  doc.text('CLINICAL PERFORMANCE & FINANCIAL AUDIT', margin + 5, 29);
+  
+  doc.setFont('helvetica', 'normal');
+  doc.text(`WINDOW: ${dateRangeStr.toUpperCase()}`, margin + 5, 38);
+  doc.text(`ISSUED: ${new Date().toLocaleString().toUpperCase()}`, margin + 5, 43);
+
+  // 2. Performance Summary Grid
+  let currentY = 70;
+  doc.setTextColor(darkTextColor[0], darkTextColor[1], darkTextColor[2]);
+  doc.setFontSize(13);
+  doc.setFont('helvetica', 'bold');
+  doc.text('CORE PERFORMANCE SUMMARY', margin, currentY);
 
   autoTable(doc, {
     startY: currentY + 5,
     margin: { left: margin, right: margin },
-    head: [['METRIC CATEGORY', 'QUANTITATIVE DATA', 'VALUATION STATUS']],
+    head: [['CATEGORY', 'DATA POINT', 'STATUS / BENCHMARK']],
     body: [
-      ['GROSS CLINIC REVENUE', `PKR ${analytics.totalRevenue.toLocaleString()}`, 'VERIFIED'],
-      ['PATIENT THROUGHPUT', `${analytics.totalPatients} UNIQUE RECORDS`, 'SYNCHRONIZED'],
-      ['REVENUE PER PATIENT', `PKR ${analytics.avgRevenuePerPatient.toLocaleString()}`, 'CALCULATED'],
+      ['GROSS REVENUE', `PKR ${analytics.totalRevenue.toLocaleString()}`, 'VERIFIED'],
+      ['PATIENT VOLUME', `${analytics.totalPatients} UNIQUE LOGS`, 'SYNCHRONIZED'],
+      ['FINANCIAL YIELD', `PKR ${analytics.avgRevenuePerPatient.toLocaleString()} / PATIENT`, 'OPTIMIZED'],
       ['CLINICAL RETENTION', `${analytics.retentionRate}% LOYALTY RATE`, 'HIGH PERFORMANCE']
     ],
     theme: 'grid',
-    headStyles: { fillColor: [30, 41, 59], textColor: [255, 255, 255], fontStyle: 'bold', fontSize: 8 },
-    styles: { fontSize: 9, cellPadding: 5, font: 'helvetica' },
-    columnStyles: {
-      1: { fontStyle: 'bold', textColor: primaryColor }
-    }
+    headStyles: { fillColor: [30, 41, 59], textColor: [255, 255, 255], fontSize: 8, fontStyle: 'bold' },
+    styles: { fontSize: 9, cellPadding: 5 },
+    columnStyles: { 1: { fontStyle: 'bold', textColor: primaryColor } }
   });
 
-  // 3. Demographic & Clinical Intelligence
+  // 3. Demographic Insights
   currentY = (doc as any).lastAutoTable.finalY + 15;
-  doc.setFontSize(14);
-  doc.text('POPULATION DYNAMICS', margin, currentY);
+  doc.setFontSize(13);
+  doc.text('POPULATION INTELLIGENCE', margin, currentY);
 
   autoTable(doc, {
     startY: currentY + 5,
     margin: { left: margin, right: margin },
-    head: [['GENDER DISTRIBUTION', 'VOLUME', 'AGE DEMOGRAPHICS', 'VALUE']],
+    head: [['GENDER', 'COUNT', 'AGE BRACKET', 'COUNT']],
     body: [
-      ['MALE PATIENTS', analytics.malePatients.toString(), 'PEDIATRIC (0-18)', analytics.ageGroups.pediatric.toString()],
-      ['FEMALE PATIENTS', analytics.femalePatients.toString(), 'YOUNG ADULT (19-35)', analytics.ageGroups.youngAdult.toString()],
-      ['OTHER / UNSPECIFIED', analytics.otherPatients.toString(), 'ADULT (36-60)', analytics.ageGroups.adult.toString()],
-      ['TOTAL GENDER LOGS', (analytics.malePatients + analytics.femalePatients + analytics.otherPatients).toString(), 'GERIATRIC (60+)', analytics.ageGroups.geriatric.toString()]
+      ['MALE', analytics.malePatients.toString(), 'PEDIATRIC (0-18)', analytics.ageGroups.pediatric.toString()],
+      ['FEMALE', analytics.femalePatients.toString(), 'YOUNG ADULT (19-35)', analytics.ageGroups.youngAdult.toString()],
+      ['OTHER', analytics.otherPatients.toString(), 'ADULT (36-60)', analytics.ageGroups.adult.toString()],
+      ['TOTAL', analytics.totalPatients.toString(), 'GERIATRIC (60+)', analytics.ageGroups.geriatric.toString()]
     ],
     theme: 'striped',
     headStyles: { fillColor: primaryColor, textColor: [255, 255, 255], fontSize: 8 },
     styles: { fontSize: 9, cellPadding: 4 }
   });
 
-  // 4. Clinical Conditions Ranking
+  // 4. Clinical Distribution
   currentY = (doc as any).lastAutoTable.finalY + 15;
-  doc.text('PRIMARY DIAGNOSTIC TRENDS', margin, currentY);
+  doc.text('DIAGNOSTIC DISTRIBUTION', margin, currentY);
 
   autoTable(doc, {
     startY: currentY + 5,
     margin: { left: margin, right: margin },
-    head: [['RANK', 'CLINICAL CONDITION', 'INCIDENCE VOLUME', 'DENSITY']],
+    head: [['RANK', 'CLINICAL CONDITION', 'VOLUME', 'DENSITY']],
     body: analytics.topConditions.map((c, i) => [
       `#${i + 1}`,
       c.name.toUpperCase(),
@@ -136,18 +135,22 @@ export const generatePdfReport = (
     styles: { fontSize: 9 }
   });
 
-  // 5. Detailed Audit Log (New Page)
-  doc.addPage();
-  doc.setFillColor(primaryColor[0], primaryColor[1], primaryColor[2]);
-  doc.rect(0, 0, pageWidth, 15, 'F');
-  doc.setTextColor(255, 255, 255);
-  doc.setFontSize(10);
-  doc.text('APPENDIX A: DETAILED CLINICAL TRANSACTION LOG', margin, 10);
+  // 5. Detailed Appendix (Audit Log) - Removed addPage to keep flow continuous
+  currentY = (doc as any).lastAutoTable.finalY + 15;
+  
+  // Only add page if very little space remains
+  if (currentY > 230) {
+    doc.addPage();
+    currentY = 25;
+  }
+
+  doc.setFontSize(13);
+  doc.text('APPENDIX: DETAILED TRANSACTION LOG', margin, currentY);
 
   autoTable(doc, {
-    startY: 25,
+    startY: currentY + 5,
     margin: { left: margin, right: margin },
-    head: [['PATIENT IDENTITY', 'SEX', 'DIAGNOSIS', 'VISIT TYPE', 'FEE (PKR)']],
+    head: [['NAME', 'GENDER', 'DIAGNOSIS', 'STATUS', 'FEE (PKR)']],
     body: data.map(p => [
       p.name.toUpperCase(),
       p.gender.charAt(0),
@@ -160,31 +163,31 @@ export const generatePdfReport = (
     styles: { fontSize: 8, cellPadding: 3 }
   });
 
-  // 6. Concluding Protocol Note
-  const finalY = (doc as any).lastAutoTable.finalY + 20;
-  if (finalY < pageHeight - 40) {
-    doc.setDrawColor(226, 232, 240);
-    doc.line(margin, finalY - 5, pageWidth - margin, finalY - 5);
-    doc.setTextColor(mutedTextColor[0], mutedTextColor[1], mutedTextColor[2]);
-    doc.setFontSize(8);
-    doc.setFont('helvetica', 'italic');
-    doc.text('DATA PRIVACY NOTICE: This document contains protected health information (PHI).', margin, finalY);
-    doc.text('For advanced data manipulation, filtering, and bulk audits, please utilize the "EXPORT TO EXCEL" tool in your Pro terminal.', margin, finalY + 5);
+  // 6. Professional Footer Disclaimer
+  currentY = (doc as any).lastAutoTable.finalY + 15;
+  if (currentY > pageHeight - 30) {
+    doc.addPage();
+    currentY = 25;
   }
 
-  // Footer Protocol
+  doc.setDrawColor(226, 232, 240);
+  doc.line(margin, currentY, pageWidth - margin, currentY);
+  
+  doc.setTextColor(mutedTextColor[0], mutedTextColor[1], mutedTextColor[2]);
+  doc.setFontSize(8);
+  doc.setFont('helvetica', 'italic');
+  doc.text('CONFIDENTIALITY NOTICE: This document contains protected health information (PHI).', margin, currentY + 8);
+  doc.text('NOTE: For advanced data manipulation, filtering, and bulk audits, please use the "EXPORT TO EXCEL" tool in your Pro terminal.', margin, currentY + 13);
+
+  // Page Numbers
   const totalPages = doc.internal.getNumberOfPages();
   for (let i = 1; i <= totalPages; i++) {
     doc.setPage(i);
     doc.setFontSize(8);
     doc.setTextColor(148, 163, 184);
-    doc.text(
-      `PAGE ${i} OF ${totalPages} | CLINICLOG SECURE REPORTING PROTOCOL v4.0`,
-      margin,
-      pageHeight - 10
-    );
-    doc.text('CONFIDENTIAL', pageWidth - margin - 25, pageHeight - 10);
+    doc.text(`PAGE ${i} OF ${totalPages} | CLINICLOG SECURE AUDIT PROTOCOL`, margin, pageHeight - 10);
+    doc.text('OFFICIAL DOCUMENT', pageWidth - margin - 35, pageHeight - 10);
   }
 
-  doc.save(`ClinicLog_Report_${dateRangeStr.replace(/\s/g, '_')}.pdf`);
+  doc.save(`ClinicLog_Audit_${dateRangeStr.replace(/\s/g, '_')}.pdf`);
 };
