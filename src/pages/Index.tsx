@@ -19,7 +19,12 @@ import {
   FileText,
   MousePointer2,
   Menu,
-  X
+  X,
+  CalendarClock,
+  Banknote,
+  Stethoscope,
+  TrendingUp,
+  Zap
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -49,7 +54,6 @@ const Index = () => {
             <span className="text-base md:text-xl font-black text-slate-900 dark:text-white tracking-tighter">Clinic<span className="text-indigo-600">Log</span></span>
           </Link>
           
-          {/* Desktop Nav */}
           <div className="hidden lg:flex items-center gap-8 font-semibold text-slate-500 dark:text-slate-400 text-sm">
             {navLinks.map((link) => (
               <Link key={link.name} to={link.href} className="hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">{link.name}</Link>
@@ -68,7 +72,6 @@ const Index = () => {
               <Link to="/admin/signup">Join Now</Link>
             </Button>
 
-            {/* Hamburger Toggle */}
             <Button 
               variant="ghost" 
               size="icon" 
@@ -157,7 +160,6 @@ const Index = () => {
             </Button>
           </div>
 
-          {/* Floating Dashboard Preview */}
           <div className="relative max-w-5xl mx-auto animate-in zoom-in-95 duration-1000 px-2 md:px-0">
             <div className="absolute -inset-1 bg-gradient-to-tr from-indigo-500 to-emerald-400 rounded-3xl blur-xl md:blur-2xl opacity-20" />
             <div className="relative bg-white/40 dark:bg-slate-900/40 backdrop-blur-sm p-2 md:p-4 rounded-3xl border border-white dark:border-slate-800 shadow-2xl dark:shadow-none overflow-hidden group text-center">
@@ -167,7 +169,6 @@ const Index = () => {
                 alt="ClinicLog Interface" 
                 className="rounded-3xl w-full shadow-2xl dark:shadow-none transition-all duration-700 object-cover aspect-[21/9]"
               />
-              {/* Floating Stat Widget */}
               <div className="hidden sm:block absolute bottom-6 right-6 md:bottom-10 md:right-10 bg-white/90 dark:bg-slate-900/90 backdrop-blur-md p-4 md:p-6 rounded-3xl shadow-2xl dark:shadow-none border border-white/50 dark:border-slate-800 animate-bounce-slow text-left">
                 <div className="flex items-center gap-3 md:gap-4">
                   <div className="bg-emerald-100 dark:bg-emerald-900/30 p-2 md:p-3 rounded-2xl">
@@ -179,6 +180,108 @@ const Index = () => {
                   </div>
                 </div>
               </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Bento Grid Features - Redesigned for Specific App Logic */}
+      <section className="py-12 md:py-24 px-4 md:px-6 bg-slate-50/50 dark:bg-slate-950/50 text-left">
+        <div className="max-w-7xl mx-auto">
+          <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6 md:gap-8 mb-12 md:mb-16 px-2">
+            <div className="max-w-2xl text-left">
+              <h2 className="text-xs font-black text-indigo-600 uppercase tracking-[0.3em] mb-2 md:mb-3">Clinical Engine</h2>
+              <p className="text-3xl md:text-6xl font-black text-slate-900 dark:text-white tracking-tighter">Tools that think like <span className="text-indigo-600">you.</span></p>
+            </div>
+            <p className="text-base md:text-lg text-slate-500 dark:text-slate-400 max-w-sm">Every feature is engineered to remove administrative friction from your workflow.</p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-6 gap-4 md:gap-6 px-2">
+            {/* Follow-up Protocol */}
+            <div className="md:col-span-3 bg-white dark:bg-slate-900 p-8 md:p-10 rounded-[2.5rem] border border-slate-100 dark:border-slate-800 shadow-sm hover:shadow-xl transition-all group relative overflow-hidden">
+              <div className="absolute top-0 right-0 p-8 opacity-5 group-hover:opacity-10 transition-opacity">
+                <CalendarClock size={160} className="text-indigo-600" />
+              </div>
+              <div className="relative z-10 text-left">
+                <div className="w-12 h-12 md:w-14 md:h-14 rounded-2xl bg-indigo-50 dark:bg-indigo-900/30 flex items-center justify-center mb-6">
+                  <CalendarClock className="w-6 h-6 md:w-7 md:h-7 text-indigo-600 dark:text-indigo-400" />
+                </div>
+                <div className="inline-flex items-center gap-2 px-3 py-1 bg-indigo-600 text-white rounded-full text-[10px] font-black uppercase tracking-widest mb-4">One-Click Protocol</div>
+                <h3 className="text-2xl md:text-3xl font-black text-slate-900 dark:text-white mb-3 tracking-tight">Recovery Monitoring</h3>
+                <p className="text-slate-500 dark:text-slate-400 leading-relaxed">
+                  Identify patients who haven't returned for care. Send personalized WhatsApp check-ins or snooze reminders with a single click.
+                </p>
+              </div>
+            </div>
+
+            {/* Financial Analytics */}
+            <div className="md:col-span-3 bg-slate-900 dark:bg-indigo-950 p-8 md:p-10 rounded-[2.5rem] text-white hover:shadow-2xl hover:shadow-indigo-500/20 transition-all group relative overflow-hidden">
+              <div className="absolute bottom-0 right-0 p-6 opacity-20">
+                <TrendingUp size={140} className="text-emerald-400" />
+              </div>
+              <div className="relative z-10 text-left">
+                <div className="w-12 h-12 md:w-14 md:h-14 rounded-2xl bg-white/10 flex items-center justify-center mb-6">
+                  <BarChart4 className="w-6 h-6 md:w-7 md:h-7 text-emerald-400" />
+                </div>
+                <h3 className="text-2xl md:text-3xl font-black mb-3 tracking-tight">Revenue Insights</h3>
+                <p className="text-slate-400 leading-relaxed">
+                  Deep-dive into your practice's financial health. Track revenue splits between new visits and follow-ups with automated daily trends.
+                </p>
+              </div>
+            </div>
+
+            {/* Fee Configuration */}
+            <div className="md:col-span-2 bg-white dark:bg-slate-900 p-8 rounded-[2.5rem] border border-slate-100 dark:border-slate-800 shadow-sm text-left">
+              <div className="w-12 h-12 rounded-2xl bg-emerald-50 dark:bg-emerald-900/30 flex items-center justify-center mb-6">
+                <Banknote className="w-6 h-6 text-emerald-600" />
+              </div>
+              <h3 className="text-xl font-black text-slate-900 dark:text-white mb-2">Fee Settings</h3>
+              <p className="text-sm text-slate-500 leading-relaxed">
+                Configure custom rates for consultations and sessions. Analytics sync instantly with your pricing logic.
+              </p>
+            </div>
+
+            {/* Clinical Documentation */}
+            <div className="md:col-span-4 bg-indigo-50 dark:bg-indigo-950/40 p-8 md:p-10 rounded-[2.5rem] border border-indigo-100 dark:border-indigo-900/50 flex flex-col md:flex-row gap-8 items-center overflow-hidden">
+              <div className="flex-1 text-left relative z-10">
+                <div className="w-12 h-12 md:w-14 md:h-14 rounded-2xl bg-white dark:bg-slate-800 flex items-center justify-center mb-6">
+                  <Stethoscope className="w-6 h-6 md:w-7 md:h-7 text-indigo-600 dark:text-indigo-400" />
+                </div>
+                <h3 className="text-2xl font-black text-slate-900 dark:text-white mb-3 tracking-tight">Patient Clinical Notes</h3>
+                <p className="text-indigo-900/60 dark:text-indigo-300 leading-relaxed">
+                  Comprehensive documentation including chief complaints, physical examination, and detailed treatment plans for every patient visit.
+                </p>
+              </div>
+              <div className="hidden sm:flex justify-center flex-1 rotate-3 group-hover:rotate-0 transition-transform duration-500">
+                <div className="bg-white dark:bg-slate-900 p-6 rounded-3xl shadow-2xl border border-indigo-100 dark:border-slate-800 w-full">
+                  <div className="space-y-2">
+                    <div className="h-2 bg-indigo-100 dark:bg-indigo-900/40 rounded-full w-[40%]" />
+                    <div className="h-4 bg-slate-50 dark:bg-slate-800 rounded-lg w-full" />
+                    <div className="h-4 bg-slate-50 dark:bg-slate-800 rounded-lg w-[80%]" />
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Reporting & Security */}
+            <div className="md:col-span-3 bg-white dark:bg-slate-900 p-8 md:p-10 rounded-[2.5rem] border border-slate-100 dark:border-slate-800 shadow-sm text-left">
+              <div className="w-12 h-12 rounded-2xl bg-slate-50 dark:bg-slate-800 flex items-center justify-center mb-6">
+                <FileText className="w-6 h-6 text-indigo-600" />
+              </div>
+              <h3 className="text-xl font-black text-slate-900 dark:text-white mb-2">Professional Reports</h3>
+              <p className="text-sm text-slate-500 leading-relaxed">
+                Generate high-fidelity PDF and Excel exports. Perfect for administrative audits and clinical performance reviews.
+              </p>
+            </div>
+
+            <div className="md:col-span-3 bg-white dark:bg-slate-900 p-8 md:p-10 rounded-[2.5rem] border border-slate-100 dark:border-slate-800 shadow-sm text-left">
+              <div className="w-12 h-12 rounded-2xl bg-slate-50 dark:bg-slate-800 flex items-center justify-center mb-6">
+                <ShieldCheck className="w-6 h-6 text-emerald-600" />
+              </div>
+              <h3 className="text-xl font-black text-slate-900 dark:text-white mb-2">HIPAA Privacy</h3>
+              <p className="text-sm text-slate-500 leading-relaxed">
+                Bank-grade Row Level Security (RLS) ensures your clinic's data is isolated and protected against unauthorized access.
+              </p>
             </div>
           </div>
         </div>
@@ -235,84 +338,6 @@ const Index = () => {
               <div>
                 <p className="text-3xl font-black text-slate-900 dark:text-white">200+</p>
                 <p className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em]">Clinics Syncing</p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Bento Grid Features */}
-      <section className="py-12 md:py-20 px-4 md:px-6 bg-slate-50/50 dark:bg-slate-950/50 text-left">
-        <div className="max-w-7xl mx-auto">
-          <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6 md:gap-8 mb-8 md:mb-12 px-2">
-            <div className="max-w-2xl text-left">
-              <h2 className="text-xs font-black text-indigo-600 uppercase tracking-[0.3em] mb-2 md:mb-3">The Platform</h2>
-              <p className="text-3xl md:text-5xl font-black text-slate-900 dark:text-white tracking-tighter">Precision tools for modern medicine.</p>
-            </div>
-            <p className="text-base md:text-lg text-slate-500 dark:text-slate-400 max-w-sm">We've architected a system that simplifies clinical data management forever.</p>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-6 gap-4 md:gap-6 px-2">
-            {/* Professional Reporting */}
-            <div className="md:col-span-4 bg-white dark:bg-slate-900 p-8 md:p-10 rounded-3xl border border-slate-100 dark:border-slate-800 shadow-sm hover:shadow-xl transition-all group overflow-hidden relative">
-              <div className="absolute top-0 right-0 w-48 md:w-64 h-48 md:h-64 bg-indigo-50 dark:bg-indigo-900/10 rounded-full translate-x-1/4 -translate-y-1/4 blur-3xl opacity-50" />
-              <div className="relative z-10 text-left">
-                <div className="w-12 h-12 md:w-14 md:h-14 rounded-xl md:rounded-2xl bg-indigo-50 dark:bg-indigo-900/30 flex items-center justify-center mb-6 md:mb-8">
-                  <FileText className="w-6 h-6 md:w-7 md:h-7 text-indigo-600 dark:text-indigo-400" />
-                </div>
-                <h3 className="text-2xl md:text-3xl font-black text-slate-900 dark:text-white mb-3 md:mb-4 tracking-tight">Professional Reports</h3>
-                <p className="text-base md:text-lg text-slate-500 dark:text-slate-400 leading-relaxed max-w-md">
-                  Generate beautiful PDF or Excel reports instantly. Filter by month or custom date ranges to document your clinic's performance for administration.
-                </p>
-              </div>
-            </div>
-
-            {/* Smart Security */}
-            <div className="md:col-span-2 bg-slate-900 dark:bg-indigo-950 p-8 md:p-10 rounded-3xl text-white hover:bg-indigo-900 transition-colors group text-left">
-              <div className="w-12 h-12 md:w-14 md:h-14 rounded-xl md:rounded-2xl bg-white/10 flex items-center justify-center mb-6 md:mb-8">
-                <ShieldCheck className="w-6 h-6 md:w-7 md:h-7 text-emerald-400" />
-              </div>
-              <h3 className="text-xl md:text-2xl font-black mb-3 md:mb-4 tracking-tight">Secure RLS Privacy</h3>
-              <p className="text-sm md:text-base text-slate-400 leading-relaxed">
-                Bank-grade Row Level Security ensures your clinic's data is isolated and visible only to your authorized team members.
-              </p>
-            </div>
-
-            {/* Smart Autocomplete */}
-            <div className="md:col-span-2 bg-indigo-50 dark:bg-indigo-950/40 p-8 md:p-10 rounded-3xl border border-indigo-100 dark:border-indigo-900/50 text-left">
-              <div className="w-12 h-12 md:w-14 md:h-14 rounded-xl md:rounded-2xl bg-white dark:bg-slate-800 flex items-center justify-center mb-6 md:mb-8">
-                <MousePointer2 className="w-6 h-6 md:w-7 md:h-7 text-indigo-600 dark:text-indigo-400" />
-              </div>
-              <h3 className="text-xl md:text-2xl font-black text-slate-900 dark:text-white mb-3 md:mb-4 tracking-tight">Smart Entry</h3>
-              <p className="text-sm md:text-base text-indigo-900/60 dark:text-indigo-300 leading-relaxed">
-                Our smart autocomplete engine learns your most common diagnoses, cutting down patient registration time to seconds.
-              </p>
-            </div>
-
-            {/* Live Analytics */}
-            <div className="md:col-span-4 bg-white dark:bg-slate-900 p-8 md:p-10 rounded-3xl border border-slate-100 dark:border-slate-800 shadow-sm flex flex-col md:flex-row gap-8 items-center overflow-hidden relative">
-              <div className="flex-1 text-left relative z-10">
-                <div className="w-12 h-12 md:w-14 md:h-14 rounded-xl md:rounded-2xl bg-slate-50 dark:bg-slate-800 flex items-center justify-center mb-6 md:mb-8">
-                  <BarChart4 className="w-6 h-6 md:w-7 md:h-7 text-indigo-600 dark:text-indigo-400" />
-                </div>
-                <h3 className="text-xl md:text-2xl font-black text-slate-900 dark:text-white mb-3 md:mb-4 tracking-tight">Live Analytics</h3>
-                <p className="text-sm md:text-base text-slate-500 dark:text-slate-400 leading-relaxed">
-                  Visualize your patient volume trends, gender distribution, and age demographics in real-time with high-performance charts.
-                </p>
-              </div>
-              <div className="hidden sm:flex justify-center flex-1">
-                <div className="bg-slate-50 dark:bg-slate-800 p-6 rounded-3xl border border-slate-100 dark:border-slate-700 w-full rotate-2">
-                  <div className="flex gap-2 mb-4">
-                    <div className="w-2 h-2 rounded-full bg-slate-200 dark:bg-slate-600" />
-                    <div className="w-2 h-2 rounded-full bg-slate-200 dark:bg-slate-600" />
-                    <div className="w-2 h-2 rounded-full bg-slate-200 dark:bg-slate-600" />
-                  </div>
-                  <div className="space-y-3">
-                    <div className="h-4 bg-indigo-100 dark:bg-indigo-900/40 rounded-full w-[80%]" />
-                    <div className="h-4 bg-emerald-100 dark:bg-emerald-900/40 rounded-full w-[60%]" />
-                    <div className="h-4 bg-slate-200 dark:bg-slate-700 rounded-full w-[90%]" />
-                  </div>
-                </div>
               </div>
             </div>
           </div>
