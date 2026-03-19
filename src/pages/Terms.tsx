@@ -6,7 +6,7 @@ import Logo from '@/components/Logo';
 import { Button } from '@/components/ui/button';
 import { ModeToggle } from '@/components/ModeToggle';
 import Footer from '@/components/landing/Footer';
-import { ShieldCheck, HelpCircle, FileText, Ban, RefreshCw, Menu, X } from 'lucide-react';
+import { ShieldCheck, HelpCircle, FileText, Ban, RefreshCw, Menu, X, CreditCard, Clock } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 const Terms = () => {
@@ -157,19 +157,59 @@ const Terms = () => {
             </div>
           </section>
 
-          <section className="space-y-4 p-8 bg-indigo-50 dark:bg-indigo-900/20 rounded-3xl border border-indigo-100 dark:border-indigo-900/30 text-left">
-            <div className="flex items-center gap-3 text-indigo-700 dark:text-indigo-400">
-              <Ban className="w-6 h-6" />
-              <h2 className="text-2xl font-black tracking-tight text-left">4. Refund Policy</h2>
+          {/* New Comprehensive Refund Policy Section */}
+          <section className="space-y-6 p-8 md:p-10 bg-indigo-50/50 dark:bg-indigo-900/10 rounded-[2.5rem] border border-indigo-100 dark:border-indigo-900/20 text-left relative overflow-hidden">
+            <div className="absolute top-0 right-0 p-8 opacity-10">
+              <CreditCard size={120} className="text-indigo-600" />
             </div>
-            <div className="space-y-4 text-indigo-900/70 dark:text-indigo-300 font-medium">
-              <p>Due to the manual verification process and the nature of digital SaaS services:</p>
-              <ul className="list-disc pl-5 space-y-2 text-left">
-                <li>All payments submitted for verification are final once approved.</li>
-                <li>If a payment is rejected, the user will be notified and may resubmit a valid transaction ID. No funds are held by ClinicLog for rejected IDs.</li>
-                <li>No refunds are provided for partially used subscription months.</li>
-                <li>If you wish to cancel your plan, you may do so at any time; however, access will remain until the end of the current billing cycle and no pro-rata refund will be issued.</li>
-              </ul>
+            
+            <div className="relative z-10 space-y-6">
+              <div className="flex items-center gap-3 text-indigo-700 dark:text-indigo-400">
+                <Ban className="w-6 h-6" />
+                <h2 className="text-2xl font-black tracking-tight text-left">4. Refund & Cancellation Policy</h2>
+              </div>
+              
+              <div className="space-y-6 text-slate-700 dark:text-slate-300 font-medium">
+                <div className="space-y-2">
+                  <h3 className="text-lg font-black flex items-center gap-2">
+                    <Clock className="w-4 h-4 text-indigo-600" /> 14-Day Satisfaction Guarantee
+                  </h3>
+                  <p className="leading-relaxed">
+                    We want you to be completely satisfied with ClinicLog. If you find the platform doesn't meet your clinical needs, you may request a full refund within **14 calendar days** of your initial plan activation.
+                  </p>
+                </div>
+
+                <div className="space-y-2">
+                  <h3 className="text-lg font-black">Eligibility Conditions</h3>
+                  <p className="leading-relaxed">To ensure a fair process for all users, refunds are subject to the following criteria:</p>
+                  <ul className="list-disc pl-5 space-y-1 text-sm md:text-base">
+                    <li>The request must be for the **initial subscription** (first-time activation).</li>
+                    <li>The clinic must not have performed bulk data exports or excessive PDF generation during the refund window.</li>
+                    <li>A brief reason for the request must be provided to help us improve the service.</li>
+                  </ul>
+                </div>
+
+                <div className="space-y-2">
+                  <h3 className="text-lg font-black">Renewals & Cancellations</h3>
+                  <p className="leading-relaxed">
+                    Subscription renewals are **non-refundable**. However, you may cancel your plan at any time through your dashboard or by contacting support. Once canceled, your plan will remain active until the end of the current billing cycle, and you will not be charged again.
+                  </p>
+                </div>
+
+                <div className="space-y-2">
+                  <h3 className="text-lg font-black">How to Request a Refund</h3>
+                  <p className="leading-relaxed">
+                    To initiate a refund, please send an email to <span className="font-black text-indigo-600 dark:text-indigo-400">billing@cliniclog.com</span> from your registered admin email address. Please include your Clinic Name and the Transaction ID used for activation.
+                  </p>
+                </div>
+
+                <div className="space-y-2">
+                  <h3 className="text-lg font-black">Processing Time</h3>
+                  <p className="leading-relaxed">
+                    Once your refund request is approved, the funds will be returned to your original payment method (JazzCash, Easypaisa, or Bank Account) within **5 to 10 business days**.
+                  </p>
+                </div>
+              </div>
             </div>
           </section>
 
