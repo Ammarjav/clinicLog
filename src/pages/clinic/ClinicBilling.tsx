@@ -18,9 +18,28 @@ import {
 import { motion, AnimatePresence } from 'framer-motion';
 
 const PLANS = [
-  { name: 'Free', price: '0', description: 'Perfect for small private practices', features: ['Maximum 50 patients', 'Dashboard access', 'Basic analytics'], limit: 50 },
-  { name: 'Basic', price: '5', description: 'Grow your clinic with confidence', features: ['Maximum 200 patients', 'Detailed analytics', 'PDF reports'], limit: 200, highlight: true },
-  { name: 'Pro', price: '7', description: 'Unlimited power for high-volume clinics', features: ['Unlimited patients', 'Excel export', 'Advanced analytics'], limit: 2147483647 }
+  { 
+    name: 'Free', 
+    price: '0', 
+    description: 'Perfect for small private practices', 
+    features: ['Maximum 50 patients', 'Dashboard access', 'Basic Dashboard Analytics'], 
+    limit: 50 
+  },
+  { 
+    name: 'Basic', 
+    price: '5', 
+    description: 'Grow your clinic with confidence', 
+    features: ['Free Included', 'Maximum 200 patients', 'Advanced Clinical Analytics', 'PDF reports'], 
+    limit: 200, 
+    highlight: true 
+  },
+  { 
+    name: 'Pro', 
+    price: '7', 
+    description: 'Unlimited power for high-volume clinics', 
+    features: ['Basic Included', 'Unlimited patients', 'Advanced Financial Analytics', 'Follow-up Reminder System', 'Excel export'], 
+    limit: 2147483647 
+  }
 ];
 
 const ClinicBilling = () => {

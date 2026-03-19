@@ -20,7 +20,7 @@ const PLANS = [
     price: '0', 
     icon: Zap,
     description: 'Perfect for solo practitioners starting their digital journey.', 
-    features: ['Up to 50 Patients', 'Basic Analytics', 'Clinical Notes', 'Secure RLS Storage'], 
+    features: ['Up to 50 Patients', 'Basic Dashboard Analytics', 'Clinical Notes', 'Secure RLS Storage'], 
     color: 'indigo'
   },
   { 
@@ -28,7 +28,7 @@ const PLANS = [
     price: '5', 
     icon: ShieldCheck,
     description: 'Advanced documentation tools for growing private clinics.', 
-    features: ['Up to 200 Patients', 'Detailed Analytics', 'PDF Report Exports', 'Priority Email Support'], 
+    features: ['Free Included', 'Up to 200 Patients', 'Advanced Clinical Analytics', 'PDF Report Exports'], 
     highlight: true,
     color: 'emerald'
   },
@@ -37,7 +37,7 @@ const PLANS = [
     price: '7', 
     icon: Crown,
     description: 'Unrestricted power for high-volume medical centers.', 
-    features: ['Unlimited Patients', 'Excel Data Exports', 'Financial Analytics', '24/7 Priority Support'], 
+    features: ['Basic Included', 'Unlimited Patients', 'Advanced Financial Analytics', 'Follow-up Reminder System', 'Excel Data Exports'], 
     color: 'indigo'
   }
 ];
