@@ -6,6 +6,7 @@ import Logo from '@/components/Logo';
 import { Button } from '@/components/ui/button';
 import { ModeToggle } from '@/components/ModeToggle';
 import PricingSection from '@/components/landing/PricingSection';
+import Footer from '@/components/landing/Footer';
 import { Menu, X } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -21,7 +22,7 @@ const PricingPage = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-[#FDFDFF] dark:bg-slate-950 selection:bg-indigo-100 dark:selection:bg-indigo-900/50 overflow-x-hidden">
+    <div className="min-h-screen bg-[#FDFDFF] dark:bg-slate-950 selection:bg-indigo-100 dark:selection:bg-indigo-900/50 overflow-x-hidden text-left">
       {/* Background Blurs */}
       <div className="fixed inset-0 overflow-hidden pointer-events-none -z-10">
         <div className="absolute top-[5%] -right-[5%] w-[40%] h-[40%] bg-indigo-50/50 dark:bg-indigo-900/10 rounded-full blur-[100px]" />
@@ -76,7 +77,7 @@ const PricingPage = () => {
             className="fixed inset-0 z-40 lg:hidden"
           >
             <div className="absolute inset-0 bg-white dark:bg-slate-950 backdrop-blur-2xl flex flex-col p-6 pt-24">
-              <div className="space-y-2">
+              <div className="space-y-2 text-left">
                 {navLinks.map((link, idx) => (
                   <motion.div
                     key={link.name}
@@ -109,7 +110,7 @@ const PricingPage = () => {
         )}
       </AnimatePresence>
 
-      <main className="pt-4 md:pt-8">
+      <main className="pt-4 md:pt-8 text-left">
         <PricingSection />
         
         {/* Support Section */}
@@ -119,22 +120,14 @@ const PricingPage = () => {
             <p className="text-slate-500 dark:text-slate-400 font-medium mb-8 max-w-lg mx-auto">
               If you operate a hospital network or require specialized clinical features, our team can architect a solution tailored to your needs.
             </p>
-            <Button asChild size="lg" variant="outline" className="rounded-2xl h-14 px-10 border-slate-200 dark:border-slate-800 font-bold hover:bg-white dark:hover:bg-slate-800">
+            <Button asChild size="lg" variant="outline" className="rounded-2xl h-14 px-10 border-slate-200 dark:border-slate-800 font-bold hover:bg-white dark:hover:bg-slate-800 transition-all active:scale-[0.98]">
               <Link to="/contact">Contact Enterprise Support</Link>
             </Button>
           </div>
         </div>
       </main>
 
-      <footer className="py-12 border-t border-slate-50 dark:border-slate-800 bg-white dark:bg-slate-950 px-6">
-        <div className="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-8">
-          <div className="flex items-center gap-3">
-            <Logo className="w-8 h-8" />
-            <span className="text-xl font-black text-slate-900 dark:text-white tracking-tighter">ClinicLog</span>
-          </div>
-          <p className="text-slate-400 text-xs font-bold uppercase tracking-widest">© {new Date().getFullYear()} DATA ENCRYPTED & SECURE.</p>
-        </div>
-      </footer>
+      <Footer />
     </div>
   );
 };

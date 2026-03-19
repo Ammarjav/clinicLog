@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { ModeToggle } from '@/components/ModeToggle';
+import Footer from '@/components/landing/Footer';
 import { MessageCircle, Mail, Phone, Sparkles, Menu, X } from 'lucide-react';
 import { toast } from 'sonner';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -32,7 +33,7 @@ const Contact = () => {
   };
 
   return (
-    <div className="min-h-screen bg-[#FDFDFF] dark:bg-slate-950 flex flex-col items-center p-4 sm:p-6 relative overflow-hidden transition-colors duration-500">
+    <div className="min-h-screen bg-[#FDFDFF] dark:bg-slate-950 flex flex-col items-center p-4 sm:p-6 relative overflow-hidden transition-colors duration-500 text-left">
       {/* Background Blurs */}
       <div className="fixed inset-0 overflow-hidden pointer-events-none -z-10">
         <div className="absolute top-[10%] -left-[5%] w-[40%] h-[40%] bg-indigo-50/50 dark:bg-indigo-900/10 rounded-full blur-[100px]" />
@@ -86,7 +87,7 @@ const Contact = () => {
             exit={{ opacity: 0, y: -20 }}
             className="fixed inset-0 z-40 lg:hidden"
           >
-            <div className="absolute inset-0 bg-white dark:bg-slate-950 backdrop-blur-2xl flex flex-col p-6 pt-24">
+            <div className="absolute inset-0 bg-white dark:bg-slate-950 backdrop-blur-2xl flex flex-col p-6 pt-24 text-left">
               <div className="space-y-2">
                 {navLinks.map((link, idx) => (
                   <motion.div
@@ -120,7 +121,7 @@ const Contact = () => {
         )}
       </AnimatePresence>
 
-      <div className="w-full max-w-5xl grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 items-center animate-in fade-in slide-in-from-bottom-4 duration-700 mt-28 md:mt-32">
+      <div className="w-full max-w-5xl grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 items-center animate-in fade-in slide-in-from-bottom-4 duration-700 mt-28 md:mt-32 mb-20 px-2 sm:px-0">
         <div className="space-y-6 md:space-y-8 text-center lg:text-left">
           <div className="flex justify-center lg:justify-start">
             <Logo className="w-12 h-12 sm:w-14 sm:h-14" />
@@ -157,9 +158,9 @@ const Contact = () => {
           </div>
         </div>
 
-        <div className="bg-white dark:bg-slate-900 p-6 sm:p-8 md:p-10 rounded-[2rem] sm:rounded-[2.5rem] border border-slate-100 dark:border-slate-800 shadow-2xl shadow-indigo-100/20 dark:shadow-none mb-10 lg:mb-0">
+        <div className="bg-white dark:bg-slate-900 p-6 sm:p-8 md:p-10 rounded-[2rem] sm:rounded-[2.5rem] border border-slate-100 dark:border-slate-800 shadow-2xl shadow-indigo-100/20 dark:shadow-none mb-10 lg:mb-0 text-left">
           <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-5">
-            <div className="space-y-1.5 sm:space-y-2">
+            <div className="space-y-1.5 sm:space-y-2 text-left">
               <label className="text-[9px] sm:text-[10px] font-black uppercase tracking-widest text-slate-400 dark:text-slate-500 ml-1">Your Identity</label>
               <Input 
                 required
@@ -169,7 +170,7 @@ const Contact = () => {
                 onChange={(e) => setForm({...form, name: e.target.value})}
               />
             </div>
-            <div className="space-y-1.5 sm:space-y-2">
+            <div className="space-y-1.5 sm:space-y-2 text-left">
               <label className="text-[9px] sm:text-[10px] font-black uppercase tracking-widest text-slate-400 dark:text-slate-500 ml-1">Contact Details</label>
               <Input 
                 required
@@ -179,7 +180,7 @@ const Contact = () => {
                 onChange={(e) => setForm({...form, info: e.target.value})}
               />
             </div>
-            <div className="space-y-1.5 sm:space-y-2">
+            <div className="space-y-1.5 sm:space-y-2 text-left">
               <label className="text-[9px] sm:text-[10px] font-black uppercase tracking-widest text-slate-400 dark:text-slate-500 ml-1">The Inquiry</label>
               <Textarea 
                 required
@@ -200,6 +201,8 @@ const Contact = () => {
           </form>
         </div>
       </div>
+
+      <Footer />
     </div>
   );
 };
