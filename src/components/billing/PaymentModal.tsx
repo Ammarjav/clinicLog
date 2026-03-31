@@ -31,7 +31,7 @@ const PAYMENT_METHODS = [
     id: 'easypaisa', 
     name: 'Easypaisa',     icon: Smartphone, 
     color: 'bg-emerald-50 text-emerald-600',
-    details: 'Send PKR equivalent to:\n03106960468\nAccount Name: Muhammad Ammar Javed'
+    details: 'Send PKR equivalent of ${price*280} to:\n03106960468\nAccount Name: Muhammad Ammar Javed'
   },
   { 
     id: 'nayapay', 
