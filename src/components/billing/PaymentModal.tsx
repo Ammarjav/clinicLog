@@ -25,13 +25,13 @@ const PAYMENT_METHODS = [
   { 
     id: 'jazzcash',     name: 'JazzCash',     icon: Smartphone, 
     color: 'bg-red-50 text-red-600',
-    details: 'Send PKR equivalent of ${price*280} to:\n03106960468\nAccount Name: Muhammad Ammar Javed'
+    details: 'Send PKR equivalent of ${price}USD (1 USD = 280 PKR)to:\n03106960468\nAccount Name: Muhammad Ammar Javed'
   },
   { 
     id: 'easypaisa', 
     name: 'Easypaisa',     icon: Smartphone, 
     color: 'bg-emerald-50 text-emerald-600',
-    details: 'Send PKR equivalent of ${price*280} to:\n03106960468\nAccount Name: Muhammad Ammar Javed'
+    details: 'Send PKR equivalent of ${price}USD (1 USD = 280 PKR)to:\n03106960468\nAccount Name: Muhammad Ammar Javed'
   },
   { 
     id: 'nayapay', 
