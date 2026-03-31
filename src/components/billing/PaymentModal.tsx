@@ -28,21 +28,21 @@ const PAYMENT_METHODS = [
     name: 'JazzCash', 
     icon: Smartphone, 
     color: 'bg-red-50 text-red-600',
-    details: 'Send PKR equivalent of ${price} to:\n03106960468\nAccount Name: Muhammad AmmarJaved'
+    details: 'Send PKR equivalent of ${price} to:\n03106960468\nAccount Name: Muhammad Ammar Javed'
   },
   { 
     id: 'easypaisa', 
     name: 'Easypaisa', 
     icon: Smartphone, 
     color: 'bg-emerald-50 text-emerald-600',
-    details: 'Send PKR equivalent to:\n03106960468\nAccount Name: Muhammad AmmarJaved'
+    details: 'Send PKR equivalent to:\n03106960468\nAccount Name: Muhammad Ammar Javed'
   },
   { 
     id: 'nayapay', 
     name: 'Nayapay', 
     icon: CreditCard, 
     color: 'bg-indigo-50 text-indigo-600',
-    details: 'Send USD to:\nPK95NAYA1234503106960468\nAccount Name: Muhammad AmmarJaved'
+    details: `Send USD equivalent of ${price} (1 USD = 280 PKR) to:\nPK95NAYA1234503106960468\nAccount Name: Muhammad Ammar Javed`
   }
 ];
 
@@ -67,7 +67,7 @@ const PaymentModal = ({ open, onOpenChange, plan, clinicId }: PaymentModalProps)
         clinic_id: clinicId,
         plan_requested: plan.name,
         payment_method: selectedMethod.name,
-        transaction_id: transactionId,
+        transaction_id: transaction_id,
         status: 'pending'
       }]);
 
