@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { 
-  Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription 
+  Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter 
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -13,6 +13,7 @@ import {
   CreditCard, Smartphone, Banknote, Landmark, 
   ChevronRight, Copy, CheckCircle2, Loader2, Info
 } from 'lucide-react';
+import { cn } from '@/lib/utils';
 
 interface PaymentModalProps {
   open: boolean;
@@ -27,28 +28,21 @@ const PAYMENT_METHODS = [
     name: 'JazzCash', 
     icon: Smartphone, 
     color: 'bg-red-50 text-red-600',
-    details: 'Send PKR equivalent of ${price} to:\n03001234567\nAccount Name: Clinic SaaS'
+    details: 'Send PKR equivalent of ${price} to:\n03106960468\nAccount Name: Muhammad AmmarJaved'
   },
   { 
     id: 'easypaisa', 
     name: 'Easypaisa', 
     icon: Smartphone, 
     color: 'bg-emerald-50 text-emerald-600',
-    details: 'Send PKR equivalent to:\n03451234567\nAccount Name: Clinic SaaS'
+    details: 'Send PKR equivalent to:\n03106960468\nAccount Name: Muhammad AmmarJaved'
   },
   { 
-    id: 'bank', 
-    name: 'Bank Transfer', 
-    icon: Landmark, 
-    color: 'bg-blue-50 text-blue-600',
-    details: 'Bank: HBL\nTitle: Clinic SaaS Solutions\nNumber: 12345678901234'
-  },
-  { 
-    id: 'payoneer', 
-    name: 'Payoneer', 
+    id: 'nayapay', 
+    name: 'Nayapay', 
     icon: CreditCard, 
-    color: 'bg-orange-50 text-orange-600',
-    details: 'Send USD to:\nbilling@clinicsaas.com'
+    color: 'bg-indigo-50 text-indigo-600',
+    details: 'Send USD to:\nPK95NAYA1234503106960468\nAccount Name: Muhammad AmmarJaved'
   }
 ];
 
@@ -118,13 +112,10 @@ const PaymentModal = ({ open, onOpenChange, plan, clinicId }: PaymentModalProps)
                   onClick={() => handleSelectMethod(method)}
                   className="w-full flex items-center justify-between p-4 rounded-2xl border border-slate-100 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800 transition-all group"
                 >
-                  <div className="flex items-center gap-4">
-                    <div className={`p-3 rounded-xl ${method.color} dark:bg-opacity-10`}>
-                      <method.icon className="w-5 h-5" />
-                    </div>
-                    <span className="font-bold text-slate-900 dark:text-white">{method.name}</span>
+                  <div className={`p-3 rounded-xl ${method.color} dark:bg-opacity-10`}>
+                    <method.icon className="w-5 h-5" />
                   </div>
-                  <ChevronRight className="w-5 h-5 text-slate-300 group-hover:translate-x-1 transition-transform" />
+                  <span className="font-bold text-slate-900 dark:text-white">{method.name}</span>
                 </button>
               ))}
             </div>
@@ -134,7 +125,9 @@ const PaymentModal = ({ open, onOpenChange, plan, clinicId }: PaymentModalProps)
         {step === 'instructions' && selectedMethod && (
           <div className="p-8">
             <DialogHeader className="mb-6">
-              <DialogTitle className="text-2xl font-black tracking-tight text-slate-900 dark:text-white">{selectedMethod.name} Instructions</DialogTitle>
+              <DialogTitle className="text-2xl font-black tracking-tight text-slate-900 dark:text-white">
+                {selectedMethod.name} Instructions
+              </DialogTitle>
               <DialogDescription className="font-medium text-slate-500 dark:text-slate-400">
                 Follow these steps to complete your manual payment.
               </DialogDescription>
@@ -154,7 +147,7 @@ const PaymentModal = ({ open, onOpenChange, plan, clinicId }: PaymentModalProps)
             </div>
             <div className="flex gap-3">
               <Button variant="outline" className="flex-1 rounded-xl h-12" onClick={() => setStep('method')}>Back</Button>
-              <Button className="flex-1 rounded-xl h-12 bg-indigo-600 hover:bg-indigo-700" onClick={() => setStep('submit')}>I have paid</Button>
+              <Button className="flex-1 rounded-xl h-12 bg-indigo-600 hover:bg-indigo-700 text-white" onClick={() => setStep('submit')}>I have paid</Button>
             </div>
           </div>
         )}
@@ -170,10 +163,9 @@ const PaymentModal = ({ open, onOpenChange, plan, clinicId }: PaymentModalProps)
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="space-y-1.5">
                 <Label className="text-xs font-black uppercase text-slate-400">Transaction ID</Label>
-                <Input 
-                  required
+                <Input                   required
                   placeholder="Enter TID or Reference Number" 
-                  className="rounded-xl h-12 bg-slate-50 dark:bg-slate-800 border-none"
+                  className="rounded-xl h-12 bg-slate-50 dark:bg-slate-800 border-none focus:ring-indigo-500/20 dark:text-white"
                   value={transactionId}
                   onChange={(e) => setTransactionId(e.target.value)}
                 />
@@ -186,8 +178,8 @@ const PaymentModal = ({ open, onOpenChange, plan, clinicId }: PaymentModalProps)
               </div>
               <div className="flex gap-3 pt-2">
                 <Button type="button" variant="outline" className="flex-1 rounded-xl h-12" onClick={() => setStep('instructions')}>Back</Button>
-                <Button type="submit" className="flex-1 rounded-xl h-12 bg-indigo-600 hover:bg-indigo-700" disabled={isSubmitting}>
-                  {isSubmitting ? <Loader2 className="animate-spin" /> : "Submit Proof"}
+                <Button type="submit" className="flex-1 rounded-xl h-12 bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-lg shadow-xl shadow-indigo-100 dark:shadow-none transition-all active:scale-[0.98]" disabled={isSubmitting}>
+                  {isSubmitting ? <Loader2 className="animate-spin w-6 h-6" /> : "Submit Proof"}
                 </Button>
               </div>
             </form>
