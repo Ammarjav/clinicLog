@@ -25,7 +25,7 @@ const PAYMENT_METHODS = [
   { 
     id: 'jazzcash',     name: 'JazzCash',     icon: Smartphone, 
     color: 'bg-red-50 text-red-600',
-    details: 'Send PKR equivalent of ${price} to:\n03106960468\nAccount Name: Muhammad Ammar Javed'
+    details: 'Send PKR equivalent of ${price*280} to:\n03106960468\nAccount Name: Muhammad Ammar Javed'
   },
   { 
     id: 'easypaisa', 
