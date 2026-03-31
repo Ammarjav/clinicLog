@@ -2,8 +2,7 @@
 
 import React, { useState } from 'react';
 import { 
-  Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter 
-} from "@/components/ui/dialog";
+  Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -24,16 +23,13 @@ interface PaymentModalProps {
 
 const PAYMENT_METHODS = [
   { 
-    id: 'jazzcash', 
-    name: 'JazzCash', 
-    icon: Smartphone, 
+    id: 'jazzcash',     name: 'JazzCash',     icon: Smartphone, 
     color: 'bg-red-50 text-red-600',
     details: 'Send PKR equivalent of ${price} to:\n03106960468\nAccount Name: Muhammad Ammar Javed'
   },
   { 
     id: 'easypaisa', 
-    name: 'Easypaisa', 
-    icon: Smartphone, 
+    name: 'Easypaisa',     icon: Smartphone, 
     color: 'bg-emerald-50 text-emerald-600',
     details: 'Send PKR equivalent to:\n03106960468\nAccount Name: Muhammad Ammar Javed'
   },
@@ -42,7 +38,7 @@ const PAYMENT_METHODS = [
     name: 'Nayapay', 
     icon: CreditCard, 
     color: 'bg-indigo-50 text-indigo-600',
-    details: `Send USD equivalent of ${price} (1 USD = 280 PKR) to:\nPK95NAYA1234503106960468\nAccount Name: Muhammad Ammar Javed`
+    details: 'Send USD equivalent of ${price} (1 USD = 280 PKR) to:\nPK95NAYA1234503106960468\nAccount Name: Muhammad Ammar Javed'
   }
 ];
 
@@ -67,7 +63,7 @@ const PaymentModal = ({ open, onOpenChange, plan, clinicId }: PaymentModalProps)
         clinic_id: clinicId,
         plan_requested: plan.name,
         payment_method: selectedMethod.name,
-        transaction_id: transaction_id,
+        transaction_id: transactionId,
         status: 'pending'
       }]);
 
@@ -107,8 +103,7 @@ const PaymentModal = ({ open, onOpenChange, plan, clinicId }: PaymentModalProps)
             </DialogHeader>
             <div className="space-y-3">
               {PAYMENT_METHODS.map((method) => (
-                <button
-                  key={method.id}
+                <button                  key={method.id}
                   onClick={() => handleSelectMethod(method)}
                   className="w-full flex items-center justify-between p-4 rounded-2xl border border-slate-100 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800 transition-all group"
                 >
@@ -163,8 +158,7 @@ const PaymentModal = ({ open, onOpenChange, plan, clinicId }: PaymentModalProps)
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="space-y-1.5">
                 <Label className="text-xs font-black uppercase text-slate-400">Transaction ID</Label>
-                <Input                   required
-                  placeholder="Enter TID or Reference Number" 
+                <Input                   required                  placeholder="Enter TID or Reference Number" 
                   className="rounded-xl h-12 bg-slate-50 dark:bg-slate-800 border-none focus:ring-indigo-500/20 dark:text-white"
                   value={transactionId}
                   onChange={(e) => setTransactionId(e.target.value)}
