@@ -97,30 +97,14 @@ export const ClinicLayout = ({ children }: ClinicLayoutProps) => {
         </nav>
 
         <div className="p-4 space-y-3 border-t border-gray-50 dark:border-slate-800 shrink-0">
-          {status === 'trialing' && (
-            <Link to={`/clinic/${slug}/billing`} className="block p-4 bg-indigo-50 dark:bg-indigo-900/20 rounded-2xl border border-indigo-100 dark:border-indigo-800/50 hover:bg-indigo-100 transition-colors">
-              <div className="flex items-center gap-3 mb-1">
-                <Clock className="w-4 h-4 text-indigo-600" />
-                <span className="text-xs font-black text-indigo-900 dark:text-indigo-300 uppercase tracking-widest">Trial Active</span>
-              </div>
-              <p className="text-[10px] font-bold text-indigo-600/70">{daysLeft} days remaining</p>
-            </Link>
-          )}
-          {status === 'expired' && (
-            <Link to={`/clinic/${slug}/billing`} className="block p-4 bg-rose-50 dark:bg-rose-900/20 rounded-2xl border border-rose-100 dark:border-rose-800/50 hover:bg-rose-100 transition-colors">
-              <div className="flex items-center gap-3 mb-1">
-                <X className="w-4 h-4 text-rose-600" />
-                <span className="text-xs font-black text-rose-900 dark:text-rose-300 uppercase tracking-widest">Trial Ended</span>
-              </div>
-              <p className="text-[10px] font-bold text-rose-600/70">View-Only Mode</p>
-            </Link>
-          )}
           {clinic && (
             <UsageStats 
               current={patientCount} 
               limit={clinic.patient_limit} 
               plan={clinic.plan}
               isTrial={status === 'trialing'}
+              daysLeft={daysLeft}
+              status={status}
             />
           )}
           <Button 
@@ -167,24 +151,6 @@ export const ClinicLayout = ({ children }: ClinicLayoutProps) => {
               </Link>
             ))}
             
-            {status !== 'active' && (
-              <div className="pt-4">
-                <Link 
-                  to={`/clinic/${slug}/billing`} 
-                  onClick={() => setIsMobileMenuOpen(false)}
-                  className={cn(
-                    "block p-6 rounded-3xl border",
-                    status === 'trialing' ? "bg-indigo-50 border-indigo-100" : "bg-rose-50 border-rose-100"
-                  )}
-                >
-                  <p className="text-xs font-black uppercase tracking-widest text-slate-400 mb-1">Clinic Status</p>
-                  <p className={cn("text-lg font-black", status === 'trialing' ? "text-indigo-600" : "text-rose-600")}>
-                    {status === 'trialing' ? `${daysLeft} Days of Trial Left` : "View-Only (Trial Ended)"}
-                  </p>
-                </Link>
-              </div>
-            )}
-
             <div className="pt-4 pb-2">
               {clinic && (
                 <UsageStats 
@@ -192,6 +158,8 @@ export const ClinicLayout = ({ children }: ClinicLayoutProps) => {
                   limit={clinic.patient_limit} 
                   plan={clinic.plan} 
                   isTrial={status === 'trialing'}
+                  daysLeft={daysLeft}
+                  status={status}
                 />
               )}
             </div>
