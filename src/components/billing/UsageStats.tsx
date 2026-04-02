@@ -9,10 +9,12 @@ interface UsageStatsProps {
   current: number;
   limit: number | string;
   plan: string;
+  isTrial?: boolean;
 }
 
-const UsageStats = ({ current, limit, plan }: UsageStatsProps) => {
-  const isUnlimited = typeof limit === 'string' || limit === -1 || limit === 2147483647;
+const UsageStats = ({ current, limit, plan, isTrial }: UsageStatsProps) => {
+  const isUnlimited = typeof limit === 'string' || limit === -1 || limit === 2147483647 || isTrial;
+  const displayPlan = isTrial ? '10-Day Trial' : `${plan} Plan`;
   const numericLimit = typeof limit === 'number' ? limit : 50;
   const percentage = isUnlimited ? 0 : Math.min((current / numericLimit) * 100, 100);
   const { slug } = useParams();
@@ -22,13 +24,15 @@ const UsageStats = ({ current, limit, plan }: UsageStatsProps) => {
       <div className="flex justify-between items-center mb-3">
         <div>
           <p className="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest">Plan Usage</p>
-          <h3 className="text-sm font-bold text-slate-900 dark:text-white">{plan} Plan</h3>
+          <h3 className="text-sm font-bold text-slate-900 dark:text-white">{displayPlan}</h3>
         </div>
-        <div className="text-right">
-          <p className="text-xs font-bold text-slate-900 dark:text-white">
-            {current} / {isUnlimited ? '∞' : limit} <span className="text-slate-400 font-medium">Patients</span>
-          </p>
-        </div>
+        {!isUnlimited && (
+          <div className="text-right">
+            <p className="text-xs font-bold text-slate-900 dark:text-white">
+              {current} / {limit} <span className="text-slate-400 font-medium">Patients</span>
+            </p>
+          </div>
+        )}
       </div>
       
       {!isUnlimited && (
@@ -46,7 +50,12 @@ const UsageStats = ({ current, limit, plan }: UsageStatsProps) => {
       )}
       
       {isUnlimited && (
-        <p className="text-[10px] font-medium text-emerald-600 dark:text-emerald-400">Unlimited capacity active.</p>
+        <div className="flex items-center justify-between">
+          <p className="text-[10px] font-medium text-emerald-600 dark:text-emerald-400">Unrestricted capacity active.</p>
+          <p className="text-xs font-bold text-slate-900 dark:text-white">
+            {current} <span className="text-slate-400 font-medium">Patients</span>
+          </p>
+        </div>
       )}
     </div>
   );

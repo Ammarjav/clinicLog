@@ -119,7 +119,8 @@ export const ClinicLayout = ({ children }: ClinicLayoutProps) => {
             <UsageStats 
               current={patientCount} 
               limit={clinic.patient_limit} 
-              plan={clinic.plan} 
+              plan={clinic.plan}
+              isTrial={status === 'trialing'}
             />
           )}
           <Button 
@@ -190,6 +191,7 @@ export const ClinicLayout = ({ children }: ClinicLayoutProps) => {
                   current={patientCount} 
                   limit={clinic.patient_limit} 
                   plan={clinic.plan} 
+                  isTrial={status === 'trialing'}
                 />
               )}
             </div>
