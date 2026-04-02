@@ -3,19 +3,26 @@
 import React from 'react';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
-import { Edit, Trash2, Phone, FileText, AlertCircle, Tags } from "lucide-react";
+import { Edit, Trash2, FileText, AlertCircle, Tags, Lock } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { cn } from '@/lib/utils';
+import { getClinicStatus } from '@/utils/statusUtils';
+import { useParams, Link } from 'react-router-dom';
 
 interface PatientTableProps {
   patients: any[];
   onEdit: (patient: any) => void;
   onDelete: (id: string) => void;
+  clinic?: any;
 }
 
-const PatientTable = ({ patients, onEdit, onDelete }: PatientTableProps) => {
+const PatientTable = ({ patients, onEdit, onDelete, clinic }: PatientTableProps) => {
+  const { slug } = useParams();
+  const { isFeatureUnlocked } = getClinicStatus(clinic);
+  const isViewOnly = !isFeatureUnlocked('actions');
+
   return (
-    <div className="bg-white dark:bg-slate-900 rounded-3xl shadow-2xl shadow-indigo-100/20 dark:shadow-none border border-slate-50 dark:border-slate-800 animate-in fade-in duration-700 overflow-hidden">
+    <div className="bg-white dark:bg-slate-900 rounded-3xl shadow-2xl shadow-indigo-100/20 dark:shadow-none border border-slate-50 dark:border-slate-800 animate-in fade-in duration-700 overflow-hidden relative">
       <div className="max-h-[650px] overflow-y-auto overflow-x-auto custom-scrollbar">
         <Table>
           <TableHeader className="sticky top-0 z-10 bg-slate-50/95 dark:bg-slate-800/95 backdrop-blur-md">
@@ -79,24 +86,32 @@ const PatientTable = ({ patients, onEdit, onDelete }: PatientTableProps) => {
                       {new Date(patient.visit_date).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}
                     </TableCell>
                     <TableCell className="px-8 py-5 text-right">
-                      <div className="flex justify-end gap-1 transition-opacity">
-                        <Button 
-                          variant="ghost" 
-                          size="icon" 
-                          onClick={() => onEdit(patient)} 
-                          className={cn(
-                            "rounded-xl h-9 w-9 transition-all",
-                            isPending 
-                            ? "bg-rose-50 text-rose-600 hover:bg-rose-100 ring-2 ring-rose-200" 
-                            : "text-indigo-600 dark:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-900/20"
-                          )}
-                          title={isPending ? "Complete Prescription" : "Edit Record"}
-                        >
-                          {isPending ? <FileText className="w-4 h-4" /> : <Edit className="w-4 h-4" />}
-                        </Button>
-                        <Button variant="ghost" size="icon" onClick={() => onDelete(patient.id)} className="rounded-xl text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-900/20 h-9 w-9">
-                          <Trash2 className="w-4 h-4" />
-                        </Button>
+                      <div className="flex justify-end gap-1">
+                        {isViewOnly ? (
+                          <Button variant="ghost" size="icon" asChild className="rounded-xl h-9 w-9 text-slate-300 hover:text-indigo-600">
+                            <Link to={`/clinic/${slug}/billing`}><Lock className="w-4 h-4" /></Link>
+                          </Button>
+                        ) : (
+                          <>
+                            <Button 
+                              variant="ghost" 
+                              size="icon" 
+                              onClick={() => onEdit(patient)} 
+                              className={cn(
+                                "rounded-xl h-9 w-9 transition-all",
+                                isPending 
+                                ? "bg-rose-50 text-rose-600 hover:bg-rose-100 ring-2 ring-rose-200" 
+                                : "text-indigo-600 dark:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-900/20"
+                              )}
+                              title={isPending ? "Complete Prescription" : "Edit Record"}
+                            >
+                              {isPending ? <FileText className="w-4 h-4" /> : <Edit className="w-4 h-4" />}
+                            </Button>
+                            <Button variant="ghost" size="icon" onClick={() => onDelete(patient.id)} className="rounded-xl text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-900/20 h-9 w-9">
+                              <Trash2 className="w-4 h-4" />
+                            </Button>
+                          </>
+                        )}
                       </div>
                     </TableCell>
                   </TableRow>

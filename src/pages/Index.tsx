@@ -17,13 +17,13 @@ import {
   Heart,
   Globe,
   FileText,
-  MousePointer2,
   Menu,
   X,
   CalendarClock,
   Banknote,
   Stethoscope,
-  TrendingUp
+  TrendingUp,
+  Clock
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -37,7 +37,6 @@ const Index = () => {
     { name: 'Terms', href: '/terms' },
   ];
 
-  // Refined Animation Variants for a smoother "one-by-one" feel
   const fadeInUp = {
     initial: { opacity: 0, y: 40 },
     whileInView: { 
@@ -52,7 +51,7 @@ const Index = () => {
     initial: {},
     whileInView: { 
       transition: { 
-        staggerChildren: 0.2, // Increased delay between children for clearer sequence
+        staggerChildren: 0.2,
         delayChildren: 0.1 
       } 
     },
@@ -61,13 +60,11 @@ const Index = () => {
 
   return (
     <div className="min-h-screen bg-[#FDFDFF] dark:bg-slate-950 selection:bg-indigo-100 dark:selection:bg-indigo-900/50 overflow-x-hidden scroll-smooth text-left">
-      {/* Dynamic Background Elements */}
       <div className="fixed inset-0 overflow-hidden pointer-events-none -z-10">
         <div className="absolute -top-[5%] -left-[10%] w-[60%] md:w-[40%] h-[40%] bg-indigo-50/50 dark:bg-indigo-900/10 rounded-full blur-[80px] md:blur-[120px]" />
         <div className="absolute bottom-[10%] -right-[5%] w-[50%] md:w-[30%] h-[30%] bg-emerald-50/50 dark:bg-emerald-900/10 rounded-full blur-[60px] md:blur-[100px]" />
       </div>
 
-      {/* Navigation */}
       <nav className="fixed top-4 md:top-6 left-1/2 -translate-x-1/2 w-[94%] max-w-6xl z-50">
         <div className="bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border border-white/40 dark:border-slate-800 shadow-2xl shadow-indigo-100/20 dark:shadow-none rounded-2xl md:rounded-[2rem] px-4 md:px-6 h-14 md:h-16 flex items-center justify-between">
           <Link to="/" className="flex items-center gap-1.5 md:gap-3">
@@ -89,7 +86,7 @@ const Index = () => {
               </Button>
             </div>
             
-            <Button asChild className="hidden sm:flex rounded-xl bg-slate-900 dark:bg-white dark:text-slate-900 hover:bg-indigo-600 dark:hover:text-indigo-400 text-white shadow-lg dark:shadow-none transition-all px-6 text-sm h-10">
+            <Button asChild className="hidden sm:flex rounded-xl bg-slate-900 dark:bg-white dark:text-slate-900 hover:bg-indigo-600 dark:hover:bg-indigo-400 text-white shadow-lg dark:shadow-none transition-all px-6 text-sm h-10">
               <Link to="/admin/signup">Join Now</Link>
             </Button>
 
@@ -105,7 +102,6 @@ const Index = () => {
         </div>
       </nav>
 
-      {/* Mobile Menu */}
       <AnimatePresence>
         {isMobileMenuOpen && (
           <motion.div 
@@ -148,7 +144,6 @@ const Index = () => {
         )}
       </AnimatePresence>
 
-      {/* Hero Section */}
       <section className="pt-24 md:pt-36 pb-12 md:pb-20 px-4 md:px-6">
         <div className="max-w-6xl mx-auto text-center">
           <motion.div 
@@ -156,8 +151,8 @@ const Index = () => {
             animate={{ opacity: 1, scale: 1 }}
             className="inline-flex items-center gap-2 bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 px-3 md:px-4 py-1.5 rounded-full shadow-sm mb-6 md:mb-8"
           >
-            <Sparkles className="w-3.5 h-3.5 text-indigo-500" />
-            <span className="text-[10px] md:text-xs font-bold text-slate-600 dark:text-slate-400 uppercase tracking-widest text-center">The Future of Patient Logging</span>
+            <Clock className="w-3.5 h-3.5 text-indigo-500" />
+            <span className="text-[10px] md:text-xs font-bold text-slate-600 dark:text-slate-400 uppercase tracking-widest text-center">10-Day Full Access Trial Now Live</span>
           </motion.div>
           
           <motion.h1 
@@ -176,7 +171,7 @@ const Index = () => {
             transition={{ delay: 0.3 }}
             className="text-base md:text-xl text-slate-500 dark:text-slate-400 max-w-2xl mx-auto leading-relaxed mb-10 md:mb-12"
           >
-            Ditch the paperwork. A high-performance database for medical professionals who value speed, accuracy, and beautiful data.
+            Ditch the paperwork. A high-performance database for medical professionals. Start your <strong>unrestricted 10-day trial</strong> today.
           </motion.p>
           
           <motion.div 
@@ -187,11 +182,11 @@ const Index = () => {
           >
             <Button asChild size="lg" className="w-full sm:w-auto rounded-2xl bg-indigo-600 hover:bg-indigo-700 h-14 md:h-16 px-8 md:px-10 text-base md:text-lg font-bold shadow-2xl shadow-indigo-100 dark:shadow-none group">
               <Link to="/admin/signup" className="flex items-center justify-center">
-                Get Started <ChevronRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
+                Start 10-Day Trial <ChevronRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
               </Link>
             </Button>
             <Button asChild variant="outline" size="lg" className="w-full sm:w-auto rounded-2xl h-14 md:h-16 px-8 md:px-10 text-base md:text-lg font-bold border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-900">
-              <Link to="/admin/signup">Explore Demo</Link>
+              <Link to="/pricing">View Plans</Link>
             </Button>
           </motion.div>
 
@@ -224,7 +219,6 @@ const Index = () => {
         </div>
       </section>
 
-      {/* Features Bento Grid */}
       <section className="py-12 md:py-24 px-4 md:px-6 bg-slate-50/50 dark:bg-slate-950/50 text-left">
         <div className="max-w-7xl mx-auto">
           <motion.div 
@@ -238,10 +232,9 @@ const Index = () => {
               <h2 className="text-xs font-black text-indigo-600 uppercase tracking-[0.3em] mb-2 md:mb-3">Clinical Engine</h2>
               <p className="text-3xl md:text-6xl font-black text-slate-900 dark:text-white tracking-tighter">Tools that think like <span className="text-indigo-600">you.</span></p>
             </div>
-            <p className="text-base md:text-lg text-slate-500 dark:text-slate-400 max-w-sm">Every feature is engineered to remove administrative friction from your workflow.</p>
+            <p className="text-base md:text-lg text-slate-500 dark:text-slate-400 max-w-sm">Try every feature for free for 10 days. No restrictions, just pure performance.</p>
           </motion.div>
 
-          {/* Staggered Container */}
           <motion.div 
             variants={staggerContainer}
             initial="initial"
@@ -249,7 +242,6 @@ const Index = () => {
             viewport={{ once: true, amount: 0.1 }}
             className="grid grid-cols-1 md:grid-cols-6 gap-4 md:gap-6 px-2"
           >
-            {/* Follow-up Protocol */}
             <motion.div variants={fadeInUp} className="md:col-span-3 bg-white dark:bg-slate-900 p-8 md:p-10 rounded-[2.5rem] border border-slate-100 dark:border-slate-800 shadow-sm hover:shadow-xl transition-all group relative overflow-hidden">
               <div className="absolute top-0 right-0 p-8 opacity-5 group-hover:opacity-10 transition-opacity">
                 <CalendarClock size={160} className="text-indigo-600" />
@@ -266,7 +258,6 @@ const Index = () => {
               </div>
             </motion.div>
 
-            {/* Financial Analytics */}
             <motion.div variants={fadeInUp} className="md:col-span-3 bg-slate-900 dark:bg-indigo-950 p-8 md:p-10 rounded-[2.5rem] text-white hover:shadow-2xl hover:shadow-indigo-500/20 transition-all group relative overflow-hidden">
               <div className="absolute bottom-0 right-0 p-6 opacity-20">
                 <TrendingUp size={140} className="text-emerald-400" />
@@ -282,7 +273,6 @@ const Index = () => {
               </div>
             </motion.div>
 
-            {/* Fee Configuration */}
             <motion.div variants={fadeInUp} className="md:col-span-2 bg-white dark:bg-slate-900 p-8 rounded-[2.5rem] border border-slate-100 dark:border-slate-800 shadow-sm text-left">
               <div className="w-12 h-12 rounded-2xl bg-emerald-50 dark:bg-emerald-900/30 flex items-center justify-center mb-6">
                 <Banknote className="w-6 h-6 text-emerald-600" />
@@ -293,7 +283,6 @@ const Index = () => {
               </p>
             </motion.div>
 
-            {/* Clinical Documentation */}
             <motion.div variants={fadeInUp} className="md:col-span-4 bg-indigo-50 dark:bg-indigo-950/40 p-8 md:p-10 rounded-[2.5rem] border border-indigo-100 dark:border-indigo-900/50 flex flex-col md:flex-row gap-8 items-center overflow-hidden">
               <div className="flex-1 text-left relative z-10">
                 <div className="w-12 h-12 md:w-14 md:h-14 rounded-2xl bg-white dark:bg-slate-800 flex items-center justify-center mb-6">
@@ -314,124 +303,11 @@ const Index = () => {
                 </div>
               </div>
             </motion.div>
-
-            {/* Reporting & Security */}
-            <motion.div variants={fadeInUp} className="md:col-span-3 bg-white dark:bg-slate-900 p-8 md:p-10 rounded-[2.5rem] border border-slate-100 dark:border-slate-800 shadow-sm text-left">
-              <div className="w-12 h-12 rounded-2xl bg-slate-50 dark:bg-slate-800 flex items-center justify-center mb-6">
-                <FileText className="w-6 h-6 text-indigo-600" />
-              </div>
-              <h3 className="text-xl font-black text-slate-900 dark:text-white mb-2">Professional Reports</h3>
-              <p className="text-sm text-slate-500 leading-relaxed">
-                Generate high-fidelity PDF and Excel exports. Perfect for administrative audits and clinical performance reviews.
-              </p>
-            </motion.div>
-
-            <motion.div variants={fadeInUp} className="md:col-span-3 bg-white dark:bg-slate-900 p-8 md:p-10 rounded-[2.5rem] border border-slate-100 dark:border-slate-800 shadow-sm text-left">
-              <div className="w-12 h-12 rounded-2xl bg-slate-50 dark:bg-slate-800 flex items-center justify-center mb-6">
-                <ShieldCheck className="w-6 h-6 text-emerald-600" />
-              </div>
-              <h3 className="text-xl font-black text-slate-900 dark:text-white mb-2">HIPAA Privacy</h3>
-              <p className="text-sm text-slate-500 leading-relaxed">
-                Bank-grade Row Level Security (RLS) ensures your clinic's data is isolated and protected against unauthorized access.
-              </p>
-            </motion.div>
           </motion.div>
         </div>
       </section>
 
-      {/* Vision Section with Staggered Sequence */}
-      <section className="py-12 md:py-20 px-4 md:px-6 relative overflow-hidden">
-        <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
-          <motion.div 
-            variants={staggerContainer}
-            initial="initial"
-            whileInView="whileInView"
-            viewport={{ once: true, amount: 0.3 }}
-            className="relative order-2 lg:order-1"
-          >
-            <div className="absolute -inset-4 bg-indigo-100/50 dark:bg-indigo-900/10 rounded-3xl blur-2xl -z-10" />
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-              <motion.div variants={fadeInUp} className="bg-white dark:bg-slate-900 p-8 rounded-3xl shadow-xl shadow-indigo-100/20 dark:shadow-none border border-slate-50 dark:border-slate-800">
-                <div className="w-12 h-12 bg-indigo-50 dark:bg-indigo-900/30 rounded-2xl flex items-center justify-center mb-6">
-                  <Target className="w-6 h-6 text-indigo-600 dark:text-indigo-400" />
-                </div>
-                <h4 className="text-xl font-black text-slate-900 dark:text-white mb-2">Clarity</h4>
-                <p className="text-sm text-slate-500 dark:text-slate-400 font-medium">Removing noise to focus on patient outcomes.</p>
-              </motion.div>
-              <motion.div variants={fadeInUp} className="bg-slate-900 dark:bg-slate-800 p-8 rounded-3xl shadow-2xl dark:shadow-none text-white">
-                <div className="w-12 h-12 bg-white/10 rounded-2xl flex items-center justify-center mb-6">
-                  <Heart className="w-6 h-6 text-emerald-400" />
-                </div>
-                <h4 className="text-xl font-black mb-2">Empathy</h4>
-                <p className="text-sm text-slate-400 font-medium">Built with the medical journey in mind.</p>
-              </motion.div>
-              <motion.div variants={fadeInUp} className="bg-indigo-600 p-8 rounded-3xl shadow-2xl dark:shadow-none text-white sm:col-span-2">
-                <div className="flex items-center gap-4 mb-4 text-left">
-                  <div className="w-12 h-12 bg-white/20 rounded-2xl flex items-center justify-center shrink-0">
-                    <Globe className="w-6 h-6 text-white" />
-                  </div>
-                  <h4 className="text-2xl font-black">Universal Access</h4>
-                </div>
-                <p className="text-base text-indigo-50 font-medium text-left">Empowering healthcare providers globally with enterprise-grade tools, simplified for every scale.</p>
-              </motion.div>
-            </div>
-          </motion.div>
-
-          <motion.div 
-            initial={{ opacity: 0, x: 30 }}
-            whileInView={{ opacity: 1, x: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 1, ease: "easeOut" }}
-            className="order-1 lg:order-2 space-y-6 text-left"
-          >
-            <div className="inline-block px-4 py-1.5 bg-indigo-50 dark:bg-indigo-900/30 rounded-full">
-              <span className="text-xs font-black text-indigo-600 dark:text-indigo-400 uppercase tracking-widest">Our Vision</span>
-            </div>
-            <h2 className="text-4xl md:text-6xl font-black text-slate-900 dark:text-white tracking-tight leading-none">
-              The Protocol of <br />
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-indigo-400">Human Connection.</span>
-            </h2>
-            <p className="text-lg md:text-xl text-slate-500 dark:text-slate-400 leading-relaxed font-medium">
-              We believe technology shouldn't come between a doctor and their patient. Our vision is to create a seamless digital layer that handles the complexity of data while leaving the space for care.
-            </p>
-            <div className="pt-2 flex items-center gap-8">
-              <div>
-                <p className="text-3xl font-black text-slate-900 dark:text-white">50k+</p>
-                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em]">Daily Logs</p>
-              </div>
-              <div className="w-px h-12 bg-slate-100 dark:bg-slate-800" />
-              <div>
-                <p className="text-3xl font-black text-slate-900 dark:text-white">200+</p>
-                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em]">Clinics Syncing</p>
-              </div>
-            </div>
-          </motion.div>
-        </div>
-      </section>
-
-      {/* Integrated Pricing Section */}
       <PricingSection />
-
-      {/* Dynamic CTA */}
-      <section className="py-16 md:py-28 px-4 md:px-6 relative overflow-hidden">
-        <div className="max-w-4xl mx-auto text-center px-4">
-          <h2 className="text-4xl md:text-7xl font-black text-slate-900 dark:text-white mb-6 md:mb-8 tracking-tighter">
-            Elevate your <br className="hidden sm:block" />
-            <span className="text-indigo-600 dark:text-indigo-400 underline decoration-emerald-400 decoration-4 md:decoration-8 underline-offset-4 md:underline-offset-8 text-center">practice standard.</span>
-          </h2>
-          <p className="text-base md:text-xl text-slate-500 dark:text-slate-400 mb-8 md:mb-10 max-w-xl mx-auto">
-            Join the elite circle of data-driven clinics today. No credit card required.
-          </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Button asChild size="lg" className="rounded-2xl bg-slate-900 dark:bg-white dark:text-slate-900 hover:bg-black dark:hover:bg-indigo-100 h-14 md:h-16 px-10 md:px-12 text-base md:text-lg font-bold shadow-xl shadow-slate-200 dark:shadow-none transition-all active:scale-[0.98]">
-              <Link to="/admin/signup">Create Your Portal</Link>
-            </Button>
-            <Button asChild variant="ghost" size="lg" className="h-14 md:h-16 px-8 text-base md:text-lg font-bold text-slate-500 dark:text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-900/20 transition-all duration-300">
-              <Link to="/contact">Get in Touch</Link>
-            </Button>
-          </div>
-        </div>
-      </section>
 
       <Footer />
     </div>

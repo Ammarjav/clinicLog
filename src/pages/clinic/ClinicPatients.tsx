@@ -6,8 +6,9 @@ import { supabase } from '@/lib/supabase';
 import PatientTable from '@/components/dashboard/PatientTable';
 import DashboardFilters from '@/components/dashboard/DashboardFilters';
 import { toast } from 'sonner';
-import { Users, FileText, CalendarClock, Lock } from 'lucide-react';
+import { Users, FileText, CalendarClock, Lock, Sparkles } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { getClinicStatus } from '@/utils/statusUtils';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -36,7 +37,6 @@ const ClinicPatients = () => {
   });
 
   const fetchData = async () => {
-    // Fetch Clinic
     const { data: clinicData } = await supabase
       .from('clinics')
       .select('*')
@@ -44,7 +44,6 @@ const ClinicPatients = () => {
       .single();
     if (clinicData) setClinic(clinicData);
 
-    // Fetch Patients
     const { data, error } = await supabase
       .from('patients')
       .select('*')
@@ -57,6 +56,8 @@ const ClinicPatients = () => {
   useEffect(() => { 
     fetchData(); 
   }, [slug]);
+
+  const { status, isFeatureUnlocked } = getClinicStatus(clinic);
 
   const availableCategories = useMemo(() => {
     const cats = new Set<string>();
@@ -102,9 +103,9 @@ const ClinicPatients = () => {
   };
 
   const handleFollowupClick = () => {
-    if (clinic?.plan !== 'Pro') {
-      toast.error("Follow-up Protocol is exclusive to the Pro plan.", {
-        description: "Upgrade your clinic to Pro to unlock automated recovery monitoring.",
+    if (!isFeatureUnlocked('followups')) {
+      toast.error("Follow-up Protocol requires a subscription.", {
+        description: "Trial ended. Upgrade your clinic to Pro to unlock automated recovery monitoring.",
         action: {
           label: "Upgrade",
           onClick: () => navigate(`/clinic/${slug}/billing`)
@@ -124,12 +125,24 @@ const ClinicPatients = () => {
         </div>
         
         <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full lg:w-auto">
+          {status === 'expired' && (
+            <div className="bg-rose-50 dark:bg-rose-900/30 px-5 py-3 rounded-2xl border border-rose-100 dark:border-rose-800 flex items-center gap-3">
+              <Lock className="w-4 h-4 text-rose-600" />
+              <span className="text-xs font-black text-rose-600 uppercase tracking-widest">View-Only Protocol</span>
+            </div>
+          )}
+          {status === 'trialing' && (
+            <div className="bg-indigo-50 dark:bg-indigo-900/30 px-5 py-3 rounded-2xl border border-indigo-100 dark:border-indigo-800 flex items-center gap-3">
+              <Sparkles className="w-4 h-4 text-indigo-600" />
+              <span className="text-xs font-black text-indigo-600 uppercase tracking-widest">Full Trial Access</span>
+            </div>
+          )}
           <Button 
             variant="outline" 
             onClick={handleFollowupClick}
             className="rounded-2xl border-indigo-100 dark:border-indigo-900/30 bg-indigo-50/30 dark:bg-indigo-900/10 text-indigo-700 dark:text-indigo-400 h-12 px-6 font-bold shadow-sm hover:bg-indigo-600 hover:text-white dark:hover:bg-indigo-500 dark:hover:text-white transition-all duration-300 group"
           >
-            {clinic?.plan !== 'Pro' ? <Lock className="w-4 h-4 mr-2" /> : <CalendarClock className="w-4 h-4 mr-2 group-hover:scale-110 transition-transform" />}
+            {!isFeatureUnlocked('followups') ? <Lock className="w-4 h-4 mr-2" /> : <CalendarClock className="w-4 h-4 mr-2 group-hover:scale-110 transition-transform" />}
             Follow-ups
           </Button>
           <div className="bg-white dark:bg-slate-900 px-5 py-3 rounded-2xl shadow-sm dark:shadow-none border border-slate-50 dark:border-slate-800 flex items-center justify-center gap-3 h-12">
@@ -156,6 +169,7 @@ const ClinicPatients = () => {
             patients={filteredPatients} 
             onEdit={(p) => navigate(`/clinic/${slug}/patients/${p.id}/edit`)} 
             onDelete={(id) => setDeleteId(id)} 
+            clinic={clinic}
           />
         </div>
       </div>

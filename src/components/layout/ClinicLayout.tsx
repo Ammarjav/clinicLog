@@ -12,13 +12,15 @@ import {
   Menu, 
   X,
   FileText,
-  CreditCard
+  CreditCard,
+  Clock
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { ModeToggle } from '@/components/ModeToggle';
 import Logo from '@/components/Logo';
 import { cn } from '@/lib/utils';
 import UsageStats from '@/components/billing/UsageStats';
+import { getClinicStatus } from '@/utils/statusUtils';
 
 interface ClinicLayoutProps {
   children: React.ReactNode;
@@ -34,7 +36,6 @@ export const ClinicLayout = ({ children }: ClinicLayoutProps) => {
 
   useEffect(() => {
     const fetchData = async () => {
-      // Fetch clinic
       const { data: clinicData } = await supabase
         .from('clinics')
         .select('*')
@@ -42,7 +43,6 @@ export const ClinicLayout = ({ children }: ClinicLayoutProps) => {
         .single();
       if (clinicData) setClinic(clinicData);
 
-      // Fetch patient count
       const { count } = await supabase
         .from('patients')
         .select('*', { count: 'exact', head: true });
@@ -50,6 +50,8 @@ export const ClinicLayout = ({ children }: ClinicLayoutProps) => {
     };
     fetchData();
   }, [slug]);
+
+  const { status, daysLeft } = getClinicStatus(clinic);
 
   const navItems = [
     { name: 'Dashboard', path: `/clinic/${slug}/dashboard`, icon: LayoutDashboard },
@@ -67,7 +69,6 @@ export const ClinicLayout = ({ children }: ClinicLayoutProps) => {
 
   return (
     <div className="min-h-screen bg-[#fcfcfd] dark:bg-slate-950 flex flex-col md:flex-row">
-      {/* Sidebar - Desktop */}
       <aside className="hidden md:flex w-72 flex-col bg-white dark:bg-slate-900 border-r border-gray-100 dark:border-slate-800 sticky top-0 h-screen transition-colors overflow-hidden">
         <div className="p-6 border-b border-gray-50 dark:border-slate-800 flex items-center justify-between gap-3 shrink-0">
           <div className="flex items-center gap-3 overflow-hidden">
@@ -77,7 +78,6 @@ export const ClinicLayout = ({ children }: ClinicLayoutProps) => {
           <ModeToggle />
         </div>
         
-        {/* Scrollable Nav Area */}
         <nav className="flex-1 p-4 space-y-1 mt-4 overflow-y-auto custom-scrollbar">
           {navItems.map((item) => (
             <Link
@@ -96,8 +96,25 @@ export const ClinicLayout = ({ children }: ClinicLayoutProps) => {
           ))}
         </nav>
 
-        {/* Fixed Bottom Section */}
         <div className="p-4 space-y-3 border-t border-gray-50 dark:border-slate-800 shrink-0">
+          {status === 'trialing' && (
+            <Link to={`/clinic/${slug}/billing`} className="block p-4 bg-indigo-50 dark:bg-indigo-900/20 rounded-2xl border border-indigo-100 dark:border-indigo-800/50 hover:bg-indigo-100 transition-colors">
+              <div className="flex items-center gap-3 mb-1">
+                <Clock className="w-4 h-4 text-indigo-600" />
+                <span className="text-xs font-black text-indigo-900 dark:text-indigo-300 uppercase tracking-widest">Trial Active</span>
+              </div>
+              <p className="text-[10px] font-bold text-indigo-600/70">{daysLeft} days remaining</p>
+            </Link>
+          )}
+          {status === 'expired' && (
+            <Link to={`/clinic/${slug}/billing`} className="block p-4 bg-rose-50 dark:bg-rose-900/20 rounded-2xl border border-rose-100 dark:border-rose-800/50 hover:bg-rose-100 transition-colors">
+              <div className="flex items-center gap-3 mb-1">
+                <X className="w-4 h-4 text-rose-600" />
+                <span className="text-xs font-black text-rose-900 dark:text-rose-300 uppercase tracking-widest">Trial Ended</span>
+              </div>
+              <p className="text-[10px] font-bold text-rose-600/70">View-Only Mode</p>
+            </Link>
+          )}
           {clinic && (
             <UsageStats 
               current={patientCount} 
@@ -116,7 +133,6 @@ export const ClinicLayout = ({ children }: ClinicLayoutProps) => {
         </div>
       </aside>
 
-      {/* Mobile Header */}
       <header className="md:hidden bg-white dark:bg-slate-900 border-b border-gray-100 dark:border-slate-800 px-6 h-16 flex items-center justify-between sticky top-0 z-30 transition-colors">
         <div className="flex items-center gap-2">
           <Logo className="w-8 h-8" />
@@ -130,7 +146,6 @@ export const ClinicLayout = ({ children }: ClinicLayoutProps) => {
         </div>
       </header>
 
-      {/* Mobile Menu Overlay */}
       {isMobileMenuOpen && (
         <div className="md:hidden fixed inset-0 z-20 bg-white dark:bg-slate-900 pt-20 transition-colors overflow-y-auto">
           <nav className="p-6 space-y-4">
@@ -150,6 +165,25 @@ export const ClinicLayout = ({ children }: ClinicLayoutProps) => {
                 {item.name}
               </Link>
             ))}
+            
+            {status !== 'active' && (
+              <div className="pt-4">
+                <Link 
+                  to={`/clinic/${slug}/billing`} 
+                  onClick={() => setIsMobileMenuOpen(false)}
+                  className={cn(
+                    "block p-6 rounded-3xl border",
+                    status === 'trialing' ? "bg-indigo-50 border-indigo-100" : "bg-rose-50 border-rose-100"
+                  )}
+                >
+                  <p className="text-xs font-black uppercase tracking-widest text-slate-400 mb-1">Clinic Status</p>
+                  <p className={cn("text-lg font-black", status === 'trialing' ? "text-indigo-600" : "text-rose-600")}>
+                    {status === 'trialing' ? `${daysLeft} Days of Trial Left` : "View-Only (Trial Ended)"}
+                  </p>
+                </Link>
+              </div>
+            )}
+
             <div className="pt-4 pb-2">
               {clinic && (
                 <UsageStats 
@@ -171,7 +205,6 @@ export const ClinicLayout = ({ children }: ClinicLayoutProps) => {
         </div>
       )}
 
-      {/* Main Content */}
       <main className="flex-1 p-6 md:p-10 lg:p-12 overflow-x-hidden dark:bg-slate-950 transition-colors">
         {children}
       </main>

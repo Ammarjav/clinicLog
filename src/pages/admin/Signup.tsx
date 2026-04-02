@@ -10,8 +10,9 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { toast } from 'sonner';
-import { Loader2, ArrowLeft, Building2, Mail, Lock, Eye, EyeOff } from 'lucide-react';
+import { Loader2, ArrowLeft, Building2, Mail, Lock, Eye, EyeOff, Sparkles } from 'lucide-react';
 import Logo from '@/components/Logo';
+import { addDays } from 'date-fns';
 
 const signupSchema = z.object({
   clinicName: z.string().min(2, "Clinic name must be at least 2 characters"),
@@ -54,13 +55,18 @@ const Signup = () => {
 
       const userId = authData.user.id;
       const slug = generateSlug(values.clinicName);
+      
+      // Calculate 10-day trial end
+      const trialEnd = addDays(new Date(), 10).toISOString();
 
       const { data: clinicData, error: clinicError } = await supabase
         .from('clinics')
         .insert({
           name: values.clinicName,
           slug: slug,
-          owner_id: userId
+          owner_id: userId,
+          trial_end: trialEnd,
+          plan: 'Free'
         })
         .select()
         .single();
@@ -81,7 +87,7 @@ const Signup = () => {
         toast.info("Registration successful! Please verify your email.");
         navigate('/admin/login');
       } else {
-        toast.success("Clinic registered successfully!");
+        toast.success("10-Day Free Trial Started!");
         navigate(`/clinic/${slug}/dashboard`);
       }
     } catch (error: any) {
@@ -91,7 +97,6 @@ const Signup = () => {
 
   return (
     <div className="min-h-screen bg-[#FDFDFF] dark:bg-slate-950 flex flex-col items-center justify-center p-6 relative overflow-hidden transition-colors duration-500">
-      {/* Background Blurs */}
       <div className="fixed inset-0 overflow-hidden pointer-events-none -z-10">
         <div className="absolute top-[5%] -right-[5%] w-[40%] h-[40%] bg-indigo-50/50 dark:bg-indigo-900/10 rounded-full blur-[100px]" />
         <div className="absolute bottom-[10%] -left-[5%] w-[30%] h-[30%] bg-emerald-50/50 dark:bg-emerald-900/10 rounded-full blur-[80px]" />
@@ -112,6 +117,11 @@ const Signup = () => {
           <Logo className="w-14 h-14 mb-6" />
           <h1 className="text-3xl font-black text-slate-900 dark:text-white tracking-tighter">Get Started</h1>
           <p className="text-slate-500 dark:text-slate-400 mt-2 font-medium">Create your clinic's digital hub</p>
+          
+          <div className="mt-4 inline-flex items-center gap-2 px-4 py-2 bg-indigo-50 dark:bg-indigo-900/30 rounded-2xl border border-indigo-100 dark:border-indigo-800/50">
+            <Sparkles className="w-4 h-4 text-indigo-600" />
+            <span className="text-xs font-black text-indigo-700 dark:text-indigo-300 uppercase tracking-widest">10-Day Pro Trial Included</span>
+          </div>
         </div>
 
         <div className="bg-white dark:bg-slate-900 p-8 md:p-10 rounded-[2.5rem] border border-slate-100 dark:border-slate-800 shadow-2xl shadow-indigo-100/20 dark:shadow-none">
@@ -182,7 +192,7 @@ const Signup = () => {
                 className="w-full h-14 text-base font-bold rounded-2xl bg-indigo-600 dark:bg-indigo-500 hover:bg-indigo-700 dark:hover:bg-indigo-400 text-white shadow-lg shadow-indigo-100/50 dark:shadow-none transition-all active:scale-[0.98] mt-2"
                 disabled={form.formState.isSubmitting}
               >
-                {form.formState.isSubmitting ? <Loader2 className="animate-spin" /> : "Create Clinic Portal"}
+                {form.formState.isSubmitting ? <Loader2 className="animate-spin" /> : "Start 10-Day Free Trial"}
               </Button>
               <div className="text-center pt-2">
                 <p className="text-sm text-slate-400 dark:text-slate-500 font-medium">
@@ -197,7 +207,7 @@ const Signup = () => {
         </div>
         
         <p className="mt-8 text-center text-[10px] font-bold text-slate-300 dark:text-slate-700 uppercase tracking-[0.2em]">
-          DATA ENCRYPTED & HIPAA READY
+          NO CREDIT CARD REQUIRED FOR TRIAL
         </p>
       </div>
     </div>

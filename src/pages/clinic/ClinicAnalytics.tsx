@@ -11,6 +11,7 @@ import { BarChart3, Activity, Banknote, Sparkles, Loader2, Lock, Star } from 'lu
 import { useParams, Link } from 'react-router-dom';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from '@/components/ui/button';
+import { getClinicStatus } from '@/utils/statusUtils';
 
 const ClinicAnalytics = () => {
   const { slug } = useParams();
@@ -69,8 +70,8 @@ const ClinicAnalytics = () => {
     fetchData();
   }, [slug, filterType, filters]);
 
-  // Analytics are restricted for the Free plan
-  const isLocked = clinic?.plan === 'Free';
+  const { isFeatureUnlocked, status } = getClinicStatus(clinic);
+  const isLocked = !isFeatureUnlocked('analytics');
 
   if (isLocked) {
     return (
@@ -79,7 +80,9 @@ const ClinicAnalytics = () => {
           <div className="w-24 h-24 bg-indigo-50 dark:bg-indigo-900/30 rounded-[2rem] flex items-center justify-center mb-10 group">
             <Lock className="w-10 h-10 text-indigo-600 dark:text-indigo-400 group-hover:scale-110 transition-transform" />
           </div>
-          <h1 className="text-4xl md:text-5xl font-black text-slate-900 dark:text-white tracking-tighter mb-4">Analytics Protocol Locked</h1>
+          <h1 className="text-4xl md:text-5xl font-black text-slate-900 dark:text-white tracking-tighter mb-4">
+            {status === 'expired' ? "Trial Access Expired" : "Analytics Protocol Locked"}
+          </h1>
           <p className="text-lg text-slate-500 dark:text-slate-400 font-medium max-w-md mx-auto mb-12">
             Advanced clinical insights, behavior patterns, and deep financial tracking require a <strong>Basic</strong> or <strong>Pro</strong> plan.
           </p>

@@ -10,9 +10,10 @@ import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { toast } from 'sonner';
-import { Loader2, UserPlus, Save, Lock, Tags, Banknote } from 'lucide-react';
+import { Loader2, UserPlus, Save, Lock, Tags, Banknote, AlertCircle, Sparkles } from 'lucide-react';
 import AutocompleteInput from './AutocompleteInput';
 import { Link, useParams } from 'react-router-dom';
+import { getClinicStatus } from '@/utils/statusUtils';
 
 const COUNTRIES = [
   { code: '+92', name: 'Pakistan', flag: '🇵🇰' },
@@ -59,6 +60,9 @@ const PatientEntryForm = () => {
       fee_paid: 0,
     },
   });
+
+  const { isFeatureUnlocked, status } = getClinicStatus(clinicData);
+  const isViewOnly = !isFeatureUnlocked('actions');
 
   const watchName = form.watch('name');
   const watchPhone = form.watch('phone');
@@ -155,7 +159,12 @@ const PatientEntryForm = () => {
   };
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
-    if (clinicData && currentPatients >= clinicData.patient_limit) {
+    if (isViewOnly) {
+      toast.error("Subscription required to add records.");
+      return;
+    }
+
+    if (clinicData && currentPatients >= clinicData.patient_limit && clinicData.plan === 'Free' && status !== 'trialing') {
       toast.error("Plan limit reached.");
       return;
     }
@@ -243,6 +252,21 @@ const PatientEntryForm = () => {
 
   return (
     <div className="max-w-2xl mx-auto p-6 sm:p-10 bg-white dark:bg-slate-900 rounded-3xl shadow-2xl border border-gray-100 dark:border-slate-800 relative">
+      {isViewOnly && (
+        <div className="absolute inset-0 z-50 bg-white/60 dark:bg-slate-950/60 backdrop-blur-md rounded-3xl flex flex-col items-center justify-center p-8 text-center animate-in fade-in duration-500">
+          <div className="w-16 h-16 bg-rose-50 dark:bg-rose-900/30 rounded-[2rem] flex items-center justify-center mb-6">
+            <AlertCircle className="w-8 h-8 text-rose-600 dark:text-rose-400" />
+          </div>
+          <h2 className="text-2xl font-black text-slate-900 dark:text-white tracking-tight mb-2">Workspace Restricted</h2>
+          <p className="text-slate-500 dark:text-slate-400 font-medium mb-8 max-w-sm">
+            Your 10-day trial has ended. To continue logging new patients, please upgrade to a paid plan.
+          </p>
+          <Button asChild className="h-14 px-8 rounded-2xl bg-indigo-600 hover:bg-indigo-700 font-bold shadow-xl">
+            <Link to={`/clinic/${slug}/billing`}>Upgrade Now</Link>
+          </Button>
+        </div>
+      )}
+
       <div className="flex items-center gap-4 mb-8">
         <div className="bg-blue-600 p-3 rounded-2xl shadow-lg">
           <UserPlus className="w-7 h-7 text-white" />
@@ -251,6 +275,12 @@ const PatientEntryForm = () => {
           <h1 className="text-2xl font-bold text-gray-900 dark:text-white tracking-tight">Record Entry</h1>
           <p className="text-gray-500 text-sm">Capture session and revenue data</p>
         </div>
+        {status === 'trialing' && (
+          <div className="ml-auto flex items-center gap-2 px-3 py-1 bg-indigo-50 dark:bg-indigo-900/30 rounded-xl border border-indigo-100">
+            <Sparkles className="w-3 h-3 text-indigo-600" />
+            <span className="text-[10px] font-black text-indigo-600 uppercase tracking-widest">Trial Mode</span>
+          </div>
+        )}
       </div>
 
       <Form {...form}>
@@ -410,7 +440,7 @@ const PatientEntryForm = () => {
             />
           </div>
 
-          <Button type="submit" className="w-full h-14 rounded-2xl bg-blue-600 hover:bg-blue-700 font-bold shadow-xl" disabled={form.formState.isSubmitting}>
+          <Button type="submit" className="w-full h-14 rounded-2xl bg-blue-600 hover:bg-blue-700 font-bold shadow-xl" disabled={form.formState.isSubmitting || isViewOnly}>
             {form.formState.isSubmitting ? <Loader2 className="animate-spin h-6 w-6" /> : "Save"}
           </Button>
         </form>

@@ -11,6 +11,7 @@ import { computeReportAnalytics, ReportAnalytics } from '@/utils/reportDataUtils
 import { exportToExcel } from '@/utils/excelExport';
 import { generatePdfReport } from '@/utils/pdfReportGenerator';
 import { toast } from 'sonner';
+import { getClinicStatus } from '@/utils/statusUtils';
 
 const ClinicReports = () => {
   const { slug } = useParams();
@@ -77,17 +78,19 @@ const ClinicReports = () => {
     return `${filters.startDate} to ${filters.endDate}`;
   };
 
+  const { effectivePlan, status } = getClinicStatus(clinic);
+
   const isFeatureLocked = (feature: 'pdf' | 'excel') => {
-    if (!clinic) return true;
-    if (feature === 'pdf' && clinic.plan === 'Free') return true;
-    if (feature === 'excel' && clinic.plan !== 'Pro') return true;
+    if (status === 'trialing') return false; // Full access during trial
+    if (feature === 'pdf' && effectivePlan === 'Free') return true;
+    if (feature === 'excel' && effectivePlan !== 'Pro') return true;
     return false;
   };
 
   const handleExportExcel = () => {
     if (isFeatureLocked('excel')) {
       toast.error("Excel export is exclusive to the Pro plan.", {
-        description: "Upgrade your clinic to Pro to unlock bulk data management.",
+        description: status === 'expired' ? "Trial ended. Upgrade your clinic to Pro to unlock bulk data management." : "Upgrade your clinic to Pro to unlock bulk data management.",
         action: {
           label: "Upgrade",
           onClick: () => window.location.href = `/clinic/${slug}/billing`
@@ -103,7 +106,7 @@ const ClinicReports = () => {
   const handleExportPdf = () => {
     if (isFeatureLocked('pdf')) {
       toast.error("Professional PDF reports require Basic or Pro plan.", {
-        description: "Free clinics can view reports but not export them.",
+        description: status === 'expired' ? "Trial ended. Free clinics can view reports but not export them." : "Free clinics can view reports but not export them.",
         action: {
           label: "Upgrade",
           onClick: () => window.location.href = `/clinic/${slug}/billing`
@@ -162,19 +165,26 @@ const ClinicReports = () => {
         onChange={(k, v) => setFilters(prev => ({ ...prev, [k]: v }))}
       />
 
-      {clinic?.plan === 'Free' && (
-        <div className="bg-indigo-50 dark:bg-indigo-900/20 p-6 rounded-[2.5rem] border border-indigo-100 dark:border-indigo-900/30 flex flex-col md:flex-row items-center justify-between gap-6 shadow-sm">
+      {status !== 'active' && (
+        <div className={cn(
+          "p-6 rounded-[2.5rem] border flex flex-col md:flex-row items-center justify-between gap-6 shadow-sm",
+          status === 'trialing' ? "bg-indigo-50 border-indigo-100" : "bg-rose-50 border-rose-100"
+        )}>
           <div className="flex items-center gap-4 text-center md:text-left">
             <div className="bg-white dark:bg-slate-900 p-3 rounded-2xl shadow-sm">
-              <Star className="w-6 h-6 text-indigo-600 dark:text-indigo-400" />
+              <Star className={cn("w-6 h-6", status === 'trialing' ? "text-indigo-600" : "text-rose-600")} />
             </div>
             <div>
-              <p className="text-sm font-black text-indigo-900 dark:text-indigo-200 uppercase tracking-widest">Upgrade to Export</p>
-              <p className="text-indigo-800/60 dark:text-indigo-300/60 font-medium text-xs">Professional documentation tools are available in Basic and Pro plans.</p>
+              <p className={cn("text-sm font-black uppercase tracking-widest", status === 'trialing' ? "text-indigo-900" : "text-rose-900")}>
+                {status === 'trialing' ? "Full Trial Access" : "Upgrade to Export"}
+              </p>
+              <p className={cn("font-medium text-xs", status === 'trialing' ? "text-indigo-800/60" : "text-rose-800/60")}>
+                {status === 'trialing' ? "You have full access to exports during your 10-day trial." : "Professional documentation tools are available in Basic and Pro plans."}
+              </p>
             </div>
           </div>
-          <Button asChild className="w-full md:w-auto rounded-xl bg-indigo-600 hover:bg-indigo-700 h-11 px-8 font-bold shadow-lg shadow-indigo-100 dark:shadow-none">
-            <Link to={`/clinic/${slug}/billing`}>Unlock All Features</Link>
+          <Button asChild className={cn("w-full md:w-auto rounded-xl h-11 px-8 font-bold shadow-lg", status === 'trialing' ? "bg-indigo-600" : "bg-rose-600")}>
+            <Link to={`/clinic/${slug}/billing`}>{status === 'trialing' ? "View Plans" : "Unlock All Features"}</Link>
           </Button>
         </div>
       )}
