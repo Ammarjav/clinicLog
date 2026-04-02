@@ -19,25 +19,25 @@ import { motion, AnimatePresence } from 'framer-motion';
 
 const PLANS = [
   { 
-    name: 'Free', 
+    name: '10-Day Trial', 
     price: '0', 
-    description: 'Perfect for small private practices', 
-    features: ['Maximum 50 patients', 'Dashboard access', 'Basic Dashboard Analytics'], 
-    limit: 50 
+    description: 'Experience every feature unrestricted.', 
+    features: ['Unrestricted Pro access', 'All Premium Analytics', 'Recovery Monitoring System'], 
+    limit: 2147483647 
   },
   { 
     name: 'Basic', 
     price: '5', 
-    description: 'Grow your clinic with confidence', 
-    features: ['Free Included', 'Maximum 200 patients', 'Advanced Clinical Analytics', 'PDF reports'], 
+    description: 'Grow your clinic with confidence.', 
+    features: ['Up to 200 patients', 'Advanced Clinical Analytics', 'Professional PDF reports'], 
     limit: 200, 
     highlight: true 
   },
   { 
     name: 'Pro', 
     price: '7', 
-    description: 'Unlimited power for high-volume clinics', 
-    features: ['Basic Included', 'Unlimited patients', 'Advanced Financial Analytics', 'Follow-up Reminder System', 'Excel export'], 
+    description: 'Unlimited power for high-volume clinics.', 
+    features: ['Unlimited patients', 'Advanced Financial Analytics', 'Follow-up Reminder System', 'Excel data exports'], 
     limit: 2147483647 
   }
 ];
@@ -51,16 +51,12 @@ const ClinicBilling = () => {
   const [loading, setLoading] = useState(true);
   const [isRefreshing, setIsRefreshing] = useState(false);
   
-  // Carousel state
   const [api, setApi] = useState<CarouselApi>();
   const [current, setCurrent] = useState(0);
 
   useEffect(() => {
     if (!api) return;
-    
-    // Set initial state
     setCurrent(api.selectedScrollSnap());
-    
     api.on("select", () => {
       setCurrent(api.selectedScrollSnap());
     });
@@ -167,7 +163,6 @@ const ClinicBilling = () => {
         </div>
       )}
 
-      {/* Responsive Layout */}
       <div className="relative py-4">
         {isMobile ? (
           <Carousel 
@@ -205,7 +200,6 @@ const ClinicBilling = () => {
               })}
             </CarouselContent>
             
-            {/* Dots Indicator */}
             <div className="flex justify-center gap-2 mt-8">
               {PLANS.map((_, i) => (
                 <div 

@@ -16,11 +16,11 @@ import {
 
 const PLANS = [
   { 
-    name: 'Free', 
+    name: '10-Day Trial', 
     price: '0', 
     icon: Zap,
-    description: 'Perfect for solo practitioners starting their digital journey.', 
-    features: ['Up to 50 Patients', 'Basic Dashboard Analytics', 'Clinical Notes', 'Secure RLS Storage'], 
+    description: 'Experience the full power of ClinicLog with zero restrictions.', 
+    features: ['Unrestricted Pro Access', 'Automated Follow-ups', 'Advanced Analytics', 'Professional Exports'], 
     color: 'indigo'
   },
   { 
@@ -28,7 +28,7 @@ const PLANS = [
     price: '5', 
     icon: ShieldCheck,
     description: 'Advanced documentation tools for growing private clinics.', 
-    features: ['Free Included', 'Up to 200 Patients', 'Advanced Clinical Analytics', 'PDF Report Exports'], 
+    features: ['Up to 200 Patients', 'Advanced Clinical Analytics', 'PDF Report Exports', 'Secure RLS Storage'], 
     highlight: true,
     color: 'emerald'
   },
@@ -37,7 +37,7 @@ const PLANS = [
     price: '7', 
     icon: Crown,
     description: 'Unrestricted power for high-volume medical centers.', 
-    features: ['Basic Included', 'Unlimited Patients', 'Advanced Financial Analytics', 'Follow-up Reminder System', 'Excel Data Exports'], 
+    features: ['Unlimited Patients', 'Advanced Financial Analytics', 'Follow-up Reminder System', 'Excel Data Exports'], 
     color: 'indigo'
   }
 ];
@@ -97,7 +97,6 @@ const PricingSection = () => {
               </CarouselContent>
             </Carousel>
             
-            {/* Pagination Dots */}
             <div className="flex justify-center gap-2 mt-4">
               {PLANS.map((_, i) => (
                 <div 
@@ -177,7 +176,7 @@ const PricingCard = ({ plan }: { plan: any }) => (
         : 'bg-slate-900 dark:bg-white text-white dark:text-slate-900'
     }`}>
       <Link to="/admin/signup">
-        Get Started <ArrowRight className="ml-2 w-4 h-4" />
+        {plan.price === '0' ? 'Start Free Trial' : 'Get Started'} <ArrowRight className="ml-2 w-4 h-4" />
       </Link>
     </Button>
   </div>
