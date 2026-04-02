@@ -76,15 +76,6 @@ const ClinicAnalytics = () => {
   // Only lock if we are NOT initializing and the feature is locked
   const isLocked = !isInitializing && !isFeatureUnlocked('analytics') && status === 'expired';
 
-  if (isInitializing) {
-    return (
-      <div className="min-h-[60vh] flex flex-col items-center justify-center gap-4">
-        <Loader2 className="animate-spin w-10 h-10 text-indigo-600" />
-        <p className="text-[10px] font-black uppercase tracking-widest text-slate-500">Calibrating Analytics...</p>
-      </div>
-    );
-  }
-
   if (isLocked) {
     return (
       <div className="max-w-4xl mx-auto py-20 px-6 text-center animate-in fade-in duration-700">

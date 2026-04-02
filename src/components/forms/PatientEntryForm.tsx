@@ -143,15 +143,6 @@ const PatientEntryForm = () => {
 
   useEffect(() => { fetchData(); }, []);
 
-  if (isInitializing) {
-    return (
-      <div className="flex flex-col items-center justify-center py-20 gap-4">
-        <Loader2 className="w-10 h-10 animate-spin text-indigo-600" />
-        <p className="text-[10px] font-black uppercase tracking-widest text-slate-400">Initializing Entry Protocol...</p>
-      </div>
-    );
-  }
-
   const handleRecordSelect = (record: any) => {
     if (record) {
       if (record.phone) {

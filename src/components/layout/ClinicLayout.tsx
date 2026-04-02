@@ -121,7 +121,7 @@ export const ClinicLayout = ({ children }: ClinicLayoutProps) => {
       <header className="md:hidden bg-white dark:bg-slate-900 border-b border-gray-100 dark:border-slate-800 px-6 h-16 flex items-center justify-between sticky top-0 z-30 transition-colors">
         <div className="flex items-center gap-2">
           <Logo className="w-8 h-8" />
-          <span className="font-bold text-gray-900 dark:text-white truncate max-w-[150px]">{clinic?.name}</span>
+          <span className="font-bold text-gray-900 dark:text-white truncate max-w-[150px]">{clinic?.name || 'Portal'}</span>
         </div>
         <div className="flex items-center gap-2">
           <ModeToggle />
