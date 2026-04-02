@@ -43,6 +43,7 @@ const PatientEntryForm = () => {
   const [clinicData, setClinicData] = useState<any>(null);
   const [currentPatients, setCurrentPatients] = useState(0);
   const [existingIdentities, setExistingIdentities] = useState<Set<string>>(new Set());
+  const [isInitializing, setIsInitializing] = useState(true);
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -62,7 +63,8 @@ const PatientEntryForm = () => {
   });
 
   const { isFeatureUnlocked, status } = getClinicStatus(clinicData);
-  const isViewOnly = !isFeatureUnlocked('actions');
+  // Only restrict if we are SURE the status is expired (not while loading)
+  const isViewOnly = status === 'expired' && !isFeatureUnlocked('actions');
 
   const watchName = form.watch('name');
   const watchPhone = form.watch('phone');
@@ -134,10 +136,21 @@ const PatientEntryForm = () => {
       }
     } catch (err) {
       console.error(err);
+    } finally {
+      setIsInitializing(false);
     }
   };
 
   useEffect(() => { fetchData(); }, []);
+
+  if (isInitializing) {
+    return (
+      <div className="flex flex-col items-center justify-center py-20 gap-4">
+        <Loader2 className="w-10 h-10 animate-spin text-indigo-600" />
+        <p className="text-[10px] font-black uppercase tracking-widest text-slate-400">Initializing Entry Protocol...</p>
+      </div>
+    );
+  }
 
   const handleRecordSelect = (record: any) => {
     if (record) {

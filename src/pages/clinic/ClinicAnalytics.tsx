@@ -18,6 +18,7 @@ const ClinicAnalytics = () => {
   const [patients, setPatients] = useState<any[]>([]);
   const [clinic, setClinic] = useState<any>(null);
   const [loading, setLoading] = useState(true);
+  const [isInitializing, setIsInitializing] = useState(true);
   
   const [filterType, setFilterType] = useState<'monthly' | 'custom'>('monthly');
   const [filters, setFilters] = useState({
@@ -63,6 +64,7 @@ const ClinicAnalytics = () => {
       toast.error(err.message);
     } finally {
       setLoading(false);
+      setIsInitializing(false);
     }
   };
 
@@ -71,7 +73,17 @@ const ClinicAnalytics = () => {
   }, [slug, filterType, filters]);
 
   const { isFeatureUnlocked, status } = getClinicStatus(clinic);
-  const isLocked = !isFeatureUnlocked('analytics');
+  // Only lock if we are NOT initializing and the feature is locked
+  const isLocked = !isInitializing && !isFeatureUnlocked('analytics') && status === 'expired';
+
+  if (isInitializing) {
+    return (
+      <div className="min-h-[60vh] flex flex-col items-center justify-center gap-4">
+        <Loader2 className="animate-spin w-10 h-10 text-indigo-600" />
+        <p className="text-[10px] font-black uppercase tracking-widest text-slate-500">Calibrating Analytics...</p>
+      </div>
+    );
+  }
 
   if (isLocked) {
     return (
@@ -81,7 +93,7 @@ const ClinicAnalytics = () => {
             <Lock className="w-10 h-10 text-indigo-600 dark:text-indigo-400 group-hover:scale-110 transition-transform" />
           </div>
           <h1 className="text-4xl md:text-5xl font-black text-slate-900 dark:text-white tracking-tighter mb-4">
-            {status === 'expired' ? "Trial Access Expired" : "Analytics Protocol Locked"}
+            Trial Access Expired
           </h1>
           <p className="text-lg text-slate-500 dark:text-slate-400 font-medium max-w-md mx-auto mb-12">
             Advanced clinical insights, behavior patterns, and deep financial tracking require a <strong>Basic</strong> or <strong>Pro</strong> plan.

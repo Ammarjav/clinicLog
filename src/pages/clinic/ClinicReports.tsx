@@ -12,6 +12,7 @@ import { exportToExcel } from '@/utils/excelExport';
 import { generatePdfReport } from '@/utils/pdfReportGenerator';
 import { toast } from 'sonner';
 import { getClinicStatus } from '@/utils/statusUtils';
+import { cn } from '@/lib/utils';
 
 const ClinicReports = () => {
   const { slug } = useParams();
@@ -24,6 +25,7 @@ const ClinicReports = () => {
   });
   
   const [loading, setLoading] = useState(false);
+  const [isInitializing, setIsInitializing] = useState(true);
   const [patients, setPatients] = useState<any[]>([]);
   const [analytics, setAnalytics] = useState<ReportAnalytics | null>(null);
   const [clinic, setClinic] = useState<any>(null);
@@ -66,6 +68,7 @@ const ClinicReports = () => {
       toast.error(err.message);
     } finally {
       setLoading(false);
+      setIsInitializing(false);
     }
   };
 
@@ -81,6 +84,7 @@ const ClinicReports = () => {
   const { effectivePlan, status } = getClinicStatus(clinic);
 
   const isFeatureLocked = (feature: 'pdf' | 'excel') => {
+    if (status === 'loading') return false; // Don't lock while loading
     if (status === 'trialing') return false; // Full access during trial
     if (feature === 'pdf' && effectivePlan === 'Free') return true;
     if (feature === 'excel' && effectivePlan !== 'Pro') return true;
@@ -118,6 +122,15 @@ const ClinicReports = () => {
     generatePdfReport(patients, analytics, clinic?.name || 'Clinic', getDateRangeString());
     toast.success("PDF report generated");
   };
+
+  if (isInitializing) {
+    return (
+      <div className="min-h-[60vh] flex flex-col items-center justify-center gap-4">
+        <Loader2 className="animate-spin w-10 h-10 text-indigo-600" />
+        <p className="text-[10px] font-black uppercase tracking-widest text-slate-500">Generating Audit Stream...</p>
+      </div>
+    );
+  }
 
   return (
     <div className="max-w-6xl mx-auto space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700 pb-20">
@@ -165,26 +178,23 @@ const ClinicReports = () => {
         onChange={(k, v) => setFilters(prev => ({ ...prev, [k]: v }))}
       />
 
-      {status !== 'active' && (
-        <div className={cn(
-          "p-6 rounded-[2.5rem] border flex flex-col md:flex-row items-center justify-between gap-6 shadow-sm",
-          status === 'trialing' ? "bg-indigo-50 border-indigo-100" : "bg-rose-50 border-rose-100"
-        )}>
+      {status === 'expired' && (
+        <div className="p-6 rounded-[2.5rem] border flex flex-col md:flex-row items-center justify-between gap-6 shadow-sm bg-rose-50 border-rose-100">
           <div className="flex items-center gap-4 text-center md:text-left">
             <div className="bg-white dark:bg-slate-900 p-3 rounded-2xl shadow-sm">
-              <Star className={cn("w-6 h-6", status === 'trialing' ? "text-indigo-600" : "text-rose-600")} />
+              <Star className="w-6 h-6 text-rose-600" />
             </div>
             <div>
-              <p className={cn("text-sm font-black uppercase tracking-widest", status === 'trialing' ? "text-indigo-900" : "text-rose-900")}>
-                {status === 'trialing' ? "Full Trial Access" : "Upgrade to Export"}
+              <p className="text-sm font-black uppercase tracking-widest text-rose-900">
+                Upgrade to Export
               </p>
-              <p className={cn("font-medium text-xs", status === 'trialing' ? "text-indigo-800/60" : "text-rose-800/60")}>
-                {status === 'trialing' ? "You have full access to exports during your 10-day trial." : "Professional documentation tools are available in Basic and Pro plans."}
+              <p className="font-medium text-xs text-rose-800/60">
+                Professional documentation tools are available in Basic and Pro plans.
               </p>
             </div>
           </div>
-          <Button asChild className={cn("w-full md:w-auto rounded-xl h-11 px-8 font-bold shadow-lg", status === 'trialing' ? "bg-indigo-600" : "bg-rose-600")}>
-            <Link to={`/clinic/${slug}/billing`}>{status === 'trialing' ? "View Plans" : "Unlock All Features"}</Link>
+          <Button asChild className="w-full md:w-auto rounded-xl h-11 px-8 font-bold shadow-lg bg-rose-600">
+            <Link to={`/clinic/${slug}/billing`}>Unlock All Features</Link>
           </Button>
         </div>
       )}

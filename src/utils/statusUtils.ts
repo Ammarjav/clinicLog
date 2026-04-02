@@ -2,7 +2,7 @@
 
 import { differenceInDays, isAfter, parseISO } from 'date-fns';
 
-export type ClinicStatus = 'trialing' | 'expired' | 'active';
+export type ClinicStatus = 'loading' | 'trialing' | 'expired' | 'active';
 
 export const getClinicStatus = (clinic: any): { 
   status: ClinicStatus; 
@@ -10,7 +10,15 @@ export const getClinicStatus = (clinic: any): {
   isFeatureUnlocked: (feature: 'analytics' | 'reports' | 'followups' | 'actions') => boolean;
   effectivePlan: string;
 } => {
-  if (!clinic) return { status: 'expired', daysLeft: 0, isFeatureUnlocked: () => false, effectivePlan: 'Free' };
+  // Return a loading state if clinic data is missing
+  if (!clinic) {
+    return { 
+      status: 'loading', 
+      daysLeft: 0, 
+      isFeatureUnlocked: () => true, // Default to true while loading to prevent flicker
+      effectivePlan: 'Free' 
+    };
+  }
 
   const now = new Date();
   const trialEnd = clinic.trial_end ? parseISO(clinic.trial_end) : now;
@@ -26,6 +34,9 @@ export const getClinicStatus = (clinic: any): {
   const effectivePlan = (status === 'trialing' || clinic.plan === 'Pro') ? 'Pro' : clinic.plan;
 
   const isFeatureUnlocked = (feature: 'analytics' | 'reports' | 'followups' | 'actions') => {
+    // While loading, assume unlocked to prevent UI flickering
+    if (status === 'loading') return true;
+
     // Actions (Create/Edit/Delete) are ONLY allowed if subscribed OR trial is active
     if (feature === 'actions') return status !== 'expired';
     
