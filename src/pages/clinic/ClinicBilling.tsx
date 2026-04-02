@@ -16,6 +16,7 @@ import {
   type CarouselApi
 } from "@/components/ui/carousel";
 import { motion, AnimatePresence } from 'framer-motion';
+import { getClinicStatus } from '@/utils/statusUtils';
 
 const PLANS = [
   { 
@@ -116,6 +117,7 @@ const ClinicBilling = () => {
   );
 
   const isPending = latestPayment?.status === 'pending';
+  const { status, daysLeft } = getClinicStatus(clinic);
 
   return (
     <div className="max-w-6xl mx-auto space-y-10 pb-20 animate-in fade-in duration-700">
@@ -193,6 +195,8 @@ const ClinicBilling = () => {
                         currentPlan={clinic?.plan} 
                         isPending={isPending} 
                         onUpgrade={handleUpgrade} 
+                        daysLeft={daysLeft}
+                        isExpired={status === 'expired'}
                       />
                     </motion.div>
                   </CarouselItem>
@@ -220,6 +224,8 @@ const ClinicBilling = () => {
                 currentPlan={clinic?.plan} 
                 isPending={isPending} 
                 onUpgrade={handleUpgrade} 
+                daysLeft={daysLeft}
+                isExpired={status === 'expired'}
               />
             ))}
           </div>

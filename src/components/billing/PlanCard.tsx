@@ -4,7 +4,7 @@ import React from 'react';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Check, Lock, ChevronUp } from 'lucide-react';
+import { Check, ChevronUp, Clock, XCircle } from 'lucide-react';
 
 interface PlanCardProps {
   plan: {
@@ -17,6 +17,8 @@ interface PlanCardProps {
   currentPlan?: string;
   isPending?: boolean;
   onUpgrade: (plan: any) => void;
+  daysLeft?: number;
+  isExpired?: boolean;
 }
 
 const PLAN_RANKS: Record<string, number> = {
@@ -25,12 +27,13 @@ const PLAN_RANKS: Record<string, number> = {
   'Pro': 2
 };
 
-const PlanCard = ({ plan, currentPlan = 'Free', isPending, onUpgrade }: PlanCardProps) => {
-  const isActive = currentPlan === plan.name;
+const PlanCard = ({ plan, currentPlan = 'Free', isPending, onUpgrade, daysLeft = 0, isExpired = false }: PlanCardProps) => {
+  const isTrialCard = plan.name === '10-Day Trial';
+  const isActive = currentPlan === plan.name || (isTrialCard && currentPlan === 'Free');
   
   const currentRank = PLAN_RANKS[currentPlan] ?? 0;
   const targetRank = PLAN_RANKS[plan.name] ?? 0;
-  const isLowerPlan = currentRank > targetRank;
+  const isLowerPlan = !isTrialCard && currentRank > targetRank;
   
   return (
     <Card 
@@ -44,14 +47,16 @@ const PlanCard = ({ plan, currentPlan = 'Free', isPending, onUpgrade }: PlanCard
         <div className="flex justify-between items-center mb-3 sm:mb-4">
           <h3 className="text-xl sm:text-2xl font-black tracking-tight">{plan.name}</h3>
           {isActive && (
-            <Badge className="bg-emerald-500 text-white border-none rounded-full px-2.5 py-0.5 font-black uppercase text-[9px] sm:text-[10px]">
+            <Badge className={`${isTrialCard ? 'bg-indigo-500' : 'bg-emerald-500'} text-white border-none rounded-full px-2.5 py-0.5 font-black uppercase text-[9px] sm:text-[10px]`}>
               Active
             </Badge>
           )}
         </div>
         <div className="text-3xl sm:text-4xl font-black mb-1.5 sm:mb-2">
           ${plan.price}
-          <span className="text-xs sm:text-sm font-normal text-slate-400">/mo</span>
+          {!isTrialCard && (
+            <span className="text-xs sm:text-sm font-normal text-slate-400">/mo</span>
+          )}
         </div>
         <p className={`text-xs sm:text-sm opacity-70 leading-relaxed ${plan.highlight ? 'text-slate-400' : 'text-slate-500 dark:text-slate-400'}`}>
           {plan.description}
@@ -70,32 +75,56 @@ const PlanCard = ({ plan, currentPlan = 'Free', isPending, onUpgrade }: PlanCard
       </div>
       
       <div className="space-y-3 mt-auto">
-        <Button 
-          disabled={isActive || plan.name === 'Free' || isPending || isLowerPlan} 
-          onClick={() => onUpgrade(plan)}
-          className={`w-full h-12 sm:h-14 rounded-2xl font-black text-sm sm:text-base shadow-lg transition-all active:scale-[0.98] ${
-            plan.highlight 
-              ? 'bg-white text-slate-900 hover:bg-slate-50' 
-              : 'bg-slate-900 dark:bg-white text-white dark:text-slate-900 hover:bg-slate-800'
-          } ${isLowerPlan ? 'opacity-40 grayscale pointer-events-none' : ''}`}
-        >
-          {isActive ? (
-            'Plan Active'
-          ) : isPending ? (
-            'Processing...'
-          ) : isLowerPlan ? (
-            'Included'
-          ) : (
-            <span className="flex items-center gap-2">
-              Upgrade <ChevronUp className="w-4 h-4" />
-            </span>
-          )}
-        </Button>
-        
-        {isLowerPlan && (
-          <p className="text-[10px] font-bold text-center text-slate-400 dark:text-slate-500 uppercase tracking-widest px-2">
-            Higher tier active
-          </p>
+        {isTrialCard ? (
+          <div className={`w-full py-4 rounded-2xl flex flex-col items-center justify-center gap-2 border-2 border-dashed ${
+            isExpired 
+              ? 'bg-rose-50 dark:bg-rose-900/10 border-rose-100 dark:border-rose-800' 
+              : 'bg-indigo-50 dark:bg-indigo-900/10 border-indigo-100 dark:border-indigo-800'
+          }`}>
+            {isExpired ? (
+              <>
+                <XCircle className="w-5 h-5 text-rose-500" />
+                <span className="text-sm font-black text-rose-600 dark:text-rose-400 uppercase tracking-widest">Free Trial Over</span>
+              </>
+            ) : (
+              <>
+                <Clock className="w-5 h-5 text-indigo-500" />
+                <span className="text-sm font-black text-indigo-600 dark:text-indigo-400 uppercase tracking-widest">
+                  Active till {daysLeft} days
+                </span>
+              </>
+            )}
+          </div>
+        ) : (
+          <>
+            <Button 
+              disabled={isActive || isPending || isLowerPlan} 
+              onClick={() => onUpgrade(plan)}
+              className={`w-full h-12 sm:h-14 rounded-2xl font-black text-sm sm:text-base shadow-lg transition-all active:scale-[0.98] ${
+                plan.highlight 
+                  ? 'bg-white text-slate-900 hover:bg-slate-50' 
+                  : 'bg-slate-900 dark:bg-white text-white dark:text-slate-900 hover:bg-slate-800'
+              } ${isLowerPlan ? 'opacity-40 grayscale pointer-events-none' : ''}`}
+            >
+              {isActive ? (
+                'Plan Active'
+              ) : isPending ? (
+                'Processing...'
+              ) : isLowerPlan ? (
+                'Included'
+              ) : (
+                <span className="flex items-center gap-2">
+                  Upgrade <ChevronUp className="w-4 h-4" />
+                </span>
+              )}
+            </Button>
+            
+            {isLowerPlan && (
+              <p className="text-[10px] font-bold text-center text-slate-400 dark:text-slate-500 uppercase tracking-widest px-2">
+                Higher tier active
+              </p>
+            )}
+          </>
         )}
       </div>
     </Card>

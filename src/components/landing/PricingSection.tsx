@@ -152,7 +152,9 @@ const PricingCard = ({ plan }: { plan: any }) => (
       <h3 className="text-2xl font-black mb-2">{plan.name}</h3>
       <div className="flex items-baseline gap-1 mb-4">
         <span className="text-5xl font-black">${plan.price}</span>
-        <span className={plan.highlight ? 'text-slate-400' : 'text-slate-500'}>/mo</span>
+        {plan.price !== '0' && (
+          <span className={plan.highlight ? 'text-slate-400' : 'text-slate-50'}>/mo</span>
+        )}
       </div>
       <p className={`text-sm font-medium leading-relaxed ${plan.highlight ? 'text-slate-400' : 'text-slate-500'}`}>
         {plan.description}
