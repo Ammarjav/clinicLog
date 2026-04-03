@@ -84,26 +84,22 @@ const ClinicReports = () => {
   const { effectivePlan, status } = getClinicStatus(clinic);
 
   const isFeatureLocked = (feature: 'pdf' | 'excel') => {
-    // During trial or free plan, certain features are restricted
-    if (status === 'trialing' || effectivePlan === 'Free') {
-      if (feature === 'excel' && effectivePlan !== 'Pro') return true;
-      if (feature === 'pdf' && effectivePlan !== 'Basic' && effectivePlan !== 'Pro') return true;
-    }
-    // Additional check: if plan is Free and not trialing, also lock
-    if (effectivePlan === 'Free') {
-      if (feature === 'excel') return true;
-      if (feature === 'pdf') return true;
-    }
+    if (status === 'loading') return false; // Don't lock while loading
+    if (status === 'trialing') return false; // Full access during trial
+    if (feature === 'pdf' && effectivePlan === 'Free') return true;
+    if (feature === 'excel' && effectivePlan !== 'Pro') return true;
     return false;
   };
 
   const handleExportExcel = () => {
     if (isFeatureLocked('excel')) {
-      let message = "Excel export is only available in the Pro plan.";
-      if (status === 'trialing') {
-        message += "\n\nYour 10‑day trial is active—upgrade to Pro to unlock this feature.";
-      }
-      toast.error(message, { duration: 5000 });
+      toast.error("Excel export is exclusive to the Pro plan.", {
+        description: status === 'expired' ? "Trial ended. Upgrade your clinic to Pro to unlock bulk data management." : "Upgrade your clinic to Pro to unlock bulk data management.",
+        action: {
+          label: "Upgrade",
+          onClick: () => window.location.href = `/clinic/${slug}/billing`
+        }
+      });
       return;
     }
     if (patients.length === 0) return toast.error("No data to export");
@@ -113,11 +109,13 @@ const ClinicReports = () => {
 
   const handleExportPdf = () => {
     if (isFeatureLocked('pdf')) {
-      let message = "PDF export is only available in Basic or Pro plans.";
-      if (status === 'trialing') {
-        message += "\n\nYour trial doesn't include PDF exports—upgrade to Basic or Pro to unlock this feature.";
-      }
-      toast.error(message, { duration: 5000 });
+      toast.error("Professional PDF reports require Basic or Pro plan.", {
+        description: status === 'expired' ? "Trial ended. Free clinics can view reports but not export them." : "Free clinics can view reports but not export them.",
+        action: {
+          label: "Upgrade",
+          onClick: () => window.location.href = `/clinic/${slug}/billing`
+        }
+      });
       return;
     }
     if (!analytics || patients.length === 0) return toast.error("No data to generate report");
@@ -152,7 +150,8 @@ const ClinicReports = () => {
             onClick={handleExportPdf}
             variant={isFeatureLocked('pdf') ? 'outline' : 'default'}
             className={`w-full sm:w-auto rounded-2xl h-14 px-8 font-bold shadow-xl transition-all ${
-              isFeatureLocked('pdf')               ? 'border-slate-200 dark:border-slate-800 text-slate-400 dark:text-slate-500' 
+              isFeatureLocked('pdf') 
+              ? 'border-slate-200 dark:border-slate-800 text-slate-400 dark:text-slate-500' 
               : 'bg-indigo-600 hover:bg-indigo-700 text-white'
             }`}
             disabled={loading || (patients.length === 0 && !isFeatureLocked('pdf'))}
