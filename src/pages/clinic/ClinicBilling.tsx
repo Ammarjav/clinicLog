@@ -17,6 +17,7 @@ import {
 } from "@/components/ui/carousel";
 import { motion, AnimatePresence } from 'framer-motion';
 import { getClinicStatus } from '@/utils/statusUtils';
+import { useSearchParams } from 'react-router-dom';
 
 const PLANS = [
   { 
@@ -45,6 +46,7 @@ const PLANS = [
 
 const ClinicBilling = () => {
   const isMobile = useIsMobile();
+  const [searchParams, setSearchParams] = useSearchParams();
   const [clinic, setClinic] = useState<any>(null);
   const [latestPayment, setLatestPayment] = useState<any>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -98,6 +100,55 @@ const ClinicBilling = () => {
   }, []);
 
   useEffect(() => { fetchData(); }, [fetchData]);
+
+  useEffect(() => {
+    const paymentStatus = searchParams.get('payment');
+    const planName = searchParams.get('plan');
+    
+    if (paymentStatus === 'success' && planName) {
+      handlePaddleSuccess(planName);
+      setSearchParams({});
+    }
+  }, [searchParams]);
+
+  const handlePaddleSuccess = async (planName: string) => {
+    toast.success("Payment successful! Upgrading your clinic...");
+    try {
+      let limit = 50;
+      if (planName === 'Basic') limit = 200;
+      if (planName === 'Pro') limit = 2147483647;
+      
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+
+      const { data: userData } = await supabase
+        .from('users')
+        .select('clinic_id')
+        .eq('id', user.id)
+        .single();
+
+      if (userData?.clinic_id) {
+        await supabase.from('clinics').update({ 
+          plan: planName, 
+          patient_limit: limit, 
+          subscription_status: 'active' 
+        }).eq('id', userData.clinic_id);
+        
+        await supabase.from('payments').insert([{
+          clinic_id: userData.clinic_id,
+          plan_requested: planName,
+          payment_method: 'Paddle (Card)',
+          transaction_id: `paddle_${Date.now()}`,
+          status: 'approved'
+        }]);
+        
+        toast.success(`Clinic upgraded to ${planName}!`);
+        fetchData(true);
+      }
+    } catch (err: any) {
+      toast.error("Failed to process upgrade: " + err.message);
+    }
+  };
 
   const handleUpgrade = (plan: any) => {
     if (plan.name === clinic?.plan) return toast.info("Already on this plan");

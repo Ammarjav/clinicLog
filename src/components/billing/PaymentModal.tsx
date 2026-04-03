@@ -13,6 +13,8 @@ import {
   ChevronRight, Copy, CheckCircle2, Loader2, Info
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { getPaddleInstance } from '@/lib/paddle';
+import { useParams } from 'react-router-dom';
 
 interface PaymentModalProps {
   open: boolean;
@@ -23,13 +25,23 @@ interface PaymentModalProps {
 
 const PAYMENT_METHODS = [
   { 
-    id: 'jazzcash',     name: 'JazzCash',     icon: Smartphone, 
+    id: 'paddle', 
+    name: 'Credit/Debit Card', 
+    icon: CreditCard, 
+    color: 'bg-blue-50 text-blue-600',
+    details: 'Secure payment via Paddle'
+  },
+  { 
+    id: 'jazzcash',     
+    name: 'JazzCash',     
+    icon: Smartphone, 
     color: 'bg-red-50 text-red-600',
     details: 'Send PKR equivalent of ${price}USD (1 USD = 280 PKR)to:\n03106960468\nAccount Name: Muhammad Ammar Javed'
   },
   { 
     id: 'easypaisa', 
-    name: 'Easypaisa',     icon: Smartphone, 
+    name: 'Easypaisa',     
+    icon: Smartphone, 
     color: 'bg-emerald-50 text-emerald-600',
     details: 'Send PKR equivalent of ${price}USD (1 USD = 280 PKR)to:\n03106960468\nAccount Name: Muhammad Ammar Javed'
   },
@@ -43,14 +55,64 @@ const PAYMENT_METHODS = [
 ];
 
 const PaymentModal = ({ open, onOpenChange, plan, clinicId }: PaymentModalProps) => {
+  const { slug } = useParams();
   const [step, setStep] = useState<'method' | 'instructions' | 'submit' | 'success'>('method');
   const [selectedMethod, setSelectedMethod] = useState<any>(null);
   const [transactionId, setTransactionId] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isProcessingPaddle, setIsProcessingPaddle] = useState(false);
 
   const handleSelectMethod = (method: any) => {
-    setSelectedMethod(method);
-    setStep('instructions');
+    if (method.id === 'paddle') {
+      handlePaddleCheckout();
+    } else {
+      setSelectedMethod(method);
+      setStep('instructions');
+    }
+  };
+
+  const handlePaddleCheckout = async () => {
+    setIsProcessingPaddle(true);
+    try {
+      const paddle = await getPaddleInstance();
+      if (!paddle) {
+        toast.error("Payment gateway not initialized. Please check configuration.");
+        return;
+      }
+
+      const priceIdMap: Record<string, string> = {
+        'Basic': import.meta.env.VITE_PADDLE_BASIC_PRICE_ID || '',
+        'Pro': import.meta.env.VITE_PADDLE_PRO_PRICE_ID || '',
+      };
+
+      const priceId = priceIdMap[plan.name];
+      if (!priceId) {
+        toast.error(`Price ID not configured for ${plan.name} plan.`);
+        return;
+      }
+
+      const { data: { user } } = await supabase.auth.getUser();
+      
+      paddle.Checkout.open({
+        items: [{ priceId, quantity: 1 }],
+        customer: { email: user?.email || '' },
+        settings: {
+          successUrl: `${window.location.origin}/clinic/${slug}/billing?payment=success&plan=${plan.name}`,
+          allowLogout: false,
+        },
+        customData: {
+          clinic_id: clinicId,
+          plan_requested: plan.name,
+          user_id: user?.id,
+        }
+      });
+      
+      onOpenChange(false);
+    } catch (err: any) {
+      toast.error(err.message);
+    } finally {
+      setIsProcessingPaddle(false);
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -103,12 +165,18 @@ const PaymentModal = ({ open, onOpenChange, plan, clinicId }: PaymentModalProps)
             </DialogHeader>
             <div className="space-y-3">
               {PAYMENT_METHODS.map((method) => (
-                <button                  key={method.id}
+                <button                  
+                  key={method.id}
                   onClick={() => handleSelectMethod(method)}
-                  className="w-full flex items-center justify-between p-4 rounded-2xl border border-slate-100 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800 transition-all group"
+                  disabled={isProcessingPaddle}
+                  className="w-full flex items-center justify-between p-4 rounded-2xl border border-slate-100 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800 transition-all group disabled:opacity-50"
                 >
                   <div className={`p-3 rounded-xl ${method.color} dark:bg-opacity-10`}>
-                    <method.icon className="w-5 h-5" />
+                    {isProcessingPaddle && method.id === 'paddle' ? (
+                      <Loader2 className="w-5 h-5 animate-spin" />
+                    ) : (
+                      <method.icon className="w-5 h-5" />
+                    )}
                   </div>
                   <span className="font-bold text-slate-900 dark:text-white">{method.name}</span>
                 </button>
@@ -158,7 +226,9 @@ const PaymentModal = ({ open, onOpenChange, plan, clinicId }: PaymentModalProps)
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="space-y-1.5">
                 <Label className="text-xs font-black uppercase text-slate-400">Transaction ID</Label>
-                <Input                   required                  placeholder="Enter TID or Reference Number" 
+                <Input                   
+                  required                  
+                  placeholder="Enter TID or Reference Number" 
                   className="rounded-xl h-12 bg-slate-50 dark:bg-slate-800 border-none focus:ring-indigo-500/20 dark:text-white"
                   value={transactionId}
                   onChange={(e) => setTransactionId(e.target.value)}
