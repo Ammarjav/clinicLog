@@ -1,28 +1,5 @@
-# Logs
-logs
-*.log
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-pnpm-debug.log*
-lerna-debug.log*
-
-node_modules
-dist
-dist-ssr
-*.local
-.env
-.env.local
-.env.*.local
-
-# Editor directories and files
-.vscode/*
-!.vscode/extensions.json
-.idea
-.DS_Store
-*.suo
-*.ntvs*
-*.njsproj
-*.sln
-*.sw?
-.dyad/
+VITE_PADDLE_ENVIRONMENT=sandbox
+PADDLE_API_KEY=
+VITE_PADDLE_CLIENT_TOKEN=test_client_token_here
+VITE_PADDLE_BASIC_PRICE_ID=basic_plan_price_id_here
+VITE_PADDLE_PRO_PRICE_ID=pro_plan_price_id_here
