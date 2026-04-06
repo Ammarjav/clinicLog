@@ -1,24 +1,8 @@
-# Dependencies
-node_modules/
+# Paddle Configuration
+# Get these from your Paddle Dashboard -> Developer Tools -> Authentication
+VITE_PADDLE_CLIENT_TOKEN=
+VITE_PADDLE_ENVIRONMENT=production
 
-# Build outputs
-dist/
-dist-ssr/
-*.local
-
-# Editor directories and files
-.vscode/*
-!.vscode/extensions.json
-.idea
-.DS_Store
-*.suo
-*.ntvs*
-*.njsproj
-*.sln
-*.sw?
-
-# Environment variables (NEVER commit these)
-.env
-.env.local
-.env.*.local
-.dyad/
+# Get these from your Paddle Dashboard -> Monetization -> Products
+VITE_PADDLE_BASIC_PRICE_ID=pri_01knf21g06kwwbbk9mmw0v78p9
+VITE_PADDLE_PRO_PRICE_ID=pri_01knf24hhmpkbe5k1hj8wkxddq
