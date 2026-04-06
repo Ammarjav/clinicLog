@@ -10,7 +10,7 @@ import { supabase } from '@/lib/supabase';
 import { toast } from 'sonner';
 import { 
   CreditCard, Smartphone, Banknote, Landmark, 
-  ChevronRight, Copy, CheckCircle2, Loader2, Info
+  ChevronRight, Copy, CheckCircle2, Loader2, Info, AlertTriangle
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { getPaddleInstance } from '@/lib/paddle';
@@ -36,18 +36,16 @@ const PAYMENT_METHODS = [
     name: 'JazzCash',     
     icon: Smartphone, 
     color: 'bg-red-50 text-red-600',
-    details: 'Send PKR equivalent of ${price}USD (1 USD = 280 PKR)to:\n03106960468\nAccount Name: Muhammad Ammar Javed'
+    details: 'Send PKR equivalent of ${price}USD (1 USD = 280 PKR) to:\n03106960468\nAccount Name: Muhammad Ammar Javed'
   },
   { 
     id: 'easypaisa', 
     name: 'Easypaisa',     
     icon: Smartphone, 
     color: 'bg-emerald-50 text-emerald-600',
-    details: 'Send PKR equivalent of ${price}USD (1 USD = 280 PKR)to:\n03106960468\nAccount Name: Muhammad Ammar Javed'
+    details: 'Send PKR equivalent of ${price}USD (1 USD = 280 PKR) to:\n03106960468\nAccount Name: Muhammad Ammar Javed'
   },
-  { 
-    id: 'nayapay', 
-    name: 'Nayapay', 
+  {     id: 'nayapay',     name: 'Nayapay', 
     icon: CreditCard, 
     color: 'bg-indigo-50 text-indigo-600',
     details: 'Send USD equivalent of ${price} (1 USD = 280 PKR) to:\nPK95NAYA1234503106960468\nAccount Name: Muhammad Ammar Javed'
@@ -72,27 +70,36 @@ const PaymentModal = ({ open, onOpenChange, plan, clinicId }: PaymentModalProps)
   };
 
   const handlePaddleCheckout = async () => {
+    // Ensure we're using the correct environment variables
+    const token = import.meta.env.VITE_PADDLE_CLIENT_SIDE_TOKEN;
+    const priceIdMap: Record<string, string> = {
+      'Basic': import.meta.env.VITE_BASIC_ID || '',
+      'Pro': import.meta.env.VITE_PRO_ID || '',
+    };
+    const priceId = priceIdMap[plan.name];
+
+    // Critical: Validate we have the required configuration before proceeding
+    if (!token || !priceId) {
+      toast.error("Paddle configuration incomplete. Contact administrator.", {
+        duration: 7000,
+        action: {
+          label: "Learn More",
+          onClick: () => window.open('https://buy.paddle.com/', '_blank')
+        }
+      });
+      return;
+    }
+
     setIsProcessingPaddle(true);
     try {
       const paddle = await getPaddleInstance();
       if (!paddle) {
-        toast.error("Payment gateway not initialized. Please check configuration.");
-        return;
-      }
-
-      const priceIdMap: Record<string, string> = {
-        'Basic': import.meta.env.VITE_PADDLE_BASIC_PRICE_ID || '',
-        'Pro': import.meta.env.VITE_PADDLE_PRO_PRICE_ID || '',
-      };
-
-      const priceId = priceIdMap[plan.name];
-      if (!priceId) {
-        toast.error(`Price ID not configured for ${plan.name} plan.`);
-        return;
+        throw new Error("Paddle SDK failed to initialize");
       }
 
       const { data: { user } } = await supabase.auth.getUser();
       
+      // Use Paddle's official checkout method - this opens a secure popup, NOT an iframe
       paddle.Checkout.open({
         items: [{ priceId, quantity: 1 }],
         customer: { email: user?.email || '' },
@@ -109,7 +116,7 @@ const PaymentModal = ({ open, onOpenChange, plan, clinicId }: PaymentModalProps)
       
       onOpenChange(false);
     } catch (err: any) {
-      toast.error(err.message);
+      toast.error(err.message || "Paddle checkout failed. Please try again.");
     } finally {
       setIsProcessingPaddle(false);
     }
@@ -201,8 +208,7 @@ const PaymentModal = ({ open, onOpenChange, plan, clinicId }: PaymentModalProps)
               </pre>
               <Button 
                 variant="ghost" 
-                size="icon" 
-                className="absolute top-2 right-2 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity"
+                size="icon"                 className="absolute top-2 right-2 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity"
                 onClick={() => copyToClipboard(selectedMethod.details.replace('${price}', plan.price))}
               >
                 <Copy className="w-4 h-4" />
@@ -237,7 +243,7 @@ const PaymentModal = ({ open, onOpenChange, plan, clinicId }: PaymentModalProps)
               <div className="p-4 bg-indigo-50 dark:bg-indigo-900/20 rounded-2xl flex gap-3">
                 <Info className="w-5 h-5 text-indigo-600 shrink-0" />
                 <p className="text-xs font-medium text-indigo-700 dark:text-indigo-400 leading-relaxed">
-                  Verification usually takes up to 24 hours. Your 7-day trial will start once approved.
+                  Verification usually takes up to 24 hours. Your upgrade will start once approved.
                 </p>
               </div>
               <div className="flex gap-3 pt-2">
