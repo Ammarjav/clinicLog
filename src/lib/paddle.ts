@@ -13,13 +13,13 @@ export const getPaddleInstance = async (): Promise<Paddle | null> => {
 
   try {
     const env = import.meta.env.VITE_PADDLE_ENVIRONMENT || 'sandbox';
-    const token = import.meta.env.VITE_PADDLE_CLIENT_TOKEN;
+    // Updated to match your screenshot naming (with VITE_ prefix)
+    const token = import.meta.env.VITE_PADDLE_CLIENT_SIDE_TOKEN;
     
-    // Debug logging for developers
     console.log('[Paddle] Initializing in', env, 'mode');
 
     if (!token) {
-      console.warn('[Paddle] Missing VITE_PADDLE_CLIENT_TOKEN. Credit card payments will not work.');
+      console.warn('[Paddle] Missing VITE_PADDLE_CLIENT_SIDE_TOKEN. Please ensure the VITE_ prefix is added in settings.');
       return null;
     }
 

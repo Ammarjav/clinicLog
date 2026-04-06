@@ -72,16 +72,17 @@ const PaymentModal = ({ open, onOpenChange, plan, clinicId }: PaymentModalProps)
   };
 
   const handlePaddleCheckout = async () => {
-    const token = import.meta.env.VITE_PADDLE_CLIENT_TOKEN;
+    // Updated variable names to match your screenshot preference
+    const token = import.meta.env.VITE_PADDLE_CLIENT_SIDE_TOKEN;
     const priceIdMap: Record<string, string> = {
-      'Basic': import.meta.env.VITE_PADDLE_BASIC_PRICE_ID || '',
-      'Pro': import.meta.env.VITE_PADDLE_PRO_PRICE_ID || '',
+      'Basic': import.meta.env.VITE_BASIC_ID || '',
+      'Pro': import.meta.env.VITE_PRO_ID || '',
     };
     const priceId = priceIdMap[plan.name];
 
     if (!token || !priceId) {
       toast.error("Paddle configuration is incomplete.", {
-        description: "Please check your environment variables (Token and Price IDs)."
+        description: "Please ensure your variables in Settings start with VITE_ (e.g., VITE_BASIC_ID)."
       });
       return;
     }
