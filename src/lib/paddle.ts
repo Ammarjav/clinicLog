@@ -16,7 +16,8 @@ export const getPaddleInstance = async (): Promise<Paddle | null> => {
     const allEnv = Object.keys(import.meta.env).filter(key => key.startsWith('VITE_'));
     console.log('[Paddle Debug] All VITE_* env vars:', allEnv);
     
-    // Debug: Show current environment and token status    const env = import.meta.env.VITE_PADDLE_ENVIRONMENT || 'NOT_SET';
+    // Debug: Show current environment and token status
+    const env = import.meta.env.VITE_PADDLE_ENVIRONMENT || 'NOT_SET';
     const token = import.meta.env.VITE_PADDLE_CLIENT_TOKEN;
     const basicPriceId = import.meta.env.VITE_PADDLE_BASIC_PRICE_ID || 'NOT_SET';
     const proPriceId = import.meta.env.VITE_PADDLE_PRO_PRICE_ID || 'NOT_SET';
