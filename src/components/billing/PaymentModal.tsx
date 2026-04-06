@@ -10,7 +10,7 @@ import { supabase } from '@/lib/supabase';
 import { toast } from 'sonner';
 import { 
   CreditCard, Smartphone, Banknote, Landmark, 
-  ChevronRight, Copy, CheckCircle2, Loader2, Info
+  ChevronRight, Copy, CheckCircle2, Loader2, Info, AlertTriangle
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { getPaddleInstance } from '@/lib/paddle';
@@ -36,14 +36,14 @@ const PAYMENT_METHODS = [
     name: 'JazzCash',     
     icon: Smartphone, 
     color: 'bg-red-50 text-red-600',
-    details: 'Send PKR equivalent of ${price}USD (1 USD = 280 PKR)to:\n03106960468\nAccount Name: Muhammad Ammar Javed'
+    details: 'Send PKR equivalent of ${price}USD (1 USD = 280 PKR) to:\n03106960468\nAccount Name: Muhammad Ammar Javed'
   },
   { 
     id: 'easypaisa', 
     name: 'Easypaisa',     
     icon: Smartphone, 
     color: 'bg-emerald-50 text-emerald-600',
-    details: 'Send PKR equivalent of ${price}USD (1 USD = 280 PKR)to:\n03106960468\nAccount Name: Muhammad Ammar Javed'
+    details: 'Send PKR equivalent of ${price}USD (1 USD = 280 PKR) to:\n03106960468\nAccount Name: Muhammad Ammar Javed'
   },
   { 
     id: 'nayapay', 
@@ -72,23 +72,25 @@ const PaymentModal = ({ open, onOpenChange, plan, clinicId }: PaymentModalProps)
   };
 
   const handlePaddleCheckout = async () => {
+    const token = import.meta.env.VITE_PADDLE_CLIENT_TOKEN;
+    const priceIdMap: Record<string, string> = {
+      'Basic': import.meta.env.VITE_PADDLE_BASIC_PRICE_ID || '',
+      'Pro': import.meta.env.VITE_PADDLE_PRO_PRICE_ID || '',
+    };
+    const priceId = priceIdMap[plan.name];
+
+    if (!token || !priceId) {
+      toast.error("Paddle configuration is incomplete.", {
+        description: "Please check your environment variables (Token and Price IDs)."
+      });
+      return;
+    }
+
     setIsProcessingPaddle(true);
     try {
       const paddle = await getPaddleInstance();
       if (!paddle) {
-        toast.error("Payment gateway not initialized. Please check configuration.");
-        return;
-      }
-
-      const priceIdMap: Record<string, string> = {
-        'Basic': import.meta.env.VITE_PADDLE_BASIC_PRICE_ID || '',
-        'Pro': import.meta.env.VITE_PADDLE_PRO_PRICE_ID || '',
-      };
-
-      const priceId = priceIdMap[plan.name];
-      if (!priceId) {
-        toast.error(`Price ID not configured for ${plan.name} plan.`);
-        return;
+        throw new Error("Failed to initialize payment gateway");
       }
 
       const { data: { user } } = await supabase.auth.getUser();
@@ -237,7 +239,7 @@ const PaymentModal = ({ open, onOpenChange, plan, clinicId }: PaymentModalProps)
               <div className="p-4 bg-indigo-50 dark:bg-indigo-900/20 rounded-2xl flex gap-3">
                 <Info className="w-5 h-5 text-indigo-600 shrink-0" />
                 <p className="text-xs font-medium text-indigo-700 dark:text-indigo-400 leading-relaxed">
-                  Verification usually takes up to 24 hours. Your 7-day trial will start once approved.
+                  Verification usually takes up to 24 hours. Your upgrade will start once approved.
                 </p>
               </div>
               <div className="flex gap-3 pt-2">
