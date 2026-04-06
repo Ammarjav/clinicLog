@@ -101,7 +101,7 @@ const PaymentModal = ({ open, onOpenChange, plan, clinicId }: PaymentModalProps)
         customer: { email: user?.email || '' },
         settings: {
           successUrl: `${window.location.origin}/clinic/${slug}/billing?payment=success&plan=${plan.name}`,
-          allowLogout: false,
+          allowLogout: true, // Set to true to avoid iframe fallback
         },
         customData: {
           clinic_id: clinicId,
