@@ -2,19 +2,16 @@
 
 import React, { useState } from 'react';
 import { 
-  Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
+  Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { supabase } from '@/lib/supabase';
 import { toast } from 'sonner';
 import { 
-  CreditCard, Smartphone, Banknote, Landmark, 
-  ChevronRight, Copy, CheckCircle2, Loader2, Info
+  Smartphone, CreditCard, 
+  Copy, CheckCircle2, Loader2, Info
 } from 'lucide-react';
-import { cn } from '@/lib/utils';
-import { getPaddleInstance } from '@/lib/paddle';
-import { useParams } from 'react-router-dom';
 
 interface PaymentModalProps {
   open: boolean;
@@ -25,25 +22,18 @@ interface PaymentModalProps {
 
 const PAYMENT_METHODS = [
   { 
-    id: 'paddle', 
-    name: 'Credit/Debit Card', 
-    icon: CreditCard, 
-    color: 'bg-blue-50 text-blue-600',
-    details: 'Secure payment via Paddle'
-  },
-  { 
     id: 'jazzcash',     
     name: 'JazzCash',     
     icon: Smartphone, 
     color: 'bg-red-50 text-red-600',
-    details: 'Send PKR equivalent of ${price}USD (1 USD = 280 PKR)to:\n03106960468\nAccount Name: Muhammad Ammar Javed'
+    details: 'Send PKR equivalent of ${price}USD (1 USD = 280 PKR) to:\n03106960468\nAccount Name: Muhammad Ammar Javed'
   },
   { 
     id: 'easypaisa', 
     name: 'Easypaisa',     
     icon: Smartphone, 
     color: 'bg-emerald-50 text-emerald-600',
-    details: 'Send PKR equivalent of ${price}USD (1 USD = 280 PKR)to:\n03106960468\nAccount Name: Muhammad Ammar Javed'
+    details: 'Send PKR equivalent of ${price}USD (1 USD = 280 PKR) to:\n03106960468\nAccount Name: Muhammad Ammar Javed'
   },
   { 
     id: 'nayapay', 
@@ -55,64 +45,14 @@ const PAYMENT_METHODS = [
 ];
 
 const PaymentModal = ({ open, onOpenChange, plan, clinicId }: PaymentModalProps) => {
-  const { slug } = useParams();
   const [step, setStep] = useState<'method' | 'instructions' | 'submit' | 'success'>('method');
   const [selectedMethod, setSelectedMethod] = useState<any>(null);
   const [transactionId, setTransactionId] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [isProcessingPaddle, setIsProcessingPaddle] = useState(false);
 
   const handleSelectMethod = (method: any) => {
-    if (method.id === 'paddle') {
-      handlePaddleCheckout();
-    } else {
-      setSelectedMethod(method);
-      setStep('instructions');
-    }
-  };
-
-  const handlePaddleCheckout = async () => {
-    setIsProcessingPaddle(true);
-    try {
-      const paddle = await getPaddleInstance();
-      if (!paddle) {
-        toast.error("Payment gateway not initialized. Please check configuration.");
-        return;
-      }
-
-      const priceIdMap: Record<string, string> = {
-        'Basic': import.meta.env.VITE_PADDLE_BASIC_PRICE_ID || '',
-        'Pro': import.meta.env.VITE_PADDLE_PRO_PRICE_ID || '',
-      };
-
-      const priceId = priceIdMap[plan.name];
-      if (!priceId) {
-        toast.error(`Price ID not configured for ${plan.name} plan.`);
-        return;
-      }
-
-      const { data: { user } } = await supabase.auth.getUser();
-      
-      paddle.Checkout.open({
-        items: [{ priceId, quantity: 1 }],
-        customer: { email: user?.email || '' },
-        settings: {
-          successUrl: `${window.location.origin}/clinic/${slug}/billing?payment=success&plan=${plan.name}`,
-          allowLogout: false,
-        },
-        customData: {
-          clinic_id: clinicId,
-          plan_requested: plan.name,
-          user_id: user?.id,
-        }
-      });
-      
-      onOpenChange(false);
-    } catch (err: any) {
-      toast.error(err.message);
-    } finally {
-      setIsProcessingPaddle(false);
-    }
+    setSelectedMethod(method);
+    setStep('instructions');
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -168,15 +108,10 @@ const PaymentModal = ({ open, onOpenChange, plan, clinicId }: PaymentModalProps)
                 <button                  
                   key={method.id}
                   onClick={() => handleSelectMethod(method)}
-                  disabled={isProcessingPaddle}
-                  className="w-full flex items-center justify-between p-4 rounded-2xl border border-slate-100 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800 transition-all group disabled:opacity-50"
+                  className="w-full flex items-center justify-between p-4 rounded-2xl border border-slate-100 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800 transition-all group"
                 >
                   <div className={`p-3 rounded-xl ${method.color} dark:bg-opacity-10`}>
-                    {isProcessingPaddle && method.id === 'paddle' ? (
-                      <Loader2 className="w-5 h-5 animate-spin" />
-                    ) : (
-                      <method.icon className="w-5 h-5" />
-                    )}
+                    <method.icon className="w-5 h-5" />
                   </div>
                   <span className="font-bold text-slate-900 dark:text-white">{method.name}</span>
                 </button>
@@ -210,7 +145,7 @@ const PaymentModal = ({ open, onOpenChange, plan, clinicId }: PaymentModalProps)
             </div>
             <div className="flex gap-3">
               <Button variant="outline" className="flex-1 rounded-xl h-12" onClick={() => setStep('method')}>Back</Button>
-              <Button className="flex-1 rounded-xl h-12 bg-indigo-600 hover:bg-indigo-700 text-white" onClick={() => setStep('submit')}>I have paid</Button>
+              <Button className="flex-1 rounded-xl h-12 bg-indigo-600 hover:bg-indigo-700 text-white font-bold" onClick={() => setStep('submit')}>I have paid</Button>
             </div>
           </div>
         )}
@@ -237,12 +172,12 @@ const PaymentModal = ({ open, onOpenChange, plan, clinicId }: PaymentModalProps)
               <div className="p-4 bg-indigo-50 dark:bg-indigo-900/20 rounded-2xl flex gap-3">
                 <Info className="w-5 h-5 text-indigo-600 shrink-0" />
                 <p className="text-xs font-medium text-indigo-700 dark:text-indigo-400 leading-relaxed">
-                  Verification usually takes up to 24 hours. Your 7-day trial will start once approved.
+                  Verification usually takes up to 24 hours. Your upgrade will start once approved.
                 </p>
               </div>
               <div className="flex gap-3 pt-2">
                 <Button type="button" variant="outline" className="flex-1 rounded-xl h-12" onClick={() => setStep('instructions')}>Back</Button>
-                <Button type="submit" className="flex-1 rounded-xl h-12 bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-lg shadow-xl shadow-indigo-100 dark:shadow-none transition-all active:scale-[0.98]" disabled={isSubmitting}>
+                <Button type="submit" className="flex-1 rounded-xl h-12 bg-indigo-600 hover:bg-indigo-700 text-white font-bold shadow-xl transition-all" disabled={isSubmitting}>
                   {isSubmitting ? <Loader2 className="animate-spin w-6 h-6" /> : "Submit Proof"}
                 </Button>
               </div>
@@ -260,10 +195,6 @@ const PaymentModal = ({ open, onOpenChange, plan, clinicId }: PaymentModalProps)
               <p className="text-slate-500 dark:text-slate-400 font-medium mt-2">
                 Your payment request has been submitted. Verification may take up to 24 hours.
               </p>
-            </div>
-            <div className="inline-flex items-center gap-2 px-4 py-2 bg-amber-50 dark:bg-amber-900/20 rounded-full border border-amber-100 dark:border-amber-900/30">
-              <div className="w-2 h-2 rounded-full bg-amber-500 animate-pulse" />
-              <span className="text-xs font-black text-amber-700 dark:text-amber-400 uppercase tracking-widest">Pending Verification</span>
             </div>
             <Button className="w-full rounded-2xl h-14 font-bold bg-slate-900 dark:bg-white text-white dark:text-slate-900" onClick={() => onOpenChange(false)}>
               Got it

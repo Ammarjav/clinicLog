@@ -4,27 +4,8 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>ClinicLog</title>
-
-    <!-- ==== CSP FIX ==== -->
-    <!-- Allow the app to be framed by itself and by Paddle’s checkout domain.
-         Also permit localhost during development. -->
-    <meta
-      http-equiv="Content-Security-Policy"
-      content="
-        default-src 'self';
-        script-src 'self' 'unsafe-inline' 'unsafe-eval';
-        style-src 'self' 'unsafe-inline';
-        frame-ancestors 'self' https://buy.paddle.com http://localhost:32103;
-        img-src 'self' data:;
-        connect-src 'self' https://api.supabase.com wss://*.supabase.co;
-        base-uri 'self';
-        form-action 'self';
-      ">
-    <!-- ==== END CSP FIX ==== -->
-
     <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect width=%22100%22 height=%22100%22 rx=%2220%22 fill=%22%234f46e5%22/><path d=%22M48 34a6 6 0 1 0 12 0 6 6 0 0 0-12 0ZM52 34a2 2 0 1 1 4 0 2 2 0 0 1-4 0ZM45 34c0 11 13 11 13 21a5 5 0 0 1-10 0M48 68a2 2 0 1 0 4 0 2 2 0 0 0-4 0ZM40 34c0 11 10 10 10 21%22 stroke=%22white%22 stroke-width=%224%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22 fill=%22none%22/></svg>" />
-    <link rel="modulepreload" href="/src/main.tsx" />
-    <link type="module" src="/src/main.tsx"></head>
+  </head>
   <body>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
