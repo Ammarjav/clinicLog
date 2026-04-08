@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { supabase } from '@/lib/supabase';
 import { useParams, Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -17,9 +17,19 @@ import {
   ArrowLeft,
   ShieldCheck,
   CheckCircle2,
-  X
+  X,
+  Crop as CropIcon
 } from 'lucide-react';
 import { toast } from 'sonner';
+import Cropper from 'react-easy-crop';
+import { getCroppedImg } from '@/utils/imageCropUtils';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from "@/components/ui/dialog";
 
 const ClinicProfile = () => {
   const { slug } = useParams();
@@ -34,6 +44,13 @@ const ClinicProfile = () => {
   const [doctorName, setDoctorName] = useState('');
   const [address, setAddress] = useState('');
   const [logoUrl, setLogoUrl] = useState('');
+
+  // Crop states
+  const [imageToCrop, setImageToCrop] = useState<string | null>(null);
+  const [crop, setCrop] = useState({ x: 0, y: 0 });
+  const [zoom, setZoom] = useState(1);
+  const [croppedAreaPixels, setCroppedAreaPixels] = useState<any>(null);
+  const [isCroppingModalOpen, setIsCroppingModalOpen] = useState(false);
 
   useEffect(() => {
     const fetchClinic = async () => {
@@ -55,40 +72,57 @@ const ClinicProfile = () => {
     fetchClinic();
   }, [slug]);
 
-  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
+  const onCropComplete = useCallback((_croppedArea: any, pixelCrop: any) => {
+    setCroppedAreaPixels(pixelCrop);
+  }, []);
 
-    // Validate file type
-    if (!file.type.startsWith('image/')) {
-      toast.error("Please upload an image file");
-      return;
+  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      if (!file.type.startsWith('image/')) {
+        toast.error("Please select an image file");
+        return;
+      }
+      const reader = new FileReader();
+      reader.addEventListener('load', () => {
+        setImageToCrop(reader.result as string);
+        setIsCroppingModalOpen(true);
+      });
+      reader.readAsDataURL(file);
     }
+  };
+
+  const handleCropAndUpload = async () => {
+    if (!imageToCrop || !croppedAreaPixels) return;
 
     setIsUploading(true);
+    setIsCroppingModalOpen(false);
+
     try {
-      const fileExt = file.name.split('.').pop();
+      const croppedImageBlob = await getCroppedImg(imageToCrop, croppedAreaPixels);
+      if (!croppedImageBlob) throw new Error("Could not process image");
+
+      const fileExt = 'png';
       const fileName = `${clinic.id}-${Math.random()}.${fileExt}`;
       const filePath = `logos/${fileName}`;
 
-      // Upload to Supabase Storage
       const { error: uploadError } = await supabase.storage
         .from('clinic-logos')
-        .upload(filePath, file);
+        .upload(filePath, croppedImageBlob);
 
       if (uploadError) throw uploadError;
 
-      // Get public URL
       const { data: { publicUrl } } = supabase.storage
         .from('clinic-logos')
         .getPublicUrl(filePath);
 
       setLogoUrl(publicUrl);
-      toast.success("Logo uploaded successfully");
+      toast.success("Logo cropped and ready to save");
     } catch (err: any) {
-      toast.error("Upload failed: " + err.message);
+      toast.error("Process failed: " + err.message);
     } finally {
       setIsUploading(false);
+      setImageToCrop(null);
     }
   };
 
@@ -109,8 +143,6 @@ const ClinicProfile = () => {
 
       if (error) throw error;
       toast.success("Clinic profile updated successfully");
-      
-      // Refresh to sync layout
       window.location.reload(); 
     } catch (err: any) {
       toast.error(err.message);
@@ -177,13 +209,6 @@ const ClinicProfile = () => {
               </div>
             </div>
           </div>
-          
-          <div className="p-6 bg-indigo-50 dark:bg-indigo-900/20 rounded-3xl border border-indigo-100 dark:border-indigo-900/30 flex gap-4">
-            <ShieldCheck className="w-5 h-5 text-indigo-600 shrink-0" />
-            <p className="text-[11px] font-medium text-indigo-700 dark:text-indigo-400 leading-relaxed">
-              Profile details are used for your clinical documents and automated follow-up messages.
-            </p>
-          </div>
         </div>
 
         {/* Edit Form */}
@@ -224,7 +249,7 @@ const ClinicProfile = () => {
                     ref={fileInputRef} 
                     className="hidden" 
                     accept="image/*" 
-                    onChange={handleFileUpload} 
+                    onChange={handleFileSelect} 
                   />
                   <Button 
                     type="button"
@@ -238,7 +263,7 @@ const ClinicProfile = () => {
                     ) : (
                       <Upload className="w-5 h-5 text-indigo-600 group-hover:scale-110 transition-transform" />
                     )}
-                    {logoUrl ? 'Change Logo Image' : 'Upload Local Logo'}
+                    {logoUrl ? 'Change Logo Image' : 'Choose Logo from Device'}
                   </Button>
                 </div>
 
@@ -261,12 +286,59 @@ const ClinicProfile = () => {
                 className="w-full h-16 rounded-2xl bg-indigo-600 hover:bg-indigo-700 text-white font-black text-lg shadow-xl shadow-indigo-100 dark:shadow-none transition-all active:scale-[0.98]" 
                 disabled={isSubmitting || isUploading}
               >
-                {isSubmitting ? <Loader2 className="animate-spin w-6 h-6" /> : <><Save className="w-5 h-5 mr-3" /> Save Changes</>}
+                {isSubmitting ? <Loader2 className="animate-spin w-6 h-6" /> : <><Save className="w-5 h-5 mr-3" /> Save Profile</>}
               </Button>
             </form>
           </div>
         </div>
       </div>
+
+      {/* Cropping Modal */}
+      <Dialog open={isCroppingModalOpen} onOpenChange={setIsCroppingModalOpen}>
+        <DialogContent className="sm:max-w-[500px] p-0 overflow-hidden border-none rounded-[2.5rem] shadow-2xl">
+          <DialogHeader className="p-6 bg-white dark:bg-slate-900 border-b border-slate-50 dark:border-slate-800">
+            <DialogTitle className="text-xl font-black flex items-center gap-2">
+              <CropIcon className="w-5 h-5 text-indigo-600" />
+              Adjust Clinic Logo
+            </DialogTitle>
+          </DialogHeader>
+          
+          <div className="relative h-[400px] w-full bg-slate-100 dark:bg-slate-950">
+            {imageToCrop && (
+              <Cropper
+                image={imageToCrop}
+                crop={crop}
+                zoom={zoom}
+                aspect={1}
+                onCropChange={setCrop}
+                onCropComplete={onCropComplete}
+                onZoomChange={setZoom}
+              />
+            )}
+          </div>
+          
+          <div className="p-6 bg-white dark:bg-slate-900 flex flex-col gap-6">
+            <div className="space-y-2">
+              <Label className="text-[10px] font-black uppercase text-slate-400">Zoom Level</Label>
+              <input
+                type="range"
+                value={zoom}
+                min={1}
+                max={3}
+                step={0.1}
+                aria-labelledby="Zoom"
+                onChange={(e) => setZoom(Number(e.target.value))}
+                className="w-full h-1.5 bg-slate-100 dark:bg-slate-800 rounded-lg appearance-none cursor-pointer accent-indigo-600"
+              />
+            </div>
+            
+            <DialogFooter className="flex gap-3 sm:gap-0">
+              <Button variant="ghost" onClick={() => setIsCroppingModalOpen(false)} className="flex-1 rounded-xl h-12 font-bold text-slate-500">Cancel</Button>
+              <Button onClick={handleCropAndUpload} className="flex-1 rounded-xl h-12 bg-indigo-600 hover:bg-indigo-700 text-white font-bold">Apply Crop</Button>
+            </DialogFooter>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
