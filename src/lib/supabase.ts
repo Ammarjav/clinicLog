@@ -10,6 +10,13 @@ export type Clinic = {
   created_at: string;
   new_visit_fee: number;
   followup_visit_fee: number;
+  doctor_name?: string;
+  address?: string;
+  logo_url?: string;
+  plan: string;
+  patient_limit: number;
+  subscription_status: string;
+  trial_end?: string;
 };
 
 export type Patient = {

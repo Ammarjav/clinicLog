@@ -13,7 +13,8 @@ import {
   X,
   FileText,
   CreditCard,
-  Clock
+  UserCircle,
+  Building2
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { ModeToggle } from '@/components/ModeToggle';
@@ -59,6 +60,7 @@ export const ClinicLayout = ({ children }: ClinicLayoutProps) => {
     { name: 'Analytics', path: `/clinic/${slug}/analytics`, icon: BarChart3 },
     { name: 'Reports', path: `/clinic/${slug}/reports`, icon: FileText },
     { name: 'New Entry', path: `/clinic/${slug}/entry`, icon: UserPlus },
+    { name: 'Profile', path: `/clinic/${slug}/profile`, icon: UserCircle },
     { name: 'Subscription', path: `/clinic/${slug}/billing`, icon: CreditCard },
   ];
 
@@ -69,16 +71,33 @@ export const ClinicLayout = ({ children }: ClinicLayoutProps) => {
 
   return (
     <div className="min-h-screen bg-[#fcfcfd] dark:bg-slate-950 flex flex-col md:flex-row">
+      {/* Desktop Sidebar */}
       <aside className="hidden md:flex w-72 flex-col bg-white dark:bg-slate-900 border-r border-gray-100 dark:border-slate-800 sticky top-0 h-screen transition-colors overflow-hidden">
-        <div className="p-6 border-b border-gray-50 dark:border-slate-800 flex items-center justify-between gap-3 shrink-0">
-          <div className="flex items-center gap-3 overflow-hidden">
-            <Logo className="w-8 h-8 shrink-0" />
-            <span className="font-bold text-gray-900 dark:text-white truncate">{clinic?.name || 'Portal'}</span>
+        {/* Clickable Header Section */}
+        <Link 
+          to={`/clinic/${slug}/profile`}
+          className="p-6 border-b border-gray-50 dark:border-slate-800 flex items-center gap-3 shrink-0 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors group"
+        >
+          <div className="relative shrink-0">
+            {clinic?.logo_url ? (
+              <img src={clinic.logo_url} alt="Logo" className="w-10 h-10 rounded-xl object-cover shadow-sm group-hover:scale-105 transition-transform" />
+            ) : (
+              <div className="w-10 h-10 bg-indigo-600 rounded-xl flex items-center justify-center shadow-sm group-hover:scale-105 transition-transform">
+                <Building2 className="w-5 h-5 text-white" />
+              </div>
+            )}
           </div>
-          <ModeToggle />
-        </div>
+          <div className="overflow-hidden flex-1">
+            <h2 className="font-black text-gray-900 dark:text-white tracking-tighter truncate text-sm leading-tight">
+              {clinic?.name || 'Portal'}
+            </h2>
+            <p className="text-[10px] font-bold text-indigo-600 dark:text-indigo-400 uppercase tracking-widest truncate mt-0.5">
+              {clinic?.doctor_name ? `Dr. ${clinic.doctor_name}` : 'Setup Profile'}
+            </p>
+          </div>
+        </Link>
         
-        <nav className="flex-1 p-4 space-y-1 mt-4 overflow-y-auto custom-scrollbar">
+        <nav className="flex-1 p-4 space-y-1 mt-2 overflow-y-auto custom-scrollbar">
           {navItems.map((item) => (
             <Link
               key={item.path}
@@ -97,6 +116,10 @@ export const ClinicLayout = ({ children }: ClinicLayoutProps) => {
         </nav>
 
         <div className="p-4 space-y-3 border-t border-gray-50 dark:border-slate-800 shrink-0">
+          <div className="flex items-center justify-between mb-2 px-1">
+             <ModeToggle />
+             <span className="text-[10px] font-black text-slate-300 dark:text-slate-700 uppercase tracking-widest">Settings</span>
+          </div>
           {clinic && (
             <UsageStats 
               current={patientCount} 
@@ -118,11 +141,16 @@ export const ClinicLayout = ({ children }: ClinicLayoutProps) => {
         </div>
       </aside>
 
+      {/* Mobile Header */}
       <header className="md:hidden bg-white dark:bg-slate-900 border-b border-gray-100 dark:border-slate-800 px-6 h-16 flex items-center justify-between sticky top-0 z-30 transition-colors">
-        <div className="flex items-center gap-2">
-          <Logo className="w-8 h-8" />
-          <span className="font-bold text-gray-900 dark:text-white truncate max-w-[150px]">{clinic?.name || 'Portal'}</span>
-        </div>
+        <Link to={`/clinic/${slug}/profile`} className="flex items-center gap-2">
+          {clinic?.logo_url ? (
+            <img src={clinic.logo_url} alt="Logo" className="w-8 h-8 rounded-lg object-cover" />
+          ) : (
+            <Logo className="w-8 h-8" />
+          )}
+          <span className="font-bold text-gray-900 dark:text-white truncate max-w-[120px]">{clinic?.name || 'Portal'}</span>
+        </Link>
         <div className="flex items-center gap-2">
           <ModeToggle />
           <Button variant="ghost" size="icon" className="dark:text-white" onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}>
