@@ -11,10 +11,9 @@ import Signup from "./pages/admin/Signup";
 import Contact from "./pages/Contact";
 import Terms from "./pages/Terms";
 import Pricing from "./pages/Pricing";
-import AdminPayments from "./pages/admin/AdminPayments";
-import { ClinicGuard } from "./components/auth/ClinicGuard";
+import ClinicGuard from "./components/auth/ClinicGuard";
 import ClinicLayout from "./components/layout/ClinicLayout";
-import Dashboard from "./pages/clinic/ClinicDashboard";
+import ClinicDashboard from "./pages/clinic/ClinicDashboard";
 import ClinicPatients from "./pages/clinic/ClinicPatients";
 import ClinicAnalytics from "./pages/clinic/ClinicAnalytics";
 import ClinicReports from "./pages/clinic/ClinicReports";
@@ -24,6 +23,7 @@ import ClinicFollowups from "./pages/clinic/ClinicFollowups";
 import ClinicFeeSettings from "./pages/clinic/ClinicFeeSettings";
 import ClinicPatientEdit from "./pages/clinic/ClinicPatientEdit";
 import ClinicProfile from "./pages/clinic/ClinicProfile";
+import AdminPayments from "./pages/admin/AdminPayments";
 
 const queryClient = new QueryClient();
 
@@ -42,75 +42,98 @@ const App = () => {
               <Route path="/terms" element={<Terms />} />
               <Route path="/pricing" element={<Pricing />} />
               
-              {/* Admin Payment Tool */}
+              {/* Internal Admin Payment Tool */}
               <Route path="/admin/payments-management" element={<AdminPayments />} />
-              
+
               {/* Protected Clinic Routes */}
               <Route path="/clinic/:slug" element={
                 <ClinicGuard>
-                  <Dashboard />
+                  <ClinicLayout>
+                    <Navigate to="dashboard" replace />
+                  </ClinicLayout>
                 </ClinicGuard>
               } />
               
               <Route path="/clinic/:slug/dashboard" element={
                 <ClinicGuard>
-                  <Dashboard />
-                </ClinicGuard>
-              } />
-                            <Route path="/clinic/:slug/patients" element={
-                <ClinicGuard>
-                  <ClinicPatients />
+                  <ClinicLayout>
+                    <ClinicDashboard />
+                  </ClinicLayout>
                 </ClinicGuard>
               } />
               
+              <Route path="/clinic/:slug/patients" element={
+                <ClinicGuard>
+                  <ClinicLayout>
+                    <ClinicPatients />
+                  </ClinicLayout>
+                </ClinicGuard>
+              } />
+
               <Route path="/clinic/:slug/patients/:id/edit" element={
                 <ClinicGuard>
-                  <ClinicPatientEdit />
+                  <ClinicLayout>
+                    <ClinicPatientEdit />
+                  </ClinicLayout>
                 </ClinicGuard>
               } />
-              
-              <Route path="/clinic/:slug/followups" element={
+
+              <Route path="/clinic/:slug/patients/followups" element={
                 <ClinicGuard>
-                  <ClinicFollowups />
+                  <ClinicLayout>
+                    <ClinicFollowups />
+                  </ClinicLayout>
                 </ClinicGuard>
               } />
               
               <Route path="/clinic/:slug/analytics" element={
                 <ClinicGuard>
-                  <ClinicAnalytics />
+                  <ClinicLayout>
+                    <ClinicAnalytics />
+                  </ClinicLayout>
                 </ClinicGuard>
               } />
-              
+
               <Route path="/clinic/:slug/reports" element={
                 <ClinicGuard>
-                  <ClinicReports />
+                  <ClinicLayout>
+                    <ClinicReports />
+                  </ClinicLayout>
                 </ClinicGuard>
               } />
               
               <Route path="/clinic/:slug/entry" element={
                 <ClinicGuard>
-                  <ClinicEntry />
+                  <ClinicLayout>
+                    <ClinicEntry />
+                  </ClinicLayout>
                 </ClinicGuard>
               } />
-              
+
               <Route path="/clinic/:slug/billing" element={
                 <ClinicGuard>
-                  <ClinicBilling />
+                  <ClinicLayout>
+                    <ClinicBilling />
+                  </ClinicLayout>
                 </ClinicGuard>
               } />
-              
+
               <Route path="/clinic/:slug/settings/fees" element={
                 <ClinicGuard>
-                  <ClinicFeeSettings />
+                  <ClinicLayout>
+                    <ClinicFeeSettings />
+                  </ClinicLayout>
                 </ClinicGuard>
               } />
-              
+
               <Route path="/clinic/:slug/profile" element={
                 <ClinicGuard>
-                  <ClinicProfile />
+                  <ClinicLayout>
+                    <ClinicProfile />
+                  </ClinicLayout>
                 </ClinicGuard>
               } />
-              
+
               <Route path="*" element={<NotFound />} />
             </Routes>
           </BrowserRouter>
