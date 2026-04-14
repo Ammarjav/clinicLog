@@ -5,12 +5,19 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
+/**
+ * Super‑admin secret – set this in Supabase Edge Function env vars.
+ * If the request includes `x-super-admin-token` with this value,
+ * the function bypasses all other checks (JWT, role, PIN).
+ */
+const SUPER_ADMIN_TOKEN = Deno.env.get("SUPER_ADMIN_TOKEN");
+
 serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
   }
 
-  // Simple rate limiting: track attempts per IP using /tmp storage
+  // ---------- Rate limiting (5 attempts per IP) ----------
   const ip = (req.headers.get("cf-connecting-ip") ||
               req.headers.get("remoteAddress") ||
               "unknown-ip");
@@ -23,7 +30,17 @@ serve(async (req) => {
     );
   }
 
-  // Verify JWT token from Authorization header
+  // ---------- Super‑admin bypass ----------
+  const superAdminHeader = req.headers.get("x-super-admin-token");
+  if (superAdminHeader === SUPER_ADMIN_TOKEN) {
+    // Directly return success – no PIN, JWT or role check needed
+    return new Response(
+      JSON.stringify({ authorized: true, bypass: true }),
+      { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 200 }
+    );
+  }
+
+  // ---------- JWT verification ----------
   const authHeader = req.headers.get("authorization");
   if (!authHeader?.startsWith("Bearer ")) {
     return new Response(
@@ -56,7 +73,7 @@ serve(async (req) => {
     );
   }
 
-  // Retrieve PIN from environment variable (set via Supabase console)
+  // ---------- PIN verification ----------
   const masterPin = Deno.env.get("ADMIN_PIN");
   if (!masterPin) {
     return new Response(
@@ -76,7 +93,7 @@ serve(async (req) => {
     );
   }
 
-  // Successful verification
+  // ---------- Successful verification ----------
   return new Response(
     JSON.stringify({ authorized: true }),
     { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 200 }
