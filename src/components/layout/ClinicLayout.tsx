@@ -60,7 +60,6 @@ export const ClinicLayout = ({ children }: ClinicLayoutProps) => {
     { name: 'Analytics', path: `/clinic/${slug}/analytics`, icon: BarChart3 },
     { name: 'Reports', path: `/clinic/${slug}/reports`, icon: FileText },
     { name: 'New Entry', path: `/clinic/${slug}/entry`, icon: UserPlus },
-    { name: 'Profile', path: `/clinic/${slug}/profile`, icon: UserCircle },
     { name: 'Subscription', path: `/clinic/${slug}/billing`, icon: CreditCard },
   ];
 
@@ -73,7 +72,7 @@ export const ClinicLayout = ({ children }: ClinicLayoutProps) => {
     <div className="min-h-screen bg-[#fcfcfd] dark:bg-slate-950 flex flex-col md:flex-row">
       {/* Desktop Sidebar */}
       <aside className="hidden md:flex w-72 flex-col bg-white dark:bg-slate-900 border-r border-gray-100 dark:border-slate-800 sticky top-0 h-screen transition-colors overflow-hidden">
-        {/* Clickable Header Section */}
+        {/* Clickable Header Section - ClinicLog Branding */}
         <Link 
           to={`/clinic/${slug}/profile`}
           className="p-6 border-b border-gray-50 dark:border-slate-800 flex items-center gap-3 shrink-0 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors group"
@@ -89,10 +88,10 @@ export const ClinicLayout = ({ children }: ClinicLayoutProps) => {
           </div>
           <div className="overflow-hidden flex-1">
             <h2 className="font-black text-gray-900 dark:text-white tracking-tighter truncate text-sm leading-tight">
-              {clinic?.name || 'Portal'}
+              {clinic?.name || 'ClinicLog'}
             </h2>
             <p className="text-[10px] font-bold text-indigo-600 dark:text-indigo-400 uppercase tracking-widest truncate mt-0.5">
-              {clinic?.doctor_name ? `Dr. ${clinic.doctor_name}` : 'Setup Profile'}
+              {clinic?.doctor_name ? `Dr. ${clinic.doctor_name}` : 'Practitioner'}
             </p>
           </div>
         </Link>
@@ -149,7 +148,7 @@ export const ClinicLayout = ({ children }: ClinicLayoutProps) => {
           ) : (
             <Logo className="w-8 h-8" />
           )}
-          <span className="font-bold text-gray-900 dark:text-white truncate max-w-[120px]">{clinic?.name || 'Portal'}</span>
+          <span className="font-bold text-gray-900 dark:text-white truncate max-w-[120px]">{clinic?.name || 'ClinicLog'}</span>
         </Link>
         <div className="flex items-center gap-2">
           <ModeToggle />
@@ -184,7 +183,7 @@ export const ClinicLayout = ({ children }: ClinicLayoutProps) => {
                 <UsageStats 
                   current={patientCount} 
                   limit={clinic.patient_limit} 
-                  plan={clinic.plan} 
+                  plan={clinic.plan}
                   isTrial={status === 'trialing'}
                   daysLeft={daysLeft}
                   status={status}
