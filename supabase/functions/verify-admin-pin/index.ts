@@ -33,7 +33,8 @@ serve(async (req) => {
   // ---------- Super‑admin bypass ----------
   const superAdminHeader = req.headers.get("x-super-admin-token");
   if (superAdminHeader === SUPER_ADMIN_TOKEN) {
-    // Directly return success – no PIN, JWT or role check needed    return new Response(
+    // Directly return success – no PIN, JWT or role check needed
+    return new Response(
       JSON.stringify({ authorized: true, bypass: true }),
       { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 200 }
     );
