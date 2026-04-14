@@ -5,12 +5,9 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
-/**
- * Super‑admin secret – set this in Supabase Edge Function env vars.
- * If the request includes `x-super-admin-token` with this value,
- * the function bypasses all other checks (JWT, role, PIN).
- */
-const SUPER_ADMIN_TOKEN = Deno.env.get("SUPER_ADMIN_TOKEN");
+// Super‑admin secret – set in Supabase Edge Function env vars
+const SUPER_ADMIN_TOKEN = Deno.env.get("SUPER_ADMIN_TOKEN")!;
+const MASTER_PIN = Deno.env.get("ADMIN_PIN")!;
 
 serve(async (req) => {
   if (req.method === "OPTIONS") {
@@ -18,9 +15,7 @@ serve(async (req) => {
   }
 
   // ---------- Rate limiting (5 attempts per IP) ----------
-  const ip = (req.headers.get("cf-connecting-ip") ||
-              req.headers.get("remoteAddress") ||
-              "unknown-ip");
+  const ip = (req.headers.get("cf-connecting-ip") ?? req.headers.get("remoteAddress") ?? "unknown-ip");
   const attemptsKey = `/tmp/admin_pin_attempts:${ip}`;
   const attempts = parseInt(await Deno.readTextFile(attemptsKey) || "0", 10);
   if (attempts >= 5) {
@@ -33,7 +28,7 @@ serve(async (req) => {
   // ---------- Super‑admin bypass ----------
   const superAdminHeader = req.headers.get("x-super-admin-token");
   if (superAdminHeader === SUPER_ADMIN_TOKEN) {
-    // Directly return success – no PIN, JWT or role check needed    return new Response(
+    return new Response(
       JSON.stringify({ authorized: true, bypass: true }),
       { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 200 }
     );
@@ -49,7 +44,6 @@ serve(async (req) => {
   }
   const token = authHeader.slice("Bearer ".length);
   try {
-    // Decode JWT payload (no signature verification for simplicity)
     const payloadBase64 = token.split(".")[1];
     const payloadJson = decodeURIComponent(
       atob(payloadBase64)
@@ -73,17 +67,7 @@ serve(async (req) => {
   }
 
   // ---------- PIN verification ----------
-  const masterPin = Deno.env.get("ADMIN_PIN");
-  if (!masterPin) {
-    return new Response(
-      JSON.stringify({ error: "Server misconfiguration" }),
-      { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 500 }
-    );
-  }
-
-  const { pin } = await req.json().catch(() => ({ pin: "" }));
-  if (pin !== masterPin) {
-    // Increment attempt counter
+  if (pin !== MASTER_PIN) {
     const newAttempts = attempts + 1;
     await Deno.writeTextFile(attemptsKey, String(newAttempts));
     return new Response(
